@@ -80,6 +80,8 @@ toprole:
   desc: >-
     Set top role for color roles. All color roles will be set under the indicated role.
     
+    ⚠️ If the role is not indicated, color roles will be created at the bottom which may cause the color to be obscured by higher roles.
+    
     
     ⚠️ The command can only be executed by a user with administrator privileges
     

@@ -30,19 +30,24 @@ class ColorCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
             if re.match(r"^([0-9a-fA-F]{6})$", color.upper()):
+                db = database.Database(url=f"sqlite:///databases/guilds.db")
+                db.connect()
+                sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
                 role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
                 if role is not None:
-                    top_role = discord.utils.get(interaction.guild.roles, id=config_file['color_top-role_id'])
+                    if sb_query:
+                        top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
+                        await role.edit(position=top_role.position - 1)
                     await role.edit(colour=discord.Colour(int(color, 16)))
-                    await role.edit(position=top_role.position - 1)
                     await interaction.user.add_roles(role)
                 else:
                     role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
-                    top_role = discord.utils.get(interaction.guild.roles, id=config_file['color_top-role_id'])
+                    if sb_query:
+                        top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
+                        await role.edit(position=top_role.position - 1)
                     await role.edit(colour=discord.Colour(int(color, 16)))
-                    await role.edit(position=top_role.position - 1)
                     await interaction.user.add_roles(role)
-                embed.title = f"✨ Color has been set for {user_name.name} to __#{color}__"
+                embed.title = f"✨ Color has been set for to __#{color}__"
                 embed.color = discord.Colour(int(color, 16))
             else:
                 embed.title = "⚠️ Incorrect color format"
@@ -97,15 +102,21 @@ class ColorCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
             if re.match(r"^([0-9a-fA-F]{6})$", color.upper()):
                 role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
-                top_role = discord.utils.get(interaction.guild.roles, id=config_file['color_top-role_id'])
+                db = database.Database(url=f"sqlite:///databases/guilds.db")
+                db.connect()
+                sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
                 if role is not None:
                     await role.edit(colour=discord.Colour(int(color, 16)))
-                    await role.edit(position=top_role.position - 1)
+                    if sb_query:
+                        top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
+                        await role.edit(position=top_role.position - 1)
                     await user_name.add_roles(role)
                 else:
                     role = await interaction.guild.create_role(name=f"color-{user_name.id}")
                     await role.edit(colour=discord.Colour(int(color, 16)))
-                    await role.edit(position=top_role.position - 1)
+                    if sb_query:
+                        top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
+                        await role.edit(position=top_role.position - 1)
                     await user_name.add_roles(role)
                 embed.title = f"✨ Color has been set for {user_name.name} to __#{color}__"
                 embed.color = discord.Colour(int(color, 16))

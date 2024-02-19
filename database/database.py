@@ -106,7 +106,6 @@ class Database:
 
             result = session.execute(query)
             rows = [{column.key: getattr(row, column.key) for column in row.__table__.columns} for row in result.scalars()]
-            print(rows)
             return rows
 
         except OperationalError as e:
