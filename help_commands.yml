@@ -108,28 +108,23 @@ embed:
     JSON format example:
     ```
     {
-      "title": "Edycja własnego koloru",
+      "title": "",
       "description": "",
       "color": "454545",
-      "image": "https://i.imgur.com/uCnFzBf.png",
-      "thumbnail": "https://i.imgur.com/bceGHHc.png",
+      "image": "url_here",
+      "thumbnail": "url_here",
       "author_name": "",
-      "author_url": "",
-      "author_icon_url": "",
+      "author_url": "url_here",
+      "author_icon_url": "url_here",
       "fields": [
         {
-          "title": "Ustawienie koloru:",
-          "value": "> /color set `hex koloru`",
+          "title": "",
+          "value": "",
           "inline": false
         },
         {
-          "title": "Usunięcie koloru:",
-          "value": "> /color remove",
-          "inline": false
-        },
-        {
-          "title": "Palety kolorów:",
-          "value": "> [Adobe Color Wheel](https://color.adobe.com/pl/create/color-wheel)\n> [Google](https://www.google.com/search?q=color+picker)",
+          "title": "",
+          "value": "",
           "inline": false
         }
       ]

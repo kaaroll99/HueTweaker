@@ -94,9 +94,10 @@ class ColorCog(commands.Cog):
 
     @group.command(name="forceset", description="Setting the color of the user")
     @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.describe(user_name="User name", color="Color to set")
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
-        embed: Embed = discord.Embed(title=f"Kolorowy nick", description=f"",
+        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
@@ -138,10 +139,11 @@ class ColorCog(commands.Cog):
             logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color forceset (len:{len(embed)})")
 
     @group.command(name="forceremove", description="Removing the color of the user")
+    @app_commands.describe(user_name="User name")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def forceremove(self, interaction: discord.Interaction, user_name: discord.Member) -> None:
-        embed: Embed = discord.Embed(title=f"Kolorowy nick", description=f"",
+        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
@@ -166,10 +168,11 @@ class ColorCog(commands.Cog):
             logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color forceremove {user_name.name} (len:{len(embed)})")
 
     @group.command(name="toprole", description="Set top role for color roles")
+    @app_commands.describe(role_name="Role name")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:
-        embed: Embed = discord.Embed(title=f"HueTweaker", description=f"",
+        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
@@ -211,7 +214,7 @@ class ColorCog(commands.Cog):
     @group.command(name="check", description="Color information (HEX, RGB, HSL, CMYK, Integer)")
     @app_commands.describe(color="Color code (np. 9932f0 lub rgb(153, 50, 240))")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"",
+        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
