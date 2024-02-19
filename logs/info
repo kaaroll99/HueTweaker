@@ -16,3 +16,223 @@
 2024-02-19 18:46:31,675 - root - INFO - Cogs (3): help, color, embed
 2024-02-19 18:46:31,675 - root - INFO - Active commands (3): help, color, embed
 2024-02-19 18:46:49,645 - root - WARNING - bot has been terminated from console line
+2024-02-19 18:54:32,252 - config - INFO - Log file has been created.
+2024-02-19 18:54:32,567 - root - INFO - Bot is running.
+2024-02-19 18:54:32,792 - discord.client - INFO - logging in using static token
+2024-02-19 18:54:33,866 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 9c932701baab7c9fae4c1f9d7f2dce4d).
+2024-02-19 18:54:36,198 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 18:54:36,198 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 18:54:44,143 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:07:10,451 - config - INFO - Log file has been created.
+2024-02-19 19:07:10,748 - root - INFO - Bot is running.
+2024-02-19 19:07:10,977 - discord.client - INFO - logging in using static token
+2024-02-19 19:07:12,030 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: c3a6176ea338323fee66efa5868325ee).
+2024-02-19 19:07:14,582 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:07:14,582 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:07:32,709 - root - CRITICAL - kaaroll99 raise critical exception - NameError("name 'model' is not defined")
+2024-02-19 19:07:33,015 - root - INFO - kaaroll99 issued bot command: /color toprole (len:60)
+2024-02-19 19:08:08,419 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:08:09,118 - config - INFO - Log file has been created.
+2024-02-19 19:08:09,438 - root - INFO - Bot is running.
+2024-02-19 19:08:09,672 - discord.client - INFO - logging in using static token
+2024-02-19 19:08:10,980 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 6e0f07fb9b7ec98026abf4f5c10ecb46).
+2024-02-19 19:08:13,371 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:08:13,371 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:08:21,449 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:08:44,918 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:08:58,695 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:09:20,979 - config - INFO - Log file has been created.
+2024-02-19 19:09:21,287 - root - INFO - Bot is running.
+2024-02-19 19:09:21,533 - discord.client - INFO - logging in using static token
+2024-02-19 19:09:22,648 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 5dc37f1f01f08b58aa2666c990cbdffb).
+2024-02-19 19:09:24,945 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:09:24,945 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:09:26,729 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:10:02,598 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:10:03,638 - config - INFO - Log file has been created.
+2024-02-19 19:10:03,971 - root - INFO - Bot is running.
+2024-02-19 19:10:04,207 - discord.client - INFO - logging in using static token
+2024-02-19 19:10:05,266 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 9dd86cff0d596e0b42b30869fc132165).
+2024-02-19 19:10:07,621 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:10:07,621 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:10:08,950 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:10:09,652 - config - INFO - Log file has been created.
+2024-02-19 19:10:10,015 - root - INFO - Bot is running.
+2024-02-19 19:10:10,255 - discord.client - INFO - logging in using static token
+2024-02-19 19:10:11,229 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: d9b478ab8d0a40618fe2c3073aa601f7).
+2024-02-19 19:10:23,579 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:10:44,244 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:10:44,939 - config - INFO - Log file has been created.
+2024-02-19 19:10:45,298 - root - INFO - Bot is running.
+2024-02-19 19:10:45,533 - discord.client - INFO - logging in using static token
+2024-02-19 19:10:46,538 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 23215eae550d26fad15668085283e80a).
+2024-02-19 19:11:10,421 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:11:37,598 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:11:37,598 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:12:20,062 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:14:49,079 - config - INFO - Log file has been created.
+2024-02-19 19:14:49,406 - root - INFO - Bot is running.
+2024-02-19 19:14:49,637 - discord.client - INFO - logging in using static token
+2024-02-19 19:14:50,690 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 6864ea400e8d37a2d744d689a17a331a).
+2024-02-19 19:14:52,999 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:14:53,000 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:14:55,182 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:16:22,065 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:16:22,781 - config - INFO - Log file has been created.
+2024-02-19 19:16:23,106 - root - INFO - Bot is running.
+2024-02-19 19:16:23,364 - discord.client - INFO - logging in using static token
+2024-02-19 19:16:24,448 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 767b09c46811f583b2f7f9e35c6d339c).
+2024-02-19 19:16:26,780 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:16:26,780 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:16:30,276 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:16:53,093 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:16:53,809 - config - INFO - Log file has been created.
+2024-02-19 19:16:54,163 - root - INFO - Bot is running.
+2024-02-19 19:16:54,399 - discord.client - INFO - logging in using static token
+2024-02-19 19:16:55,479 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 868e486db5d21b0454904f4f8411faf2).
+2024-02-19 19:16:57,824 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:16:57,824 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:17:04,043 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:17:27,857 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:17:28,565 - config - INFO - Log file has been created.
+2024-02-19 19:17:28,904 - root - INFO - Bot is running.
+2024-02-19 19:17:29,155 - discord.client - INFO - logging in using static token
+2024-02-19 19:17:30,102 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: d23153a9848fbc18da4e9fd6d1a70a10).
+2024-02-19 19:17:32,397 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:17:32,398 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:17:36,488 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:18:23,767 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:18:24,482 - config - INFO - Log file has been created.
+2024-02-19 19:18:24,828 - root - INFO - Bot is running.
+2024-02-19 19:18:25,054 - discord.client - INFO - logging in using static token
+2024-02-19 19:18:25,956 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: d82d0a93a3dfc484f2a6283def78997d).
+2024-02-19 19:18:28,269 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:18:28,269 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:18:29,532 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:18:57,482 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:18:58,190 - config - INFO - Log file has been created.
+2024-02-19 19:18:58,502 - root - INFO - Bot is running.
+2024-02-19 19:18:58,744 - discord.client - INFO - logging in using static token
+2024-02-19 19:18:59,749 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 023fe7a2f38deb5ee068e3db0b282234).
+2024-02-19 19:19:02,116 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:19:02,116 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:19:05,298 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:20:02,525 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:20:03,246 - config - INFO - Log file has been created.
+2024-02-19 19:20:03,581 - root - INFO - Bot is running.
+2024-02-19 19:20:03,821 - discord.client - INFO - logging in using static token
+2024-02-19 19:20:04,832 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 43a5b6ae5df5067a64a090bb186f4285).
+2024-02-19 19:20:06,337 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:20:07,157 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:20:07,157 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:20:16,993 - root - INFO - kaaroll99 issued bot command: /color toprole (len:18)
+2024-02-19 19:21:01,597 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:21:02,318 - config - INFO - Log file has been created.
+2024-02-19 19:21:02,644 - root - INFO - Bot is running.
+2024-02-19 19:21:02,888 - discord.client - INFO - logging in using static token
+2024-02-19 19:21:03,867 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 060744ae0f28bfa8962e9179d95d1a1f).
+2024-02-19 19:21:06,185 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:21:06,186 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:21:07,001 - root - INFO - kaaroll99 issued bot command: /color toprole (len:44)
+2024-02-19 19:21:59,455 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:22:00,176 - config - INFO - Log file has been created.
+2024-02-19 19:22:00,535 - root - INFO - Bot is running.
+2024-02-19 19:22:00,787 - discord.client - INFO - logging in using static token
+2024-02-19 19:22:01,974 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 6105db64360586ad551977325489d94b).
+2024-02-19 19:22:04,357 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:22:04,357 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 19:22:05,349 - root - INFO - kaaroll99 issued bot command: /color toprole (len:44)
+2024-02-19 19:22:18,339 - root - WARNING - bot has been terminated from console line
+2024-02-19 19:22:19,049 - config - INFO - Log file has been created.
+2024-02-19 19:22:19,374 - root - INFO - Bot is running.
+2024-02-19 19:22:19,623 - discord.client - INFO - logging in using static token
+2024-02-19 19:22:20,600 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 41e7f284145b5899ac70a64c63e50fa2).
+2024-02-19 19:22:23,443 - root - INFO - kaaroll99 issued bot command: /color toprole (len:44)
+2024-02-19 19:23:00,455 - root - INFO - kaaroll99 issued bot command: /color toprole (len:52)
+2024-02-19 19:23:04,307 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 19:23:04,307 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 20:04:54,924 - root - WARNING - bot has been terminated from console line
+2024-02-19 20:04:55,682 - config - INFO - Log file has been created.
+2024-02-19 20:04:56,021 - root - INFO - Bot is running.
+2024-02-19 20:04:56,295 - discord.client - INFO - logging in using static token
+2024-02-19 20:04:57,905 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: ca35b37dec6c2fa39bf7d51ce91b4e92).
+2024-02-19 20:05:00,298 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 20:05:00,299 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 20:05:11,901 - root - INFO - kaaroll99 issued bot command: /help (len:83)
+2024-02-19 20:06:08,625 - root - WARNING - bot has been terminated from console line
+2024-02-19 20:06:09,330 - config - INFO - Log file has been created.
+2024-02-19 20:06:09,655 - root - INFO - Bot is running.
+2024-02-19 20:06:09,917 - discord.client - INFO - logging in using static token
+2024-02-19 20:06:10,938 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 25a2ba8b55b84ddcfd76a2e11204cde1).
+2024-02-19 20:06:13,618 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 20:06:13,618 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 20:06:21,687 - root - INFO - kaaroll99 issued bot command: /help (len:83)
+2024-02-19 20:07:48,516 - root - WARNING - bot has been terminated from console line
+2024-02-19 20:07:49,215 - config - INFO - Log file has been created.
+2024-02-19 20:07:49,543 - root - INFO - Bot is running.
+2024-02-19 20:07:49,791 - discord.client - INFO - logging in using static token
+2024-02-19 20:07:50,785 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: f2d48418497c69978742159ef36be50e).
+2024-02-19 20:07:53,096 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 20:07:53,096 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 20:07:54,993 - root - INFO - kaaroll99 issued bot command: /help (len:83)
+2024-02-19 20:08:38,926 - root - WARNING - bot has been terminated from console line
+2024-02-19 20:08:39,625 - config - INFO - Log file has been created.
+2024-02-19 20:08:39,965 - root - INFO - Bot is running.
+2024-02-19 20:08:40,213 - discord.client - INFO - logging in using static token
+2024-02-19 20:08:41,247 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: db28d9ae5ddc0b565e1915f2fb606e99).
+2024-02-19 20:08:43,909 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 20:08:43,909 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 20:08:45,165 - root - INFO - kaaroll99 issued bot command: /help (len:83)
+2024-02-19 20:09:55,782 - root - WARNING - bot has been terminated from console line
+2024-02-19 20:09:56,503 - config - INFO - Log file has been created.
+2024-02-19 20:09:56,832 - root - INFO - Bot is running.
+2024-02-19 20:09:57,092 - discord.client - INFO - logging in using static token
+2024-02-19 20:09:58,124 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 5d067d2609ab7e51a9cdf58dc1e70f20).
+2024-02-19 20:10:00,579 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 20:10:00,579 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 20:10:02,036 - root - INFO - kaaroll99 issued bot command: /help (len:83)
+2024-02-19 20:12:36,875 - root - WARNING - bot has been terminated from console line
+2024-02-19 20:12:37,611 - config - INFO - Log file has been created.
+2024-02-19 20:12:37,924 - root - INFO - Bot is running.
+2024-02-19 20:12:38,172 - discord.client - INFO - logging in using static token
+2024-02-19 20:12:39,215 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 61a1383564aa6356833be70371079e33).
+2024-02-19 20:12:40,232 - root - INFO - kaaroll99 issued bot command: /help (len:83)
+2024-02-19 20:12:41,556 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 20:12:41,557 - root - INFO - Active commands (3): help, color, embed
+2024-02-19 20:19:20,929 - root - WARNING - bot has been terminated from console line
+2024-02-19 20:19:21,711 - config - INFO - Log file has been created.
+2024-02-19 20:19:22,043 - root - INFO - Bot is running.
+2024-02-19 20:19:22,338 - discord.client - INFO - logging in using static token
+2024-02-19 20:19:23,486 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 697ee1298e478d8ce8135490e99ecac9).
+2024-02-19 20:19:25,915 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 20:19:25,915 - root - INFO - Active commands (3): vote, color, embed
+2024-02-19 20:20:01,156 - discord.app_commands.tree - ERROR - Ignoring exception in command 'vote'
+Traceback (most recent call last):
+  File "C:\Users\karol\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\app_commands\commands.py", line 827, in _do_call
+    return await self._callback(self.binding, interaction, **params)  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\Users\karol\PycharmProjects\ColorBot\cogs\help.py", line 74, in help
+    await interaction.followup.send(embed=embed, view=view)
+                                                      ^^^^
+NameError: name 'view' is not defined
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\karol\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\app_commands\tree.py", line 1248, in _call
+    await command._invoke_with_namespace(interaction, namespace)
+  File "C:\Users\karol\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\app_commands\commands.py", line 853, in _invoke_with_namespace
+    return await self._do_call(interaction, transformed_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\karol\AppData\Local\Programs\Python\Python312\Lib\site-packages\discord\app_commands\commands.py", line 846, in _do_call
+    raise CommandInvokeError(self, e) from e
+discord.app_commands.errors.CommandInvokeError: Command 'vote' raised an exception: NameError: name 'view' is not defined
+2024-02-19 20:20:21,665 - root - WARNING - bot has been terminated from console line
+2024-02-19 20:20:22,391 - config - INFO - Log file has been created.
+2024-02-19 20:20:22,719 - root - INFO - Bot is running.
+2024-02-19 20:20:22,985 - discord.client - INFO - logging in using static token
+2024-02-19 20:20:23,974 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: db33233407da09c27dcf88527fe25518).
+2024-02-19 20:20:26,446 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 20:20:26,447 - root - INFO - Active commands (4): help, vote, color, embed
+2024-02-19 20:20:27,078 - root - INFO - kaaroll99 issued bot command: /vote (len:162)
+2024-02-19 21:12:11,718 - root - WARNING - bot has been terminated from console line

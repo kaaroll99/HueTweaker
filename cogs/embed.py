@@ -16,7 +16,7 @@ class EmbedCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="embed", description="Konwersja JSON na discord embed")
+    @app_commands.command(name="embed", description="JSON to discord embed conversion")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def embed(self, interaction: discord.Interaction, channel: discord.TextChannel, data: str) -> None:

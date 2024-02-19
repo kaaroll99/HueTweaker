@@ -39,7 +39,7 @@ class Database:
                 'guilds', metadata,
                 Column('id', Integer, primary_key=True, autoincrement=True),
                 Column('server', Integer),
-                Column('channel', Integer),
+                Column('role', Integer),
             )
 
             metadata.create_all(self.__engine)
@@ -106,7 +106,9 @@ class Database:
 
             result = session.execute(query)
             rows = [{column.key: getattr(row, column.key) for column in row.__table__.columns} for row in result.scalars()]
+            print(rows)
             return rows
+
         except OperationalError as e:
             return False
 

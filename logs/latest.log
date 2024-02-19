@@ -1,7 +1,8 @@
-2024-02-19 18:46:27,901 - config - INFO - Log file has been created.
-2024-02-19 18:46:28,209 - root - INFO - Bot is running.
-2024-02-19 18:46:28,444 - discord.client - INFO - logging in using static token
-2024-02-19 18:46:29,379 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: 08668731c494fd3ec10ebc91c7134fd1).
-2024-02-19 18:46:31,675 - root - INFO - Cogs (3): help, color, embed
-2024-02-19 18:46:31,675 - root - INFO - Active commands (3): help, color, embed
-2024-02-19 18:46:49,645 - root - WARNING - bot has been terminated from console line
+2024-02-19 20:20:22,391 - config - INFO - Log file has been created.
+2024-02-19 20:20:22,719 - root - INFO - Bot is running.
+2024-02-19 20:20:22,985 - discord.client - INFO - logging in using static token
+2024-02-19 20:20:23,974 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: db33233407da09c27dcf88527fe25518).
+2024-02-19 20:20:26,446 - root - INFO - Cogs (3): help, color, embed
+2024-02-19 20:20:26,447 - root - INFO - Active commands (4): help, vote, color, embed
+2024-02-19 20:20:27,078 - root - INFO - kaaroll99 issued bot command: /vote (len:162)
+2024-02-19 21:12:11,718 - root - WARNING - bot has been terminated from console line

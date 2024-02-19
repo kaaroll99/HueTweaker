@@ -26,6 +26,9 @@ async def on_ready():
 
 
 async def main():
+    db = database.Database(url=f"sqlite:///databases/guilds.db")
+    db.connect()
+    db.database_init()
     async with bot:
         logging.info('Bot is running.')
         for cog in cogs:

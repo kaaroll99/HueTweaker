@@ -1,0 +1,140 @@
+### HELP ###
+help:
+  name: help
+  desc: Information about the bot and a list of available commands
+  usage: /help
+  example: /help
+### SET ###
+set:
+  name: set
+  desc: >-
+    Setting the color
+    
+    
+    `<color>` - color to set (hexadecimal format)
+    
+
+  usage: /color set <color>
+  example: /color set f5df4d
+### REMOVE ###
+remove:
+  name: remove
+  desc: >-
+    Removing the color
+
+  usage: /color remove
+  example: /color remove
+### CHECK ###
+check:
+  name: check
+  desc: >-
+    Color information (HEX, RGB, HSL, CMYK, Integer)
+    
+    **Formats:**
+    
+    - f5df4d
+    
+    - rgb(245, 223, 77)
+    
+    - hsl(52.14, 89.36%, 63.14%)
+    
+    - cmyk(0.00%, 8.98%, 68.57%, 3.92%)
+    
+    - 16113485
+
+  usage: /color check <color>
+  example: /color check
+### FORCESET ###
+forceset:
+  name: forceset
+  desc: >-
+    Setting the color of the user
+    
+    
+    ⚠️ The command can only be executed by a user with administrator privileges
+    
+    
+    `<user_name>` - name of the selected user
+    
+    `<color>` - color to set (hexadecimal format)
+
+  usage: /color forceset <user_name> <color>
+  example: /color set @kaaroll99 f5df4d
+### FORCEREMOVE ###
+forceremove:
+  name: forceremove
+  desc: >-
+    Removing the color of the user
+    
+    
+    ⚠️ The command can only be executed by a user with administrator privileges
+    
+    
+    `<user_name>` - name of the selected user
+
+  usage: /color forceremove <user_name>
+  example: /color set @kaaroll99
+### TOPROLE ###
+toprole:
+  name: toprole
+  desc: >-
+    Set top role for color roles. All color roles will be set under the indicated role.
+    
+    
+    ⚠️ The command can only be executed by a user with administrator privileges
+    
+    
+    `<role_name>` - name of the selected role
+
+  usage: /color toprole <role_name>
+  example: /color toprole @USERS-COLORS
+### EMBED ###
+embed:
+  name: embed
+  desc: >-
+    JSON to discord embed conversion
+    
+    
+    ⚠️ The command can only be executed by a user with administrator privileges
+    
+    
+    `<channel_name>` - name of the selected role
+    
+    `<json>` - name of the selected role
+    
+    
+    JSON format example:
+    ```
+    {
+      "title": "Edycja własnego koloru",
+      "description": "",
+      "color": "454545",
+      "image": "https://i.imgur.com/uCnFzBf.png",
+      "thumbnail": "https://i.imgur.com/bceGHHc.png",
+      "author_name": "",
+      "author_url": "",
+      "author_icon_url": "",
+      "fields": [
+        {
+          "title": "Ustawienie koloru:",
+          "value": "> /color set `hex koloru`",
+          "inline": false
+        },
+        {
+          "title": "Usunięcie koloru:",
+          "value": "> /color remove",
+          "inline": false
+        },
+        {
+          "title": "Palety kolorów:",
+          "value": "> [Adobe Color Wheel](https://color.adobe.com/pl/create/color-wheel)\n> [Google](https://www.google.com/search?q=color+picker)",
+          "inline": false
+        }
+      ]
+    }
+    ```
+
+  usage: /color <channel_name> <json>
+  example: /embed \#INFO {"title"...}
+
+

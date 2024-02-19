@@ -8,7 +8,7 @@ label_too_long: "❓"
 exception: "❌"
 logs_issued: "issued bot command"
 exception_message: "The bot encountered an unexpected error."
-no_permissions: "⚠️ Brak uprawnień do użycia tego polecenia"
+no_permissions: "⚠️ You don't have permission to perform this command."
 ########################################
 Monday: "PON.\u2800"
 Tuesday: "WT.\u2800\u2800"
