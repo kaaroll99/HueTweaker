@@ -167,4 +167,4 @@ cache/
 /stary_token.yml
 /logs/info
 /logs/latest.log
-databases/*
+databases/guilds.db
