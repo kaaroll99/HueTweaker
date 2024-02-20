@@ -8,7 +8,7 @@ from database import database
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
-cogs = ['help', 'color', 'embed']
+cogs = ['help', 'color', 'embed', 'joinListener']
 
 
 @bot.event

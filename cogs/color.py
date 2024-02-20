@@ -35,7 +35,7 @@ class ColorCog(commands.Cog):
             if color.lower().strip() in map(lambda x: x.lower(), data.keys()):
                 color = data[color]
             if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
-                raise ValueError(f"Invalid color")
+                raise ValueError
             if color.startswith("#"):
                 color = color.strip("#")
             db = database.Database(url=f"sqlite:///databases/guilds.db")
@@ -110,7 +110,7 @@ class ColorCog(commands.Cog):
             if color.lower().strip() in map(lambda x: x.lower(), data.keys()):
                 color = data[color]
             if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
-                raise ValueError(f"Invalid color")
+                raise ValueError
             if color.startswith("#"):
                 color = color.strip("#")
             db = database.Database(url=f"sqlite:///databases/guilds.db")
