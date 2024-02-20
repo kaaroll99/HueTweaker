@@ -35,7 +35,8 @@ class HelpCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
             embed.description = f"""
-                        ## {bot.user.name}
+                                                
+                        Online on `{len(bot.guilds)}` guilds
                         
                         💡 Select one of the available commands from the list to learn more
                         """
@@ -59,7 +60,7 @@ class HelpCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
             embed.description = f"""
             
-                            ✨ [VOTE URL](https://top.gg) ✨
+                            ✨ [VOTE ON TOP.GG](https://top.gg/bot/1209187999934578738/vote) ✨
                             
                             """
         except Exception as e:

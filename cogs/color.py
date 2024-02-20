@@ -229,7 +229,7 @@ class ColorCog(commands.Cog):
                                          color=self.color, timestamp=datetime.datetime.now())
 
             embed.add_field(name=f"{messages_file['item_icon']} Hex:",
-                            value=f"{output_color['Hex']}",
+                            value=f"{output_color['Hex'].upper()}",
                             inline=False)
             embed.add_field(name=f"{messages_file['item_icon']} RGB:",
                             value=f"rgb({output_color['RGB'][0] * 255:.0f}, {output_color['RGB'][1] * 255:.0f},"

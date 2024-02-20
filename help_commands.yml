@@ -8,7 +8,7 @@ help:
 set:
   name: set
   desc: >-
-    Setting the color
+    Setting the username color
     
     
     `<color>` - color to set (hexadecimal format)
@@ -20,7 +20,7 @@ set:
 remove:
   name: remove
   desc: >-
-    Removing the color
+    Removing the username color
 
   usage: /color remove
   example: /color remove
@@ -48,7 +48,7 @@ check:
 forceset:
   name: forceset
   desc: >-
-    Setting the color of the user
+    Setting the username color of the specific user
     
     
     ⚠️ The command can only be executed by a user with administrator privileges
@@ -64,7 +64,7 @@ forceset:
 forceremove:
   name: forceremove
   desc: >-
-    Removing the color of the user
+    Removing the username color of the specific user
     
     
     ⚠️ The command can only be executed by a user with administrator privileges

@@ -6,7 +6,7 @@ from PIL import Image
 
 
 def detect_color_format(input_color):
-    hex_pattern = r"^([0-9a-fA-F]{6})$"
+    hex_pattern = r"^(#?[0-9a-fA-F]{6})$"
     rgb_pattern = r"^rgb\((\d+),\s*(\d+),\s*(\d+)\)$"
     hsl_pattern = r"^hsl\((\d+(\.\d+)?),\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$"
     cmyk_pattern = r"^cmyk\((\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$"
