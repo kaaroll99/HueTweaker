@@ -19,7 +19,7 @@ class HelpCog(commands.Cog):
     async def help(self, interaction: discord.Interaction) -> None:
         embed = discord.Embed(title=f"{bot.user.name}", description=f"",
                               color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
-        select = discord.ui.Select(placeholder='Wybierz polecenie z listy', options=[
+        select = discord.ui.Select(placeholder='Choose a command from the list...', options=[
             discord.SelectOption(label="/help", value="help", emoji="✨"),
             discord.SelectOption(label="/color set", value="set", emoji="✨"),
             discord.SelectOption(label="/color remove", value="remove", emoji="✨"),
@@ -36,9 +36,9 @@ class HelpCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
             embed.description = f"""
                                                 
-                        Online on `{len(bot.guilds)}` guilds
+                        Online on `{len(bot.guilds)}` servers.
                         
-                        💡 Select one of the available commands from the list to learn more
+                        💡 Select one of the available commands from the list to learn more.
                         """
         except Exception as e:
             embed.clear_fields()
