@@ -105,6 +105,10 @@ class ColorCog(commands.Cog):
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
+            with open("css-color-names.json", "r", encoding="utf-8") as file:
+                data = json.load(file)
+            if color.lower().strip() in map(lambda x: x.lower(), data.keys()):
+                color = data[color]
             if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
                 raise ValueError(f"Invalid color")
             if color.startswith("#"):
