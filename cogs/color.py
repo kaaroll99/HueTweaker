@@ -1,3 +1,5 @@
+import json
+
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
@@ -29,6 +31,10 @@ class ColorCog(commands.Cog):
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
+            with open("css-color-names.json", "r", encoding="utf-8") as file:
+                data = json.load(file)
+            if color.lower().strip() in map(lambda x: x.lower(), data.keys()):
+                color = data[color]
             if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
                 raise ValueError(f"Invalid color")
             if color.startswith("#"):
@@ -50,7 +56,7 @@ class ColorCog(commands.Cog):
 
         except ValueError:
             embed.title = "⚠️ Incorrect color format"
-            embed.add_field(name=f"Color format:", value=f"`F5DF4D` or `#F5DF4D`", inline=False)
+            embed.add_field(name=f"Color format:", value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)", inline=False)
 
         except Exception as e:
             embed.clear_fields()
@@ -121,7 +127,7 @@ class ColorCog(commands.Cog):
 
         except ValueError:
             embed.title = "⚠️ Incorrect color format"
-            embed.add_field(name=f"Color format:", value=f"`F5DF4D` or `#F5DF4D`", inline=False)
+            embed.add_field(name=f"Color format:", value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)", inline=False)
 
         except Exception as e:
             embed.clear_fields()
@@ -214,12 +220,17 @@ class ColorCog(commands.Cog):
                 f"{interaction.user} {messages_file['logs_issued']}: /color toprole (len:{len(embed)})")
 
     @group.command(name="check", description="Color information (HEX, RGB, HSL, CMYK, Integer)")
-    @app_commands.describe(color="Color code (np. 9932f0 lub rgb(153, 50, 240))")
+    @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title=bot.user.name, description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
+            with open("css-color-names.json", "r", encoding="utf-8") as file:
+                data = json.load(file)
+            if color.lower().strip() in map(lambda x: x.lower(), data.keys()):
+                color = data[color]
+
             output_color = color_format.color_converter(color)
 
             if "error" in output_color:
@@ -265,14 +276,14 @@ class ColorCog(commands.Cog):
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed)
 
-        except Exception as e:
-            embed.clear_fields()
-            embed.description = f""
-            embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
-                            value=f"", inline=False)
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
-            await interaction.followup.send(embed=embed)
+        # except Exception as e:
+        #     embed.clear_fields()
+        #     embed.description = f""
+        #     embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
+        #                     value=f"", inline=False)
+        #     logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
+        #     embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
+        #     await interaction.followup.send(embed=embed)
 
         finally:
             logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color check {color} (len:{len(embed)})")

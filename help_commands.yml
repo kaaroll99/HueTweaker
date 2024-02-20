@@ -11,7 +11,15 @@ set:
     Setting the username color.
     
     
-    `<color>` - color to set (hexadecimal format e.g __F5DF4D__ or __#F5DF4D__)
+    Color palettes:
+    
+    > [Adobe Color Wheel](https://color.adobe.com/pl/create/color-wheel)
+    
+    > [Google](https://www.google.com/search?q=color+picker)
+    
+    
+    `<color>` - color to set (hexadecimal format e.g __F5DF4D__ 
+    or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php) e.g __royalblue__)
     
 
   usage: /color set <color>
@@ -32,7 +40,7 @@ check:
     
     **Formats:**
     
-    - f5df4d
+    - #f5df4d
     
     - rgb(245, 223, 77)
     
@@ -41,6 +49,8 @@ check:
     - cmyk(0.00%, 8.98%, 68.57%, 3.92%)
     
     - 16113485
+    
+    or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php) e.g "royalblue"
 
   usage: /color check <color>
   example: /color check \#F5DF4D
@@ -56,7 +66,8 @@ forceset:
     
     `<user_name>` - name of the selected user
     
-    `<color>` - color to set (hexadecimal format e.g __F5DF4D__ or __#F5DF4D__)
+    `<color>` - color to set (hexadecimal format e.g __F5DF4D__ 
+    or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php) e.g __royalblue__)
 
   usage: /color forceset <user_name> <color>
   example: /color set @kaaroll99 f5df4d
