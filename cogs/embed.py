@@ -48,7 +48,7 @@ class EmbedCog(commands.Cog):
             logging.info(f"{interaction.user} {messages_file['logs_issued']}: /embed (len:{len(embed)})")
 
         except json.JSONDecodeError as e:
-            await interaction.followup.send(f"Bład podczas parsowania danych JSON: {e}")
+            await interaction.followup.send(f"⚠️ Error when parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` and choosing `/embed` from the list.")
         except Exception as e:
             await interaction.followup.send(e)
 

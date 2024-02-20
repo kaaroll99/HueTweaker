@@ -25,33 +25,32 @@ class ColorCog(commands.Cog):
     @app_commands.describe(color="Color to set")
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title=f"Kolorowy nick", description=f"",
+        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
-            if re.match(r"^([0-9a-fA-F]{6})$", color.upper()):
-                db = database.Database(url=f"sqlite:///databases/guilds.db")
-                db.connect()
-                sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
-                role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
-                if role is not None:
-                    if sb_query:
-                        top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
-                        await role.edit(position=top_role.position - 1)
-                    await role.edit(colour=discord.Colour(int(color, 16)))
-                    await interaction.user.add_roles(role)
-                else:
-                    role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
-                    if sb_query:
-                        top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
-                        await role.edit(position=top_role.position - 1)
-                    await role.edit(colour=discord.Colour(int(color, 16)))
-                    await interaction.user.add_roles(role)
-                embed.title = f"✨ Color has been set for to __#{color}__"
-                embed.color = discord.Colour(int(color, 16))
-            else:
-                embed.title = "⚠️ Incorrect color format"
-                embed.add_field(name=f"Color format:", value=f"`F5DF4D`", inline=False)
+            if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
+                raise ValueError(f"Invalid color")
+            if color.startswith("#"):
+                color = color.strip("#")
+            db = database.Database(url=f"sqlite:///databases/guilds.db")
+            db.connect()
+            sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+            role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
+            if role is None:
+                role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
+            if sb_query:
+                top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
+                if top_role is None:
+                    await role.edit(position=top_role.position - 1)
+            await role.edit(colour=discord.Colour(int(color, 16)))
+            await interaction.user.add_roles(role)
+            embed.title = f"✨ Color has been set for to __#{color}__"
+            embed.color = discord.Colour(int(color, 16))
+
+        except ValueError:
+            embed.title = "⚠️ Incorrect color format"
+            embed.add_field(name=f"Color format:", value=f"`F5DF4D` or `#F5DF4D`", inline=False)
 
         except Exception as e:
             embed.clear_fields()
@@ -69,7 +68,7 @@ class ColorCog(commands.Cog):
     @group.command(name="remove", description="Removing the color")
     @app_commands.guild_only()
     async def remove(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title=f"Kolorowy nick", description=f"",
+        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
@@ -101,29 +100,28 @@ class ColorCog(commands.Cog):
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
-            if re.match(r"^([0-9a-fA-F]{6})$", color.upper()):
-                role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
-                db = database.Database(url=f"sqlite:///databases/guilds.db")
-                db.connect()
-                sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
-                if role is not None:
-                    await role.edit(colour=discord.Colour(int(color, 16)))
-                    if sb_query:
-                        top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
-                        await role.edit(position=top_role.position - 1)
-                    await user_name.add_roles(role)
-                else:
-                    role = await interaction.guild.create_role(name=f"color-{user_name.id}")
-                    await role.edit(colour=discord.Colour(int(color, 16)))
-                    if sb_query:
-                        top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
-                        await role.edit(position=top_role.position - 1)
-                    await user_name.add_roles(role)
-                embed.title = f"✨ Color has been set for {user_name.name} to __#{color}__"
-                embed.color = discord.Colour(int(color, 16))
-            else:
-                embed.title = "⚠️ Incorrect color format"
-                embed.add_field(name=f"Color format:", value=f"`F5DF4D`", inline=False)
+            if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
+                raise ValueError(f"Invalid color")
+            if color.startswith("#"):
+                color = color.strip("#")
+            db = database.Database(url=f"sqlite:///databases/guilds.db")
+            db.connect()
+            sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+            role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
+            if role is None:
+                role = await interaction.guild.create_role(name=f"color-{user_name.id}")
+            if sb_query:
+                top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
+                if top_role is None:
+                    await role.edit(position=top_role.position - 1)
+            await role.edit(colour=discord.Colour(int(color, 16)))
+            await user_name.add_roles(role)
+            embed.title = f"✨ Color has been set for {user_name.name} to __#{color}__"
+            embed.color = discord.Colour(int(color, 16))
+
+        except ValueError:
+            embed.title = "⚠️ Incorrect color format"
+            embed.add_field(name=f"Color format:", value=f"`F5DF4D` or `#F5DF4D`", inline=False)
 
         except Exception as e:
             embed.clear_fields()
@@ -165,7 +163,8 @@ class ColorCog(commands.Cog):
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color forceremove {user_name.name} (len:{len(embed)})")
+            logging.info(
+                f"{interaction.user} {messages_file['logs_issued']}: /color forceremove {user_name.name} (len:{len(embed)})")
 
     @group.command(name="toprole", description="Set top role for color roles")
     @app_commands.describe(role_name="Role name")
@@ -180,9 +179,12 @@ class ColorCog(commands.Cog):
             role_ids = []
             pattern = re.compile(f"color-\\d{{18,19}}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
+            print(top_role.name)
 
             for role in interaction.guild.roles:
+
                 if pattern.match(role.name):
+                    print(role.name)
                     role_ids.append(role.id)
                     role = discord.utils.get(interaction.guild.roles, id=role.id)
                     await role.edit(position=top_role.position - 1)

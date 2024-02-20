@@ -83,7 +83,7 @@ class HelpCog(commands.Cog):
             with open('help_commands.yml', 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)
             selected_option = interaction.data['values'][0]
-            embed = discord.Embed(title=f"✨ Command`/{data[selected_option]['name']}`",
+            embed = discord.Embed(title=f"✨ Command `{data[selected_option]['name']}`",
                                   description=f"{data[selected_option]['desc']}",
                                   color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
 

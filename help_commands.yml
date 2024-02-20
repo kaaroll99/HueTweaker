@@ -1,17 +1,17 @@
 ### HELP ###
 help:
   name: help
-  desc: Information about the bot and a list of available commands
+  desc: Information about the bot and a list of available commands.
   usage: /help
   example: /help
 ### SET ###
 set:
   name: set
   desc: >-
-    Setting the username color
+    Setting the username color.
     
     
-    `<color>` - color to set (hexadecimal format)
+    `<color>` - color to set (hexadecimal format e.g __F5DF4D__ or __#F5DF4D__)
     
 
   usage: /color set <color>
@@ -20,7 +20,7 @@ set:
 remove:
   name: remove
   desc: >-
-    Removing the username color
+    Removing the username color.
 
   usage: /color remove
   example: /color remove
@@ -43,20 +43,20 @@ check:
     - 16113485
 
   usage: /color check <color>
-  example: /color check
+  example: /color check \#F5DF4D
 ### FORCESET ###
 forceset:
   name: forceset
   desc: >-
-    Setting the username color of the specific user
+    Setting the username color of the specific user.
     
     
-    ⚠️ The command can only be executed by a user with administrator privileges
+    ⚠️ The command can only be executed by a user with administrator privileges.
     
     
     `<user_name>` - name of the selected user
     
-    `<color>` - color to set (hexadecimal format)
+    `<color>` - color to set (hexadecimal format e.g __F5DF4D__ or __#F5DF4D__)
 
   usage: /color forceset <user_name> <color>
   example: /color set @kaaroll99 f5df4d
@@ -64,10 +64,10 @@ forceset:
 forceremove:
   name: forceremove
   desc: >-
-    Removing the username color of the specific user
+    Removing the username color of the specific user.
     
     
-    ⚠️ The command can only be executed by a user with administrator privileges
+    ⚠️ The command can only be executed by a user with administrator privileges.
     
     
     `<user_name>` - name of the selected user
@@ -80,16 +80,33 @@ toprole:
   desc: >-
     Set top role for color roles. All color roles will be set under the indicated role.
     
+    
     ⚠️ If the role is not indicated, color roles will be created at the bottom which may cause the color to be obscured by higher roles.
     
     
-    ⚠️ The command can only be executed by a user with administrator privileges
+    ⚠️ Top role cannot be higher than the top bot role.
+    
+    
+    💡 **Roles example:**
+    
+    > [Admin]
+    
+    > [Bot] **<- bot higher role**
+    
+    > [colors] **<- bot "top role"**
+    
+    > [color-00...]
+    
+    > [color-00...]
+    
+    
+    ⚠️ The command can only be executed by a user with administrator privileges.
     
     
     `<role_name>` - name of the selected role
 
   usage: /color toprole <role_name>
-  example: /color toprole @USERS-COLORS
+  example: /color toprole @colors
 ### EMBED ###
 embed:
   name: embed
@@ -97,7 +114,7 @@ embed:
     JSON to discord embed conversion
     
     
-    ⚠️ The command can only be executed by a user with administrator privileges
+    ⚠️ The command can only be executed by a user with administrator privileges.
     
     
     `<channel_name>` - name of the selected role
