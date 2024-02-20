@@ -1,5 +1,4 @@
 import json
-
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
@@ -47,7 +46,7 @@ class ColorCog(commands.Cog):
                 role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
             if sb_query:
                 top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
-                if top_role is None:
+                if top_role is not None:
                     await role.edit(position=top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color, 16)))
             await interaction.user.add_roles(role)
@@ -118,7 +117,7 @@ class ColorCog(commands.Cog):
                 role = await interaction.guild.create_role(name=f"color-{user_name.id}")
             if sb_query:
                 top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
-                if top_role is None:
+                if top_role is not None:
                     await role.edit(position=top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color, 16)))
             await user_name.add_roles(role)
