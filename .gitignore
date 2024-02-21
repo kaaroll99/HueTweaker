@@ -166,5 +166,6 @@ test.py
 cache/
 /stary_token.yml
 /logs/info
+/logs/*
 /logs/latest.log
 /databases/guilds.db

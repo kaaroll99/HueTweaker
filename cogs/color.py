@@ -47,7 +47,7 @@ class ColorCog(commands.Cog):
                 role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
             if sb_query:
                 top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
-                if top_role is not None:
+                if top_role is not None and not top_role.position == 0:
                     await role.edit(position=top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color, 16)))
             await interaction.user.add_roles(role)
@@ -119,7 +119,7 @@ class ColorCog(commands.Cog):
                 role = await interaction.guild.create_role(name=f"color-{user_name.id}")
             if sb_query:
                 top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
-                if top_role is not None:
+                if top_role is not None and not top_role.position == 0:
                     await role.edit(position=top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color, 16)))
             await user_name.add_roles(role)
@@ -188,7 +188,8 @@ class ColorCog(commands.Cog):
                 if pattern.match(role.name):
                     role_ids.append(role.id)
                     role = discord.utils.get(interaction.guild.roles, id=role.id)
-                    await role.edit(position=top_role.position - 1)
+                    if not top_role.position == 0:
+                        await role.edit(position=top_role.position - 1)
 
             db = database.Database(url=f"sqlite:///databases/guilds.db")
             db.connect()
