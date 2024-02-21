@@ -32,8 +32,9 @@ class ColorCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
             with open("css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
-            if color.lower().strip() in map(lambda x: x.lower(), data.keys()):
-                color = data[color]
+            search_color = color.lower().replace(" ", "")
+            if search_color in map(lambda x: x.lower(), data.keys()):
+                color = data[search_color]
             if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
                 raise ValueError
             if color.startswith("#"):
@@ -107,8 +108,9 @@ class ColorCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
             with open("css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
-            if color.lower().strip() in map(lambda x: x.lower(), data.keys()):
-                color = data[color]
+            search_color = color.lower().replace(" ", "")
+            if search_color in map(lambda x: x.lower(), data.keys()):
+                color = data[search_color]
             if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
                 raise ValueError
             if color.startswith("#"):
