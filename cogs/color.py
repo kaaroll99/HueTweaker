@@ -26,7 +26,7 @@ class ColorCog(commands.Cog):
     @app_commands.describe(color="Color to set")
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
+        embed: Embed = discord.Embed(title="", description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
@@ -51,18 +51,16 @@ class ColorCog(commands.Cog):
                     await role.edit(position=top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color, 16)))
             await interaction.user.add_roles(role)
-            embed.title = f"✨ Color has been set for to __#{color}__"
+            embed.description = f"✨ **Color has been set for to __#{color}__**"
             embed.color = discord.Colour(int(color, 16))
 
         except ValueError:
-            embed.title = "⚠️ Incorrect color format"
+            embed.description = "⚠️ **Incorrect color format**"
             embed.add_field(name=f"Color format:", value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)", inline=False)
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = f""
-            embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
-                            value=f"", inline=False)
+            embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
@@ -74,7 +72,7 @@ class ColorCog(commands.Cog):
     @group.command(name="remove", description="Removing the color")
     @app_commands.guild_only()
     async def remove(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
+        embed: Embed = discord.Embed(title="", description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
@@ -82,13 +80,11 @@ class ColorCog(commands.Cog):
             if role is not None:
                 await interaction.user.remove_roles(role)
                 await role.delete()
-            embed.title = f"✨ Color has been removed"
+            embed.description = f"✨ **Color has been removed**"
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = f""
-            embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
-                            value=f"", inline=False)
+            embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
@@ -102,7 +98,7 @@ class ColorCog(commands.Cog):
     @app_commands.describe(user_name="User name", color="Color to set")
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
-        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
+        embed: Embed = discord.Embed(title="", description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
@@ -127,18 +123,16 @@ class ColorCog(commands.Cog):
                     await role.edit(position=top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color, 16)))
             await user_name.add_roles(role)
-            embed.title = f"✨ Color has been set for {user_name.name} to __#{color}__"
+            embed.description = f"✨ **Color has been set for {user_name.name} to __#{color}__**"
             embed.color = discord.Colour(int(color, 16))
 
         except ValueError:
-            embed.title = "⚠️ Incorrect color format"
+            embed.description = "⚠️ **Incorrect color format**"
             embed.add_field(name=f"Color format:", value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)", inline=False)
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = f""
-            embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
-                            value=f"", inline=False)
+            embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
@@ -152,7 +146,7 @@ class ColorCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def forceremove(self, interaction: discord.Interaction, user_name: discord.Member) -> None:
-        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
+        embed: Embed = discord.Embed(title="", description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
@@ -160,14 +154,13 @@ class ColorCog(commands.Cog):
             if role is not None:
                 await user_name.remove_roles(role)
                 await role.delete()
-                embed.title = f"✨ Color has been removed for {user_name.name}"
+                embed.description = f"✨ **Color has been removed for {user_name.name}**"
             else:
-                embed.title = f"⚠️ The user with the given name did not have the color set"
+                embed.description = f"⚠️ **The user with the given name did not have the color set**"
 
         except Exception as e:
             embed.clear_fields()
-            embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
-                            value=f"", inline=False)
+            embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
@@ -182,7 +175,7 @@ class ColorCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:
-        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
+        embed: Embed = discord.Embed(title="", description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
@@ -190,12 +183,9 @@ class ColorCog(commands.Cog):
             role_ids = []
             pattern = re.compile(f"color-\\d{{18,19}}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
-            print(top_role.name)
-
             for role in interaction.guild.roles:
 
                 if pattern.match(role.name):
-                    print(role.name)
                     role_ids.append(role.id)
                     role = discord.utils.get(interaction.guild.roles, id=role.id)
                     await role.edit(position=top_role.position - 1)
@@ -209,12 +199,11 @@ class ColorCog(commands.Cog):
             else:
                 db.create(model.guilds_class(f"guilds"), {"server": interaction.guild.id, "role": role_name.id})
 
-            embed.title = f"✨ Top role has been set for __{role_name.name}__"
+            embed.description = f"✨ **Top role has been set for __{role_name.name}__**"
 
         except Exception as e:
             embed.clear_fields()
-            embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
-                            value=f"", inline=False)
+            embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
@@ -227,7 +216,7 @@ class ColorCog(commands.Cog):
     @group.command(name="check", description="Color information (HEX, RGB, HSL, CMYK, Integer)")
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title=bot.user.name, description=f"",
+        embed: Embed = discord.Embed(title="", description=f"",
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
@@ -274,7 +263,7 @@ class ColorCog(commands.Cog):
 
         except ValueError:
             embed.clear_fields()
-            embed.title = f"{messages_file['exception']} Incorrect color format"
+            embed.description = f"**{messages_file['exception']} Incorrect color format**"
             embed.add_field(value=f"💡 Correct formats:\n* 9932f0\n* rgb(153, 50, 240)\n* hsl(272.53, 86.36%, 56.86%)"
                                   f"\n* cmyk(36.25%, 79.17%, 0.00%, 5.88%)\n* 10040048", name="", inline=False)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
@@ -283,9 +272,7 @@ class ColorCog(commands.Cog):
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = f""
-            embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
-                            value=f"", inline=False)
+            embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed)
@@ -298,7 +285,7 @@ class ColorCog(commands.Cog):
     @forceremove.error
     async def permission_error(self, interaction: discord.Interaction, error):
         if isinstance(error, discord.app_commands.errors.MissingPermissions):
-            embed: Embed = discord.Embed(title=messages_file.get('no_permissions', ''), description=f"",
+            embed: Embed = discord.Embed(title="", description=messages_file.get('no_permissions', ''),
                                          color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
