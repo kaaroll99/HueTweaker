@@ -70,10 +70,6 @@ class HelpCog(commands.Cog):
                             ✨ [VOTE ON TOP.GG](https://top.gg/bot/1209187999934578738/vote) ✨
                             
                             """
-            db = database.Database(url=f"sqlite:///databases/guilds.db")
-            db.connect()
-            sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
-            print(sb_query)
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
