@@ -20,6 +20,12 @@ class EmbedCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def embed(self, interaction: discord.Interaction, channel: discord.TextChannel, data: str) -> None:
+        info_embed: Embed = discord.Embed(
+            title="",
+            description=f"",
+            color=config_file['EMBED_COLOR'],
+            timestamp=datetime.datetime.now()
+        )
         try:
             await interaction.response.defer(ephemeral=True)
             data = json.loads(data)
@@ -37,20 +43,23 @@ class EmbedCog(commands.Cog):
                 inline = field_data.get("inline", False)
                 embed.add_field(name=title, value=value, inline=inline)
 
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
+            embed.set_footer(text=data.get("footer_text", ""), icon_url=data.get("footer_icon", ""))
             embed.set_thumbnail(url=data.get("thumbnail", ""))
             embed.set_image(url=data.get("image", ""))
             embed.set_author(name=data.get("author_name", ""), url=data.get("author_url", ""),
                              icon_url=data.get("author_icon_url", ""))
 
             await channel.send(embed=embed)
-            await interaction.followup.send(f"Wysłano embed na: <#{channel.id}>")
+            info_embed.description = f"Embed sent to: <#{channel.id}>"
+
             logging.info(f"{interaction.user} {messages_file['logs_issued']}: /embed (len:{len(embed)})")
 
         except json.JSONDecodeError as e:
-            await interaction.followup.send(f"⚠️ Error when parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` and choosing `/embed` from the list.")
+            info_embed.description = f"⚠️ Error when parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` and choosing `/embed` from the list."
         except Exception as e:
-            await interaction.followup.send(e)
+            info_embed.description = e
+        finally:
+            await interaction.followup.send(embed=info_embed)
 
     @embed.error
     async def permission_error(self, interaction: discord.Interaction, error):

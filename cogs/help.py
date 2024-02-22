@@ -22,14 +22,14 @@ class HelpCog(commands.Cog):
         embed = discord.Embed(title=f"{bot.user.name}", description=f"",
                               color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         select = discord.ui.Select(placeholder='Choose a command from the list...', options=[
-            discord.SelectOption(label="/help", value="help", emoji="✨"),
-            discord.SelectOption(label="/color set", value="set", emoji="✨"),
-            discord.SelectOption(label="/color remove", value="remove", emoji="✨"),
-            discord.SelectOption(label="/color check", value="check", emoji="✨"),
-            discord.SelectOption(label="/color forceset", value="forceset", emoji="✨"),
-            discord.SelectOption(label="/color forceremove", value="forceremove", emoji="✨"),
-            discord.SelectOption(label="/color toprole", value="toprole", emoji="✨"),
-            discord.SelectOption(label="/embed", value="embed", emoji="✨")
+            discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
+            discord.SelectOption(label="/color set", value="set", emoji="🌈"),
+            discord.SelectOption(label="/color remove", value="remove", emoji="🔴"),
+            discord.SelectOption(label="/color check", value="check", emoji="🔍"),
+            discord.SelectOption(label="/color forceset", value="forceset", emoji="⚙️"),
+            discord.SelectOption(label="/color forceremove", value="forceremove", emoji="🔄"),
+            discord.SelectOption(label="/color toprole", value="toprole", emoji="🔝"),
+            discord.SelectOption(label="/embed", value="embed", emoji="📋")
         ])
         select.callback = self.__select_callback
         view = discord.ui.View()
@@ -38,11 +38,11 @@ class HelpCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
             embed.description = f"""
                                                 
-                        Online on `{len(bot.guilds)}` servers.
+                        🧮 Online on `{len(bot.guilds)}` servers.
                         
-                        [Join the support server](https://discord.gg/tYdK4pD6ks)
+                        ✨ [Join the support server](https://discord.gg/tYdK4pD6ks)
                         
-                        ⚠️ Remember to set top-role `/color toprole`. If the role is not indicated, color roles will be created at the bottom which may cause the color to be obscured by higher roles.
+                        ⚠️ Remember to set the top role using /color toprole. If no role is indicated, color roles will be created at the bottom, potentially getting obscured by higher roles.
                         
                         💡 Select one of the available commands from the list to learn more.
                         """
