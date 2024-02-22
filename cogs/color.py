@@ -183,6 +183,8 @@ class ColorCog(commands.Cog):
             role_ids = []
             pattern = re.compile(f"color-\\d{{18,19}}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
+            if top_role.position == 0:
+                raise ValueError
             for role in interaction.guild.roles:
 
                 if pattern.match(role.name):
@@ -201,7 +203,8 @@ class ColorCog(commands.Cog):
                 db.create(model.guilds_class(f"guilds"), {"server": interaction.guild.id, "role": role_name.id})
 
             embed.description = f"✨ **Top role has been set for __{role_name.name}__**"
-
+        except ValueError:
+            embed.description = f"**{messages_file.get('exception')} You cannot set `@everyone` as top role. Check `/help` for more information.**"
         except Exception as e:
             embed.clear_fields()
             embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
