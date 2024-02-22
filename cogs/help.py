@@ -40,7 +40,7 @@ class HelpCog(commands.Cog):
                                                 
                         Online on `{len(bot.guilds)}` servers.
                         
-                        [Support server](https://discord.gg/tYdK4pD6ks)
+                        [Join the support server](https://discord.gg/tYdK4pD6ks)
                         
                         ⚠️ Remember to set top-role `/color toprole`. If the role is not indicated, color roles will be created at the bottom which may cause the color to be obscured by higher roles.
                         
