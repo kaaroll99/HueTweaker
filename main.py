@@ -5,6 +5,8 @@ import config
 from config import bot
 import logging
 from database import database
+from watchdog.observers import Observer
+from watchdog_handler import FileHandler
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
@@ -19,6 +21,12 @@ async def on_ready():
         for command in synced:
             cmds.append(command.name)
         bot.remove_command('help')
+
+        observer = Observer()
+        handler = FileHandler(bot, 1209949486571589785, 1209974090509713438)
+        observer.schedule(handler, path='logs/', recursive=False)
+        observer.start()
+
         logging.info(f"Cogs ({len(cogs)}): " + ", ".join([f'{cog}' for cog in cogs]))
         logging.info(f"Active commands ({len(cmds)}): " + ", ".join([f'{cmd}' for cmd in cmds]))
     except Exception as e:
