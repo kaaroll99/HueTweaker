@@ -23,5 +23,5 @@ class FileHandler(FileSystemEventHandler):
         await channel.send(name, file=file)
 
         db_channel = self.bot.get_channel(self.channel_database_id)
-        db_file = discord.File("databases/guilds.db", filename=f"{str(datetime.date.today().strftime("%Y-%m-%d"))}.db")
+        db_file = discord.File("databases/guilds.db", filename=f"{str(datetime.date.today().strftime('%Y-%m-%d'))}.db")
         await db_channel.send(file=db_file)
