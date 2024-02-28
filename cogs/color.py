@@ -36,7 +36,7 @@ class ColorCog(commands.Cog):
             if search_color in map(lambda x: x.lower(), data.keys()):
                 color = data[search_color]
             if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
-                raise ValueError
+                raise ValueError("color")
             if color.startswith("#"):
                 color = color.strip("#")
             db = database.Database(url=f"sqlite:///databases/guilds.db")
@@ -48,17 +48,33 @@ class ColorCog(commands.Cog):
             if sb_query:
                 top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
                 if top_role is not None and not top_role.position == 0:
+                    bot_member = interaction.guild.get_member(bot.user.id)
+                    bot_top_role = 0
+
+                    for role in bot_member.roles:
+                        if role.position > bot_top_role:
+                            bot_top_role = role.position
+
+                    if top_role.position > bot_top_role:
+                        raise ValueError("pos")
+
                     await role.edit(position=top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color, 16)))
             await interaction.user.add_roles(role)
             embed.description = f"✨ **Color has been set for to __#{color}__**"
             embed.color = discord.Colour(int(color, 16))
 
-        except ValueError:
-            embed.description = "⚠️ **Incorrect color format**"
-            embed.add_field(name=f"Color format:",
-                            value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)",
-                            inline=False)
+        except ValueError as e:
+            if str(e) == "color":
+                embed.description = "⚠️ **Incorrect color format**"
+                embed.add_field(name=f"Color format:",
+                                value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)",
+                                inline=False)
+            elif str(e) == "pos":
+                embed.description = (
+                    f"**{messages_file.get('exception')} The bot does not have the permissions to perform this operation.** "
+                    f"This is probably due to an incorrect configuration of toprole - `/color toptole`. "
+                    f"Notify the server administrator of the occurrence of this error.")
 
         except Exception as e:
             embed.clear_fields()
@@ -122,17 +138,34 @@ class ColorCog(commands.Cog):
             if sb_query:
                 top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
                 if top_role is not None and not top_role.position == 0:
+                    bot_member = interaction.guild.get_member(bot.user.id)
+                    bot_top_role = 0
+
+                    for role in bot_member.roles:
+                        if role.position > bot_top_role:
+                            bot_top_role = role.position
+
+                    if top_role.position > bot_top_role:
+                        raise ValueError("pos")
+
                     await role.edit(position=top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color, 16)))
             await user_name.add_roles(role)
             embed.description = f"✨ **Color has been set for {user_name.name} to __#{color}__**"
             embed.color = discord.Colour(int(color, 16))
 
-        except ValueError:
-            embed.description = "⚠️ **Incorrect color format**"
-            embed.add_field(name=f"Color format:",
-                            value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)",
-                            inline=False)
+        except ValueError as e:
+            if str(e) == "color":
+                embed.description = "⚠️ **Incorrect color format**"
+                embed.add_field(name=f"Color format:",
+                                value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)",
+                                inline=False)
+
+            elif str(e) == "pos":
+                embed.description = (
+                    f"**{messages_file.get('exception')} The bot does not have the permissions to perform this operation.** "
+                    f"This is probably due to an incorrect configuration of toprole - `/color toptole`. "
+                    f"Notify the server administrator of the occurrence of this error.")
 
         except Exception as e:
             embed.clear_fields()
