@@ -56,7 +56,9 @@ class ColorCog(commands.Cog):
 
         except ValueError:
             embed.description = "⚠️ **Incorrect color format**"
-            embed.add_field(name=f"Color format:", value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)", inline=False)
+            embed.add_field(name=f"Color format:",
+                            value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)",
+                            inline=False)
 
         except Exception as e:
             embed.clear_fields()
@@ -128,7 +130,9 @@ class ColorCog(commands.Cog):
 
         except ValueError:
             embed.description = "⚠️ **Incorrect color format**"
-            embed.add_field(name=f"Color format:", value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)", inline=False)
+            embed.add_field(name=f"Color format:",
+                            value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)",
+                            inline=False)
 
         except Exception as e:
             embed.clear_fields()
@@ -139,7 +143,8 @@ class ColorCog(commands.Cog):
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color forceset {color} (len:{len(embed)})")
+            logging.info(
+                f"{interaction.user} {messages_file['logs_issued']}: /color forceset {color} (len:{len(embed)})")
 
     @group.command(name="forceremove", description="Removing the color of the user")
     @app_commands.describe(user_name="User name")
@@ -184,7 +189,19 @@ class ColorCog(commands.Cog):
             pattern = re.compile(f"color-\\d{{18,19}}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
             if top_role.position == 0:
-                raise ValueError
+                raise ValueError("You cannot set `@everyone` as top role. Check `/help` for more information.")
+
+            bot_member = interaction.guild.get_member(bot.user.id)
+            bot_top_role = 0
+
+            for role in bot_member.roles:
+                if role.position > bot_top_role:
+                    bot_top_role = role.position
+
+            if top_role.position > bot_top_role:
+                raise ValueError(
+                    "You cannot set a role which is above the highest bot role. Check `/help` for more information.")
+
             for role in interaction.guild.roles:
 
                 if pattern.match(role.name):
@@ -203,8 +220,8 @@ class ColorCog(commands.Cog):
                 db.create(model.guilds_class(f"guilds"), {"server": interaction.guild.id, "role": role_name.id})
 
             embed.description = f"✨ **Top role has been set for __{role_name.name}__**"
-        except ValueError:
-            embed.description = f"**{messages_file.get('exception')} You cannot set `@everyone` as top role. Check `/help` for more information.**"
+        except ValueError as e:
+            embed.description = f"**{messages_file.get('exception')} {e}**"
         except Exception as e:
             embed.clear_fields()
             embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
