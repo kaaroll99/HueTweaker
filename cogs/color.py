@@ -41,22 +41,26 @@ class ColorCog(commands.Cog):
                 color = color.strip("#")
             db = database.Database(url=f"sqlite:///databases/guilds.db")
             db.connect()
-            sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
             if role is None:
                 role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
+
+            sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
             if sb_query:
-                top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
+                top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0]["role"])
+                # print(top_role.name, top_role.id)
+
                 if top_role is not None and not top_role.position == 0:
-                    bot_member = interaction.guild.get_member(bot.user.id)
-                    bot_top_role = 0
-
-                    for role in bot_member.roles:
-                        if role.position > bot_top_role:
-                            bot_top_role = role.position
-
-                    if top_role.position > bot_top_role:
-                        raise ValueError("pos")
+                    # bot_member = interaction.guild.get_member(bot.user.id)
+                    # bot_top_role = 0
+                    #
+                    # for role in bot_member.roles:
+                    #     if role.position > bot_top_role:
+                    #         bot_top_role = role.position
+                    #
+                    # if top_role.position > bot_top_role:
+                    #     raise ValueError("pos")
 
                     await role.edit(position=top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color, 16)))
@@ -224,16 +228,16 @@ class ColorCog(commands.Cog):
             if top_role.position == 0:
                 raise ValueError("You cannot set `@everyone` as top role. Check `/help` for more information.")
 
-            bot_member = interaction.guild.get_member(bot.user.id)
-            bot_top_role = 0
-
-            for role in bot_member.roles:
-                if role.position > bot_top_role:
-                    bot_top_role = role.position
-
-            if top_role.position > bot_top_role:
-                raise ValueError(
-                    "You cannot set a role which is above the highest bot role. Check `/help` for more information.")
+            # bot_member = interaction.guild.get_member(bot.user.id)
+            # bot_top_role = 0
+            #
+            # for role in bot_member.roles:
+            #     if role.position > bot_top_role:
+            #         bot_top_role = role.position
+            #
+            # if top_role.position > bot_top_role:
+            #     raise ValueError(
+            #         "You cannot set a role which is above the highest bot role. Check `/help` for more information.")
 
             for role in interaction.guild.roles:
 
