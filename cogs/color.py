@@ -55,7 +55,7 @@ class ColorCog(commands.Cog):
 
             await role.edit(colour=discord.Colour(int(color, 16)))
             await interaction.user.add_roles(role)
-            embed.description = f"✨ **Color has been set for to __#{color}__**"
+            embed.description = f"✨ **Color has been set to __#{color}__**"
             embed.color = discord.Colour(int(color, 16))
 
         except ValueError:
@@ -66,9 +66,10 @@ class ColorCog(commands.Cog):
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = (f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**\n\n"
-                                 f"Error may have been caused by misconfiguration of top-role bot (`/color toprole`). "
-                                 f"Notify the server administrator of the occurrence of this error.")
+            embed.description = (
+                f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**\n\n"
+                f"Error may have been caused by misconfiguration of top-role bot (`/color toprole`). "
+                f"Notify the server administrator of the occurrence of this error.")
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
@@ -195,18 +196,7 @@ class ColorCog(commands.Cog):
             pattern = re.compile(f"color-\\d{{18,19}}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
             if top_role.position == 0:
-                raise ValueError("You cannot set `@everyone` as top role. Check `/help` for more information.")
-
-            # bot_member = interaction.guild.get_member(bot.user.id)
-            # bot_top_role = 0
-            #
-            # for role in bot_member.roles:
-            #     if role.position > bot_top_role:
-            #         bot_top_role = role.position
-            #
-            # if top_role.position > bot_top_role:
-            #     raise ValueError(
-            #         "You cannot set a role which is above the highest bot role. Check `/help` for more information.")
+                raise ValueError
 
             for role in interaction.guild.roles:
 
@@ -228,8 +218,8 @@ class ColorCog(commands.Cog):
             embed.description = (f"✨ **Top role has been set for __{role_name.name}__**\n\n"
                                  f"💡 Remember that the selected role should be under the highest role the bot has. "
                                  f"Otherwise it will cause errors when setting the username color.")
-        except ValueError as e:
-            embed.description = f"**{messages_file.get('exception')} {e}**"
+        except ValueError:
+            embed.description = f"**{messages_file.get('exception')} You cannot set `@everyone` as top role. Check `/help` for more information.**"
         except Exception as e:
             embed.clear_fields()
             embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
