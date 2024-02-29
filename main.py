@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 import asyncio
 import config
 from config import bot
@@ -7,6 +7,7 @@ import logging
 from database import database
 from watchdog.observers import Observer
 from watchdog_handler import FileHandler
+import topgg
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
@@ -38,6 +39,20 @@ async def main():
     db.connect()
     db.database_init()
     async with bot:
+
+        dbl_token = token_file['TOP_GG_TOKEN']
+        bot.topggpy = topgg.DBLClient(bot, dbl_token)
+
+        @tasks.loop(minutes=60)
+        async def update_stats():
+            try:
+                await bot.topggpy.post_guild_count()
+                print(f"Posted server count ({bot.topggpy.guild_count})")
+            except Exception as e:
+                print(f"Failed to post server count\n{e.__class__.__name__}: {e}")
+
+        update_stats.start()
+
         logging.info('Bot is running.')
         for cog in cogs:
             await bot.load_extension(f"cogs.{cog}")
