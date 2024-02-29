@@ -5,9 +5,8 @@ import config
 from config import bot
 import logging
 from database import database
-from watchdog.observers import Observer
-from watchdog_handler import FileHandler
 import topgg
+import datetime
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
@@ -22,11 +21,6 @@ async def on_ready():
         for command in synced:
             cmds.append(command.name)
         bot.remove_command('help')
-
-        observer = Observer()
-        handler = FileHandler(bot, 1209949486571589785, 1209974090509713438)
-        observer.schedule(handler, path='logs/', recursive=False)
-        observer.start()
 
         logging.info(f"Cogs ({len(cogs)}): " + ", ".join([f'{cog}' for cog in cogs]))
         logging.info(f"Active commands ({len(cmds)}): " + ", ".join([f'{cmd}' for cmd in cmds]))
@@ -47,11 +41,21 @@ async def main():
         async def update_stats():
             try:
                 await bot.topggpy.post_guild_count()
-                print(f"Posted server count ({bot.topggpy.guild_count})")
+                logging.info(f"Posted server count ({bot.topggpy.guild_count})")
             except Exception as e:
-                print(f"Failed to post server count\n{e.__class__.__name__}: {e}")
+                logging.critical(f"Failed to post server count - {e.__class__.__name__}: {e}")
+
+        @tasks.loop(hours=24)
+        async def database_backup():
+            try:
+                db_file = discord.File("databases/guilds.db", filename=f"{str(datetime.date.today().strftime('%Y-%m-%d'))}.db")
+                await bot.get_channel(1209974090509713438).send(file=db_file)
+                logging.info(f"Database saved to {db_file}")
+            except Exception as e:
+                logging.critical(f"Database backup error - {e.__class__.__name__}: {e}")
 
         update_stats.start()
+        database_backup.start()
 
         logging.info('Bot is running.')
         for cog in cogs:
