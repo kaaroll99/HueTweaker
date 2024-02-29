@@ -5,8 +5,12 @@ from logging.handlers import TimedRotatingFileHandler
 import logging
 import datetime
 
-intents = discord.Intents.all()
-intents.message_content = True
+intents = discord.Intents.none()
+intents.messages = True
+# intents.message_content = True
+# intents.guild_messages = True
+intents.guilds = True
+
 activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
 bot = commands.Bot(command_prefix="!$%ht", intents=intents, activity=activity, status=discord.Status.online)
 bot.remove_command('help')

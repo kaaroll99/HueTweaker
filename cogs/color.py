@@ -2,7 +2,7 @@ import json
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
-import datetime
+from datetime import datetime, timedelta
 import config
 import color_format
 from config import bot
@@ -24,10 +24,11 @@ class ColorCog(commands.Cog):
 
     @group.command(name="set", description="Setting the color")
     @app_commands.describe(color="Color to set")
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
             with open("css-color-names.json", "r", encoding="utf-8") as file:
@@ -79,10 +80,11 @@ class ColorCog(commands.Cog):
             logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color set {color} (len:{len(embed)})")
 
     @group.command(name="remove", description="Removing the color")
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def remove(self, interaction: discord.Interaction) -> None:
         embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
@@ -104,11 +106,12 @@ class ColorCog(commands.Cog):
 
     @group.command(name="forceset", description="Setting the color of the user")
     @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(user_name="User name", color="Color to set")
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
             with open("css-color-names.json", "r", encoding="utf-8") as file:
@@ -135,7 +138,7 @@ class ColorCog(commands.Cog):
             embed.description = f"✨ **Color has been set for {user_name.name} to __#{color}__**"
             embed.color = discord.Colour(int(color, 16))
 
-        except ValueError as e:
+        except ValueError:
             embed.description = "⚠️ **Incorrect color format**"
             embed.add_field(name=f"Color format:",
                             value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)",
@@ -155,11 +158,12 @@ class ColorCog(commands.Cog):
 
     @group.command(name="forceremove", description="Removing the color of the user")
     @app_commands.describe(user_name="User name")
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def forceremove(self, interaction: discord.Interaction, user_name: discord.Member) -> None:
         embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
             role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
@@ -188,7 +192,7 @@ class ColorCog(commands.Cog):
     @app_commands.guild_only()
     async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:
         embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
 
@@ -236,7 +240,7 @@ class ColorCog(commands.Cog):
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
             with open("css-color-names.json", "r", encoding="utf-8") as file:
@@ -252,7 +256,7 @@ class ColorCog(commands.Cog):
             image = color_format.generate_image_from_rgb_float([float(val) for val in output_color['RGB']])
 
             embed: Embed = discord.Embed(title=f"Details for color: **{output_color['Input']}**", description=f"",
-                                         color=self.color, timestamp=datetime.datetime.now())
+                                         color=self.color, timestamp=datetime.now())
 
             embed.add_field(name=f"{messages_file['item_icon']} Hex:",
                             value=f"{output_color['Hex'].upper()}",
@@ -305,10 +309,17 @@ class ColorCog(commands.Cog):
     async def permission_error(self, interaction: discord.Interaction, error):
         if isinstance(error, discord.app_commands.errors.MissingPermissions):
             embed: Embed = discord.Embed(title="", description=messages_file.get('no_permissions', ''),
-                                         color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+                                         color=config_file['EMBED_COLOR'], timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.response.send_message(embed=embed, ephemeral=True)
+
+    @set.error
+    async def cooldown_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.CommandOnCooldown):
+            retry_time = datetime.now() + timedelta(seconds=error.retry_after)
+            response = f"⚠️ Please cool down. Retry <t:{int(retry_time.timestamp())}:R>"
+            await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
 
 async def setup(bot: commands.Bot) -> None:
