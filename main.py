@@ -1,5 +1,5 @@
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
 import asyncio
 import config
 from config import bot
@@ -7,27 +7,10 @@ import logging
 from database import database
 from watchdog.observers import Observer
 from watchdog_handler import FileHandler
-import topgg
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
 cogs = ['help', 'color', 'embed', 'joinListener']
-
-
-dbl_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMDkxODc5OTk5MzQ1Nzg3MzgiLCJib3QiOnRydWUsImlhdCI6MTcwOTI0MTc0NX0.Ng7tOwfJvj1d53sDVsp-EHgNoIGUt1ntPztMFmObso8"  # set this to your bot's Top.gg token
-bot.topggpy = topgg.DBLClient(bot, dbl_token)
-
-
-@tasks.loop(minutes=30)
-async def update_stats():
-    """This function runs every 30 minutes to automatically update your server count."""
-    try:
-        await bot.topggpy.post_guild_count()
-        print(f"Posted server count ({bot.topggpy.guild_count})")
-    except Exception as e:
-        print(f"Failed to post server count\n{e.__class__.__name__}: {e}")
-
-update_stats.start()
 
 
 @bot.event
