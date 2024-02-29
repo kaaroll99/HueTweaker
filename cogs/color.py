@@ -237,6 +237,7 @@ class ColorCog(commands.Cog):
                 f"{interaction.user} {messages_file['logs_issued']}: /color toprole (len:{len(embed)})")
 
     @group.command(name="check", description="Color information (HEX, RGB, HSL, CMYK, Integer)")
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"",
@@ -245,8 +246,9 @@ class ColorCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
             with open("css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
-            if color.lower().strip() in map(lambda x: x.lower(), data.keys()):
-                color = data[color]
+            search_color = color.lower().replace(" ", "")
+            if search_color in map(lambda x: x.lower(), data.keys()):
+                color = data[search_color]
 
             output_color = color_format.color_converter(color)
 
@@ -315,6 +317,10 @@ class ColorCog(commands.Cog):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
     @set.error
+    @forceset.error
+    @remove.error
+    @forceremove.error
+    @check.error
     async def cooldown_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
