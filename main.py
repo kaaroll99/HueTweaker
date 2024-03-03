@@ -43,7 +43,13 @@ async def main():
         async def update_stats_topgg():
             try:
                 await bot.topggpy.post_guild_count()
+
+                data = {
+                    "guilds": 2
+                }
+
                 logging.info(f"Posted server count to topgg ({bot.topggpy.guild_count})")
+                logging.info(f"Posted server count to discordbotlist ({data["guilds"]})")
             except Exception as e:
                 logging.warning(f"Failed to post server count to topgg - {e.__class__.__name__}: {e}")
 
