@@ -49,14 +49,14 @@ async def main():
 
         @tasks.loop(hours=2)
         async def update_stats_dbl():
-            print(len(bot.guilds))
+            print(len(bot.gui))
             print(bot.topggpy.guild_count)
             try:
                 data = {
                     "guilds": len(bot.guilds)
                 }
 
-                logging.info(f"Posted server count to discordbotlist ({data["guilds"]})")
+                # logging.info(f"Posted server count to discordbotlist ({data["guilds"]})")
             except Exception as e:
                 logging.warning(f"Failed to post server count to discordbotlist - {e.__class__.__name__}: {e}")
 
