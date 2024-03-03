@@ -47,9 +47,10 @@ async def main():
                 data = {
                     "guilds": 2
                 }
+                data_formated = json.dumps(data)
 
                 logging.info(f"Posted server count to topgg ({bot.topggpy.guild_count})")
-                logging.info(f"Posted server count to discordbotlist ({data["guilds"]})")
+                logging.info(f"Posted server count to discordbotlist ({json.loads(data_formated)['guilds']})")
             except Exception as e:
                 logging.warning(f"Failed to post server count to topgg - {e.__class__.__name__}: {e}")
 
