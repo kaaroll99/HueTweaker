@@ -39,13 +39,26 @@ async def main():
         topgg_token = token_file['TOP_GG_TOKEN']
         bot.topggpy = topgg.DBLClient(bot, topgg_token)
 
-        @tasks.loop(minutes=60)
-        async def update_stats():
+        @tasks.loop(hours=2)
+        async def update_stats_topgg():
             try:
                 await bot.topggpy.post_guild_count()
-                logging.info(f"Posted server count ({bot.topggpy.guild_count})")
+                logging.info(f"Posted server count to topgg ({bot.topggpy.guild_count})")
             except Exception as e:
-                logging.warning(f"Failed to post server count - {e.__class__.__name__}: {e}")
+                logging.warning(f"Failed to post server count to topgg - {e.__class__.__name__}: {e}")
+
+        @tasks.loop(hours=2)
+        async def update_stats_dbl():
+            print(len(bot.guilds))
+            print(bot.topggpy.guild_count)
+            try:
+                data = {
+                    "guilds": len(bot.guilds)
+                }
+
+                logging.info(f"Posted server count to discordbotlist ({data["guilds"]})")
+            except Exception as e:
+                logging.warning(f"Failed to post server count to discordbotlist - {e.__class__.__name__}: {e}")
 
         @tasks.loop(hours=24)
         async def database_backup():
@@ -75,7 +88,8 @@ async def main():
             else:
                 logging.warning(f"Failed to post server commands - {response.status_code}")
 
-        update_stats.start()
+        update_stats_topgg.start()
+        update_stats_dbl.start()
         database_backup.start()
         send_command_list.start()
 
