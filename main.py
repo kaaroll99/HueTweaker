@@ -39,13 +39,16 @@ async def main():
         topgg_token = token_file['TOP_GG_TOKEN']
         bot.topggpy = topgg.DBLClient(bot, topgg_token)
 
-        @tasks.loop(hours=12)
+        @tasks.loop(hours=24)
         async def update_stats():
             try:
                 await bot.topggpy.post_guild_count()
                 logging.info(f"Posted server count to topgg ({bot.topggpy.guild_count})")
 
-                data = {"guilds": bot.topggpy.guild_count}
+                data = {
+                    "users": sum(guild.member_count for guild in bot.guilds),
+                    "guilds": bot.topggpy.guild_count
+                }
                 json_data = json.dumps(data)
                 url = "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats"
                 headers = {
@@ -70,7 +73,7 @@ async def main():
             except Exception as e:
                 logging.warning(f"Database backup error - {e.__class__.__name__}: {e}")
 
-        @tasks.loop(hours=48)
+        @tasks.loop(hours=72)
         async def send_command_list():
             url = f"https://discordbotlist.com/api/v1/bots/1209187999934578738/commands"
 

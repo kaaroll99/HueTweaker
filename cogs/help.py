@@ -36,9 +36,11 @@ class HelpCog(commands.Cog):
         view.add_item(select)
         try:
             await interaction.response.defer(ephemeral=True)
+            total_users = sum(guild.member_count for guild in bot.guilds)
             embed.description = f"""
                                                 
                         🧮 Online on `{len(bot.guilds)}` servers.
+                        👤 Used by `{total_users}` people.
                         
                         ✨ [Join the support server](https://discord.gg/tYdK4pD6ks)
                         
@@ -46,9 +48,6 @@ class HelpCog(commands.Cog):
                         
                         💡 Select one of the available commands from the list to learn more.
                         """
-
-            total_users = sum(guild.member_count for guild in bot.guilds)
-            print(total_users)
 
         except Exception as e:
             embed.clear_fields()
