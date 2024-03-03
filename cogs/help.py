@@ -59,29 +59,6 @@ class HelpCog(commands.Cog):
             await interaction.followup.send(embed=embed, view=view)
             logging.info(f"{interaction.user} {messages_file['logs_issued']}: /help (len:{len(embed)})")
 
-    @app_commands.command(name="vote", description="Vote for the bot on top.gg")
-    async def vote(self, interaction: discord.Interaction) -> None:
-        embed = discord.Embed(title=f"{bot.user.name}", description=f"",
-                              color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
-        try:
-            await interaction.response.defer(ephemeral=True)
-            embed.description = f"""
-            
-                            ✨ [VOTE ON TOP.GG](https://top.gg/bot/1209187999934578738/vote) ✨
-                            
-                            """
-        except Exception as e:
-            embed.clear_fields()
-            embed.description = f""
-            embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
-                            value=f"", inline=False)
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
-        finally:
-            embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user} {messages_file['logs_issued']}: /vote (len:{len(embed)})")
-
     @staticmethod
     async def __select_callback(interaction: discord.Interaction):
         try:

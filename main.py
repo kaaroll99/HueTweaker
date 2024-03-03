@@ -7,10 +7,12 @@ import logging
 from database import database
 import topgg
 import datetime
+import json
+import requests
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
-cogs = ['help', 'color', 'embed', 'joinListener']
+cogs = ['help', 'color', 'embed', 'joinListener', 'vote']
 
 
 @bot.event
@@ -34,8 +36,8 @@ async def main():
     db.database_init()
     async with bot:
 
-        dbl_token = token_file['TOP_GG_TOKEN']
-        bot.topggpy = topgg.DBLClient(bot, dbl_token)
+        topgg_token = token_file['TOP_GG_TOKEN']
+        bot.topggpy = topgg.DBLClient(bot, topgg_token)
 
         @tasks.loop(minutes=60)
         async def update_stats():
@@ -43,7 +45,7 @@ async def main():
                 await bot.topggpy.post_guild_count()
                 logging.info(f"Posted server count ({bot.topggpy.guild_count})")
             except Exception as e:
-                logging.critical(f"Failed to post server count - {e.__class__.__name__}: {e}")
+                logging.warning(f"Failed to post server count - {e.__class__.__name__}: {e}")
 
         @tasks.loop(hours=24)
         async def database_backup():
@@ -52,10 +54,30 @@ async def main():
                 await bot.get_channel(1209974090509713438).send(file=db_file)
                 logging.info(f"Database saved to {db_file}")
             except Exception as e:
-                logging.critical(f"Database backup error - {e.__class__.__name__}: {e}")
+                logging.warning(f"Database backup error - {e.__class__.__name__}: {e}")
+
+        @tasks.loop(hours=48)
+        async def send_command_list():
+            url = f"https://discordbotlist.com/api/v1/bots/1209187999934578738/commands"
+
+            with open("commands_list.json", "r") as f:
+                json_payload = json.load(f)
+
+            headers = {
+                "Authorization": token_file['DISCORDBOTLIST_TOKEN'],
+                "Content-Type": "application/json"
+            }
+
+            response = requests.post(url, json=json_payload, headers=headers)
+
+            if response.status_code == 200:
+                logging.info(f"Server command list has been updated: {response.status_code}")
+            else:
+                logging.warning(f"Failed to post server commands - {response.status_code}")
 
         update_stats.start()
         database_backup.start()
+        send_command_list.start()
 
         logging.info('Bot is running.')
         for cog in cogs:

@@ -1,0 +1,54 @@
+[
+  {
+    "name": "help",
+    "description": "Information about the bot and a list of available commands.",
+    "type": 1
+  },
+  {
+    "name": "color",
+    "description": "Information about the bot and a list of available commands.",
+    "options": [
+      {
+        "name": "set",
+        "description": "Set the username color using hex code or CSS color name.",
+        "type": 1,
+        "required": true
+      },
+      {
+        "name": "remove",
+        "description": "Remove the username color.",
+        "type": 1,
+        "required": true
+      },
+      {
+        "name": "check",
+        "description": "Get color information (HEX, RGB, HSL, CMYK, Integer).",
+        "type": 1,
+        "required": true
+      },
+      {
+        "name": "forceset",
+        "description": "Set the username color of the specific user using hex code or CSS color name. The command can only be executed by a user with administrator privileges.",
+        "type": 1,
+        "required": true
+      },
+      {
+        "name": "forceremove",
+        "description": "Remove the username color of the specific user. The command can only be executed by a user with administrator privileges.",
+        "type": 1,
+        "required": true
+      },
+      {
+        "name": "toprole",
+        "description": "Set the top role for color roles. All color roles will be set under the indicated role.",
+        "type": 1,
+        "required": true
+      }
+    ]
+  },
+  {
+    "name": "embed",
+    "description": "JSON to Discord embed conversion. The command can only be executed by a user with administrator privileges.",
+    "type": 1
+  }
+]
