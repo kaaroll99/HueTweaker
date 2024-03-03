@@ -47,6 +47,9 @@ class HelpCog(commands.Cog):
                         💡 Select one of the available commands from the list to learn more.
                         """
 
+            total_users = sum(guild.member_count for guild in bot.guilds)
+            print(total_users)
+
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
