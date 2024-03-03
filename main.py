@@ -49,7 +49,7 @@ async def main():
 
         @tasks.loop(hours=2)
         async def update_stats_dbl():
-            print(len(bot.gui))
+            print(len(bot.guilds))
             print(bot.topggpy.guild_count)
             try:
                 data = {
