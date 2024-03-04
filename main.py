@@ -83,7 +83,7 @@ async def main():
         async def send_command_list():
             url = f"https://discordbotlist.com/api/v1/bots/1209187999934578738/commands"
 
-            with open("commands_list.json", "r") as f:
+            with open("assets/commands_list.json", "r") as f:
                 json_payload = json.load(f)
 
             headers = {

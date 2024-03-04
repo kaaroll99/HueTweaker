@@ -11,7 +11,7 @@ import yaml
 import re
 from database import database, model
 
-messages_file = config.load_yml('messages.yml')
+messages_file = config.load_yml('assets/messages.yml')
 config_file = config.load_yml('config.yml')
 
 
@@ -31,7 +31,7 @@ class ColorCog(commands.Cog):
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
-            with open("css-color-names.json", "r", encoding="utf-8") as file:
+            with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
             search_color = color.lower().replace(" ", "")
             if search_color in map(lambda x: x.lower(), data.keys()):
@@ -114,7 +114,7 @@ class ColorCog(commands.Cog):
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
-            with open("css-color-names.json", "r", encoding="utf-8") as file:
+            with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
             search_color = color.lower().replace(" ", "")
             if search_color in map(lambda x: x.lower(), data.keys()):
@@ -244,7 +244,7 @@ class ColorCog(commands.Cog):
                                      color=config_file['EMBED_COLOR'], timestamp=datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
-            with open("css-color-names.json", "r", encoding="utf-8") as file:
+            with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
             search_color = color.lower().replace(" ", "")
             if search_color in map(lambda x: x.lower(), data.keys()):

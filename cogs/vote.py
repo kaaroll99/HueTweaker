@@ -9,7 +9,7 @@ from config import bot
 
 from database import database, model
 
-messages_file = config.load_yml('messages.yml')
+messages_file = config.load_yml('assets/messages.yml')
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
 
