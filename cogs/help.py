@@ -24,30 +24,32 @@ class HelpCog(commands.Cog):
         select = discord.ui.Select(placeholder='Choose a command from the list...', options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
             discord.SelectOption(label="/color set", value="set", emoji="🌈"),
-            discord.SelectOption(label="/color remove", value="remove", emoji="🔴"),
+            discord.SelectOption(label="/color remove", value="remove", emoji="🗑️"),
             discord.SelectOption(label="/color check", value="check", emoji="🔍"),
             discord.SelectOption(label="/color forceset", value="forceset", emoji="⚙️"),
             discord.SelectOption(label="/color forceremove", value="forceremove", emoji="🔄"),
-            discord.SelectOption(label="/color toprole", value="toprole", emoji="🔝"),
+            discord.SelectOption(label="/color toprole", value="toprole", emoji="💫"),
             discord.SelectOption(label="/embed", value="embed", emoji="📋")
         ])
+        invite_button = discord.ui.Button(label="Invite bot", style=discord.ButtonStyle.url,
+                                    url="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot")
+        support_button = discord.ui.Button(label="Join support server", style=discord.ButtonStyle.url,
+                                    url="https://discord.gg/tYdK4pD6ks")
+
         select.callback = self.__select_callback
         view = discord.ui.View()
         view.add_item(select)
+        view.add_item(invite_button)
+        view.add_item(support_button)
+
         try:
             await interaction.response.defer(ephemeral=True)
             total_users = sum(guild.member_count for guild in bot.guilds)
-            embed.description = f"""
-                                                
-                        🧮 Online on `{len(bot.guilds)}` servers.
-                        👤 Used by `{total_users}` people.
-                        
-                        ✨ [Join the support server](https://discord.gg/tYdK4pD6ks)
-                        
-                        ⚠️ Remember to set the top role using /color toprole. If no role is indicated, color roles will be created at the bottom, potentially getting obscured by higher roles.
-                        
-                        💡 Select one of the available commands from the list to learn more.
-                        """
+            embed.description = (f"- Online on `{len(bot.guilds)}` servers.\n"
+                                 f"- Used by `{total_users}` people.\n\n"
+                                 f"**Select one of the available commands from the list to learn more.**\n\n"
+                                 f"*⚠️ Remember to set the top role using /color toprole. If no role is indicated, color"
+                                 f" roles will be created at the bottom, potentially getting obscured by higher roles.*")
 
         except Exception as e:
             embed.clear_fields()

@@ -59,7 +59,7 @@ async def main():
                 if response.status_code == 200:
                     logging.info(f"Posted server count to discordbotlist ({json.loads(json_data)['guilds']})")
                 else:
-                    logging.warning(f"Failed to post guilds count - {response.status_code}")
+                    logging.warning(f"Failed to post guilds count to discordbotlist - {response.status_code}")
 
             except Exception as e:
                 logging.warning(f"Failed to post server count to topgg - {e.__class__.__name__}: {e}")
