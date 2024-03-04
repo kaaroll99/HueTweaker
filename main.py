@@ -66,10 +66,16 @@ async def main():
 
         @tasks.loop(hours=24)
         async def database_backup():
+            await bot.wait_until_ready()
             try:
                 db_file = discord.File("databases/guilds.db", filename=f"{str(datetime.date.today().strftime('%Y-%m-%d'))}.db")
-                await bot.get_channel(1209974090509713438).send(file=db_file)
-                logging.info(f"Database saved to {db_file}")
+                channel = bot.get_channel(1209974090509713438)
+
+                if channel is None:
+                    logging.warning(f"Backup channel not found.")
+                    return
+                await channel.send(file=db_file)
+                logging.info(f"Database saved to {db_file.filename}")
             except Exception as e:
                 logging.warning(f"Database backup error - {e.__class__.__name__}: {e}")
 
