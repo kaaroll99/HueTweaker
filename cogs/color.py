@@ -199,29 +199,36 @@ class ColorCog(commands.Cog):
             role_ids = []
             pattern = re.compile(f"color-\\d{{18,19}}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
-            if top_role.position == 0:
-                raise ValueError
 
             for role in interaction.guild.roles:
-
                 if pattern.match(role.name):
                     role_ids.append(role.id)
                     role = discord.utils.get(interaction.guild.roles, id=role.id)
-                    if not top_role.position == 0:
+                    if top_role.position == 0:
+                        await role.edit(position=1)
+                    else:
                         await role.edit(position=top_role.position - 1)
 
             db = database.Database(url=f"sqlite:///databases/guilds.db")
             db.connect()
             sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
-            if sb_query:
-                db.update(model.guilds_class(f"guilds"), {"server": interaction.guild.id},
-                          {"role": role_name.id})
-            else:
-                db.create(model.guilds_class(f"guilds"), {"server": interaction.guild.id, "role": role_name.id})
+            if top_role.position == 0:
+                if sb_query:
+                    db.delete(model.guilds_class(f"guilds"), {"server": interaction.guild.id})
 
-            embed.description = (f"✨ **Top role has been set for __{role_name.name}__**\n\n"
-                                 f"💡 Remember that the selected role should be under the highest role the bot has. "
-                                 f"Otherwise it will cause errors when setting the username color.")
+                embed.description = (f"✨ **Top role settings has been reset**\n\n"
+                                     f"💡 Remember that the selected role should be under the highest role the bot has. "
+                                     f"Otherwise it will cause errors when setting the username color.")
+            else:
+                if sb_query:
+                    db.update(model.guilds_class(f"guilds"), {"server": interaction.guild.id},
+                              {"role": role_name.id})
+                else:
+                    db.create(model.guilds_class(f"guilds"), {"server": interaction.guild.id, "role": role_name.id})
+
+                embed.description = (f"✨ **Top role has been set for __{role_name.name}__**\n\n"
+                                     f"💡 Remember that the selected role should be under the highest role the bot has. "
+                                     f"Otherwise it will cause errors when setting the username color.")
         except ValueError:
             embed.description = f"**{messages_file.get('exception')} You cannot set `@everyone` as top role. Check `/help` for more information.**"
         except Exception as e:

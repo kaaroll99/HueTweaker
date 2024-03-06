@@ -6,11 +6,11 @@
   },
   {
     "name": "color",
-    "description": "Information about the bot and a list of available commands.",
+    "description": "",
     "options": [
       {
         "name": "set",
-        "description": "Set the username color using hex code or CSS color name.",
+        "description": "Set/change  the username color using hex code or CSS color name.",
         "type": 1,
         "required": true
       },
@@ -28,7 +28,7 @@
       },
       {
         "name": "forceset",
-        "description": "Set the username color of the specific user using hex code or CSS color name. The command can only be executed by a user with administrator privileges.",
+        "description": "Set/change  the username color of the specific user using hex code or CSS color name. The command can only be executed by a user with administrator privileges.",
         "type": 1,
         "required": true
       },
