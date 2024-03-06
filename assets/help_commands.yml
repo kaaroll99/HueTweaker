@@ -9,7 +9,7 @@ help:
 set:
   name: set
   desc: >-
-    Set the username color using hex code or CSS color name.
+    Set/change the username color using hex code or CSS color name.
     
     Color palettes:
     
@@ -59,7 +59,7 @@ check:
 forceset:
   name: forceset
   desc: >-
-    Set the username color of the specific user using hex code or CSS color name.
+    Set/change  the username color of the specific user using hex code or CSS color name.
     
     ⚠️ The command can only be executed by a user with administrator privileges.
     
@@ -88,10 +88,13 @@ toprole:
   name: toprole
   desc: >-
     Set the top role for color roles. All color roles will be set under the indicated role.
+    Set `@everyone` to reset top role.
     
-    ⚠️ If the role is not indicated, color roles will be created at the bottom, which may cause the color to be obscured by higher roles.
+    ⚠️ **Important:**
     
-    ⚠️ Top role cannot be higher than the top bot role.
+    1. If the role is not indicated, color roles will be created at the bottom, which may cause the color to be obscured by higher roles.
+    
+    2. Top role __cannot be higher__ than the top bot role.
     
     
     💡 **Roles example:**
@@ -108,6 +111,7 @@ toprole:
     
     
     ⚠️ The command can only be executed by a user with administrator privileges.
+    
     
     `<role_name>` - Name of the selected role
 
