@@ -62,7 +62,7 @@ class ColorCog(commands.Cog):
         except ValueError:
             embed.description = "⚠️ **Incorrect color format**"
             embed.add_field(name=f"Color format:",
-                            value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)",
+                            value=f"`#F5DF4D` or name of [CSS color](https://htmlcolorcodes.com/color-names/)",
                             inline=False)
 
         except Exception as e:
@@ -141,7 +141,7 @@ class ColorCog(commands.Cog):
         except ValueError:
             embed.description = "⚠️ **Incorrect color format**"
             embed.add_field(name=f"Color format:",
-                            value=f"`#F5DF4D` or name of [CSS color](https://www.w3schools.com/cssref/css_colors.php)",
+                            value=f"`#F5DF4D` or name of [CSS color](https://htmlcolorcodes.com/color-names/)",
                             inline=False)
 
         except Exception as e:
