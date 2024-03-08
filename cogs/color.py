@@ -227,7 +227,8 @@ class ColorCog(commands.Cog):
             embed.description = f"**{messages_file.get('exception')} You cannot set `@everyone` as top role. Check `/help` for more information.**"
         except Exception as e:
             embed.clear_fields()
-            embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
+            embed.description = (f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**\n\n"
+                                 f"💡 Use the `/help` command to learn how to properly configure top role")
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
