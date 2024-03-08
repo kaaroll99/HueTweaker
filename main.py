@@ -5,10 +5,7 @@ import config
 from config import bot
 import logging
 from database import database
-import datetime
 import tasks_defs
-import json
-import requests
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')

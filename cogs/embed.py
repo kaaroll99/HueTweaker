@@ -5,7 +5,6 @@ import datetime
 import config
 import json
 import logging
-
 from config import bot
 
 messages_file = config.load_yml('assets/messages.yml')

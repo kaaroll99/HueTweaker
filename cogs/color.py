@@ -7,7 +7,6 @@ import config
 import color_format
 from config import bot
 import logging
-import yaml
 import re
 from database import database, model
 
@@ -27,8 +26,7 @@ class ColorCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
+        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
             with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
@@ -74,7 +72,7 @@ class ColorCog(commands.Cog):
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
+            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color set {color} (len:{len(embed)})")
@@ -83,8 +81,7 @@ class ColorCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def remove(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
+        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
@@ -99,7 +96,7 @@ class ColorCog(commands.Cog):
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
+            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color remove (len:{len(embed)})")
@@ -110,8 +107,7 @@ class ColorCog(commands.Cog):
     @app_commands.describe(user_name="User name", color="Color to set")
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
-        embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
+        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
             with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
@@ -150,7 +146,7 @@ class ColorCog(commands.Cog):
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
+            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
@@ -162,8 +158,7 @@ class ColorCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def forceremove(self, interaction: discord.Interaction, user_name: discord.Member) -> None:
-        embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
+        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
             role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
@@ -180,7 +175,7 @@ class ColorCog(commands.Cog):
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
+            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
@@ -191,8 +186,7 @@ class ColorCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:
-        embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
+        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
 
@@ -237,7 +231,7 @@ class ColorCog(commands.Cog):
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
+            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
@@ -247,8 +241,7 @@ class ColorCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title="", description=f"",
-                                     color=config_file['EMBED_COLOR'], timestamp=datetime.now())
+        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
             with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
@@ -290,7 +283,7 @@ class ColorCog(commands.Cog):
             embed.color = int(output_color['Hex'].strip("#"), 16)
             file = discord.File("output/color_fill.png")
             embed.set_image(url="attachment://" + file.filename)
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
+            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed, file=file)
 
         except ValueError:

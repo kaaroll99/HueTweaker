@@ -19,8 +19,7 @@ class HelpCog(commands.Cog):
 
     @app_commands.command(name="help", description="Information about the bot and a list of available commands")
     async def help(self, interaction: discord.Interaction) -> None:
-        embed = discord.Embed(title=f"{bot.user.name}", description=f"",
-                              color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+        embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=config_file['EMBED_COLOR'])
         select = discord.ui.Select(placeholder='Choose a command from the list...', options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
             discord.SelectOption(label="/color set", value="set", emoji="🌈"),
@@ -61,7 +60,7 @@ class HelpCog(commands.Cog):
                             value=f"", inline=False)
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
+            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
             logging.info(f"{interaction.user} {messages_file['logs_issued']}: /help (len:{len(embed)})")
@@ -73,8 +72,7 @@ class HelpCog(commands.Cog):
                 data = yaml.safe_load(f)
             selected_option = interaction.data['values'][0]
             embed = discord.Embed(title=f"✨ Command `{data[selected_option]['name']}`",
-                                  description=f"{data[selected_option]['desc']}",
-                                  color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+                                  description=f"{data[selected_option]['desc']}", color=config_file['EMBED_COLOR'])
 
             embed.add_field(name=f"Command syntax:", value=f"> {data[selected_option]['usage']}",
                             inline=False)
@@ -87,7 +85,7 @@ class HelpCog(commands.Cog):
                             value=f"```{repr(e)} ```", inline=False)
             logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
+            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.edit_message(embed=embed)
 

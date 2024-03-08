@@ -1,10 +1,8 @@
 import discord
 from discord.ext import commands, tasks
-import asyncio
 import config
 from config import bot
 import logging
-from database import database
 import topgg
 import datetime
 import json

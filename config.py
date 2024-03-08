@@ -3,7 +3,6 @@ import discord
 from discord.ext import commands
 from logging.handlers import TimedRotatingFileHandler
 import logging
-import datetime
 
 intents = discord.Intents.none()
 intents.guilds = True

@@ -1,10 +1,7 @@
 import logging
 import discord
 from discord.ext import commands
-from discord import app_commands, Embed
 import config
-import datetime
-from config import bot
 from database import database, model
 
 messages_file = config.load_yml('assets/messages.yml')
