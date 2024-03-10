@@ -63,12 +63,18 @@ class ColorCog(commands.Cog):
                             value=f"`#F5DF4D` or name of [CSS color](https://htmlcolorcodes.com/color-names/)",
                             inline=False)
 
-        except Exception as e:
+        except discord.HTTPException:
             embed.clear_fields()
             embed.description = (
-                f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**\n\n"
-                f"Error may have been caused by misconfiguration of top-role bot (`/color toprole`). "
-                f"Notify the server administrator of the occurrence of this error.")
+                f"**{messages_file.get('exception')} The bot does not have the permissions to perform this operation.**"
+                f" Error may have been caused by misconfiguration of top-role bot (`/color toprole`). "
+                f"Notify the server administrator of the occurrence of this error.\n\n"
+                f"💡 Use the `/help` command to learn how to properly configure top role")
+            logging.critical(f"{interaction.user.id} raise HTTP exception")
+
+        except Exception as e:
+            embed.clear_fields()
+            embed.description = (f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**")
             logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
 
         finally:
@@ -140,9 +146,18 @@ class ColorCog(commands.Cog):
                             value=f"`#F5DF4D` or name of [CSS color](https://htmlcolorcodes.com/color-names/)",
                             inline=False)
 
+        except discord.HTTPException:
+            embed.clear_fields()
+            embed.description = (
+                f"**{messages_file.get('exception')} The bot does not have the permissions to perform this operation.**"
+                f" Error may have been caused by misconfiguration of top-role bot (`/color toprole`). "
+                f"Notify the server administrator of the occurrence of this error.\n\n"
+                f"💡 Use the `/help` command to learn how to properly configure top role")
+            logging.critical(f"{interaction.user.id} raise HTTP exception")
+
         except Exception as e:
             embed.clear_fields()
-            embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
+            embed.description = (f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**")
             logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
 
         finally:
@@ -225,10 +240,19 @@ class ColorCog(commands.Cog):
                                      f"Otherwise it will cause errors when setting the username color.")
         except ValueError:
             embed.description = f"**{messages_file.get('exception')} You cannot set `@everyone` as top role. Check `/help` for more information.**"
+
+        except discord.HTTPException:
+            embed.clear_fields()
+            embed.description = (
+                f"**{messages_file.get('exception')} The bot does not have the permissions to perform this operation.**"
+                f" Error may have been caused by misconfiguration of top-role bot (`/color toprole`). "
+                f"Notify the server administrator of the occurrence of this error.\n\n"
+                f"💡 Use the `/help` command to learn how to properly configure top role")
+            logging.critical(f"{interaction.user.id} raise HTTP exception")
+
         except Exception as e:
             embed.clear_fields()
-            embed.description = (f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**\n\n"
-                                 f"💡 Use the `/help` command to learn how to properly configure top role")
+            embed.description = (f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**")
             logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
 
         finally:
