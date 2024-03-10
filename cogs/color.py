@@ -69,13 +69,13 @@ class ColorCog(commands.Cog):
                 f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**\n\n"
                 f"Error may have been caused by misconfiguration of top-role bot (`/color toprole`). "
                 f"Notify the server administrator of the occurrence of this error.")
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
 
         finally:
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color set {color} (len:{len(embed)})")
+            logging.info(f"{interaction.user.id} {messages_file['logs_issued']}: /color set {color} (len:{len(embed)})")
 
     @group.command(name="remove", description="Removing the color")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
@@ -93,13 +93,13 @@ class ColorCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
 
         finally:
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color remove (len:{len(embed)})")
+            logging.info(f"{interaction.user.id} {messages_file['logs_issued']}: /color remove (len:{len(embed)})")
 
     @group.command(name="forceset", description="Setting the color of the user")
     @app_commands.checks.has_permissions(administrator=True)
@@ -143,14 +143,14 @@ class ColorCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
 
         finally:
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user} {messages_file['logs_issued']}: /color forceset {color} (len:{len(embed)})")
+                f"{interaction.user.id} {messages_file['logs_issued']}: /color forceset {color} (len:{len(embed)})")
 
     @group.command(name="forceremove", description="Removing the color of the user")
     @app_commands.describe(user_name="User name")
@@ -172,14 +172,14 @@ class ColorCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
 
         finally:
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user} {messages_file['logs_issued']}: /color forceremove {user_name.name} (len:{len(embed)})")
+                f"{interaction.user.id} {messages_file['logs_issued']}: /color forceremove {user_name.name} (len:{len(embed)})")
 
     @group.command(name="toprole", description="Set top role for color roles")
     @app_commands.describe(role_name="Role name")
@@ -229,14 +229,14 @@ class ColorCog(commands.Cog):
             embed.clear_fields()
             embed.description = (f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**\n\n"
                                  f"💡 Use the `/help` command to learn how to properly configure top role")
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
 
         finally:
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user} {messages_file['logs_issued']}: /color toprole (len:{len(embed)})")
+                f"{interaction.user.id} {messages_file['logs_issued']}: /color toprole (len:{len(embed)})")
 
     @group.command(name="check", description="Color information (HEX, RGB, HSL, CMYK, Integer)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
@@ -299,12 +299,12 @@ class ColorCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed)
 
         finally:
-            logging.info(f"{interaction.user} {messages_file['logs_issued']}: /color check {color} (len:{len(embed)})")
+            logging.info(f"{interaction.user.id} {messages_file['logs_issued']}: /color check {color} (len:{len(embed)})")
 
     @toprole.error
     @forceset.error

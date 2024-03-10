@@ -20,14 +20,14 @@ class JoinListenerCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        logging.info(f"Bot has been added to guild: {guild.name}(id:{guild.id}, mem:{guild.member_count})")
+        logging.info(f"Bot has been added to guild: {guild.id}(mem: {guild.member_count})")
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         db = database.Database(url=f"sqlite:///databases/guilds.db")
         db.connect()
         db.delete(model.guilds_class("guilds"), {"server": guild.id})
-        logging.info(f"Bot has been removed from guild: {guild.name}(id:{guild.id}, mem:{guild.member_count})")
+        logging.info(f"Bot has been removed from guild: {guild.id}(mem: {guild.member_count})")
 
 
 async def setup(bot: commands.Bot) -> None:

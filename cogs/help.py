@@ -58,12 +58,12 @@ class HelpCog(commands.Cog):
             embed.description = f""
             embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
                             value=f"", inline=False)
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
         finally:
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
-            logging.info(f"{interaction.user} {messages_file['logs_issued']}: /help (len:{len(embed)})")
+            logging.info(f"{interaction.user.id} {messages_file['logs_issued']}: /help (len:{len(embed)})")
 
     @staticmethod
     async def __select_callback(interaction: discord.Interaction):
@@ -83,7 +83,7 @@ class HelpCog(commands.Cog):
             embed.description = f""
             embed.add_field(name=f"{messages_file['exception']} {messages_file['exception_description']}",
                             value=f"```{repr(e)} ```", inline=False)
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
         finally:
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
@@ -102,7 +102,7 @@ class HelpCog(commands.Cog):
             embed.description = f""
             embed.add_field(name=f"{messages_file['exception']} {messages_file['exception_description']}",
                             value=f"```{repr(e)} ```", inline=False)
-            logging.critical(f"{interaction.user} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
         finally:
             embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
