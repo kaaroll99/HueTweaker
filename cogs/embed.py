@@ -51,7 +51,7 @@ class EmbedCog(commands.Cog):
             await channel.send(embed=embed)
             info_embed.description = f"Embed sent to: <#{channel.id}>"
 
-            logging.info(f"{interaction.user.id} {messages_file['logs_issued']}: /embed (len:{len(embed)})")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /embed (len:{len(embed)})")
 
         except json.JSONDecodeError as e:
             info_embed.description = f"⚠️ Error when parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` and choosing `/embed` from the list."

@@ -20,8 +20,8 @@ set:
     
     `<color>` - Color to set (hexadecimal format, e.g., __F5DF4D__ or name of [CSS color](https://htmlcolorcodes.com/color-names/), e.g., __royalblue__)
 
-  usage: /color set <color>
-  example: /color set f5df4d
+  usage: /set <color>
+  example: /set f5df4d
 
 ### REMOVE ###
 remove:
@@ -29,8 +29,8 @@ remove:
   desc: >-
     Remove the username color.
 
-  usage: /color remove
-  example: /color remove
+  usage: /remove
+  example: /remove
 
 ### CHECK ###
 check:
@@ -52,8 +52,8 @@ check:
     
     or name of [CSS color](https://htmlcolorcodes.com/color-names/), e.g. "royalblue"
 
-  usage: /color check <color>
-  example: /color check \#F5DF4D
+  usage: /check <color>
+  example: /check \#F5DF4D
 
 ### FORCESET ###
 forceset:
@@ -67,8 +67,8 @@ forceset:
     
     `<color>` - Color to set (hexadecimal format, e.g. __F5DF4D__ or name of [CSS color](https://htmlcolorcodes.com/color-names/), e.g. __royalblue__)
 
-  usage: /color forceset <user_name> <color>
-  example: /color set @kaaroll99 f5df4d
+  usage: /force set <user_name> <color>
+  example: /force set @kaaroll99 f5df4d
 
 ### FORCEREMOVE ###
 forceremove:
@@ -80,8 +80,8 @@ forceremove:
     
     `<user_name>` - Name of the selected user
 
-  usage: /color forceremove <user_name>
-  example: /color set @kaaroll99
+  usage: /force remove <user_name>
+  example: /force remove @kaaroll99
 
 ### TOPROLE ###
 toprole:
@@ -115,8 +115,8 @@ toprole:
     
     `<role_name>` - Name of the selected role
 
-  usage: /color toprole <role_name>
-  example: /color toprole @colors
+  usage: /toprole <role_name>
+  example: /toprole @colors
 
 ### EMBED ###
 embed:

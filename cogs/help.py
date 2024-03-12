@@ -19,12 +19,12 @@ class HelpCog(commands.Cog):
         embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=config_file['EMBED_COLOR'])
         select = discord.ui.Select(placeholder='Choose a command from the list...', options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
-            discord.SelectOption(label="/color set", value="set", emoji="🌈"),
-            discord.SelectOption(label="/color remove", value="remove", emoji="🗑️"),
-            discord.SelectOption(label="/color check", value="check", emoji="🔍"),
-            discord.SelectOption(label="/color forceset", value="forceset", emoji="⚙️"),
-            discord.SelectOption(label="/color forceremove", value="forceremove", emoji="🔄"),
-            discord.SelectOption(label="/color toprole", value="toprole", emoji="💫"),
+            discord.SelectOption(label="/set", value="set", emoji="🌈"),
+            discord.SelectOption(label="/remove", value="remove", emoji="🗑️"),
+            discord.SelectOption(label="/check", value="check", emoji="🔍"),
+            discord.SelectOption(label="/force set", value="forceset", emoji="⚙️"),
+            discord.SelectOption(label="/force remove", value="forceremove", emoji="🔄"),
+            discord.SelectOption(label="/toprole", value="toprole", emoji="💫"),
             discord.SelectOption(label="/embed", value="embed", emoji="📋")
         ])
         invite_button = discord.ui.Button(label="Invite bot", style=discord.ButtonStyle.url,
@@ -47,23 +47,23 @@ class HelpCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
             total_users = sum(guild.member_count for guild in bot.guilds)
-            embed.description = (f"- Online on `{len(bot.guilds)}` servers.\n"
-                                 f"- Used by `{total_users}` people.\n\n"
-                                 f"**Select one of the available commands from the list to learn more.**\n\n"
-                                 f"*⚠️ Remember to set the top role using /color toprole. If no role is indicated, color"
-                                 f" roles will be created at the bottom, potentially getting obscured by higher roles.*")
+            embed.description = (f"🧮 **Some information:**\n"
+                                 f"> - Online on `{len(bot.guilds)}` servers.\n"
+                                 f"> - Used by `{total_users}` people.\n"
+                                 f"> - Created by `@kaaroll99`\n\n"
+                                 f"**Select one of the available commands from the list to learn more.**")
 
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
             embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
                             value=f"", inline=False)
-            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
-            logging.info(f"{interaction.user.id} {messages_file['logs_issued']}: /help (len:{len(embed)})")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /help (len:{len(embed)})")
 
     @staticmethod
     async def __select_callback(interaction: discord.Interaction):
@@ -83,7 +83,7 @@ class HelpCog(commands.Cog):
             embed.description = f""
             embed.add_field(name=f"{messages_file['exception']} {messages_file['exception_description']}",
                             value=f"```{repr(e)} ```", inline=False)
-            logging.critical(f"{interaction.user.id} raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
