@@ -16,7 +16,6 @@ token_file = config.load_yml('token.yml')
 class CheckCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.color = config_file['EMBED_COLOR']
 
     @app_commands.command(name="check", description="Color information (HEX, RGB, HSL, CMYK, Integer)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
@@ -39,7 +38,7 @@ class CheckCog(commands.Cog):
             image = color_format.generate_image_from_rgb_float([float(val) for val in output_color['RGB']])
 
             embed: Embed = discord.Embed(title=f"Details for color: **{output_color['Input']}**", description=f"",
-                                         color=self.color, timestamp=datetime.now())
+                                         color=config_file['EMBED_COLOR'], timestamp=datetime.now())
 
             embed.add_field(name=f"{messages_file['item_icon']} Hex:",
                             value=f"{output_color['Hex'].upper()}",

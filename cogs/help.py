@@ -32,9 +32,9 @@ class HelpCog(commands.Cog):
         support_button = discord.ui.Button(label="Join support server", style=discord.ButtonStyle.url,
                                     url="https://discord.gg/tYdK4pD6ks")
         privacy_button = discord.ui.Button(label="Privacy Policy", style=discord.ButtonStyle.url,
-                                           url="https://kaaroll99.notion.site/Privacy-Policy-9d092ac0cd434121a695394d786d282d")
+                                           url="https://app.gitbook.com/o/Ik6ETLaLOeQjuLfeft9o/s/M2Vo1viRZPJzP6HW2d34/privacy-policy")
         terms_button = discord.ui.Button(label="Terms of Service", style=discord.ButtonStyle.url,
-                                         url="https://kaaroll99.notion.site/Terms-of-service-d0db19d84c5341a08b3d31550b7ec961")
+                                         url="https://app.gitbook.com/o/Ik6ETLaLOeQjuLfeft9o/s/M2Vo1viRZPJzP6HW2d34/terms-of-service")
 
         select.callback = self.__select_callback
         view = discord.ui.View()
