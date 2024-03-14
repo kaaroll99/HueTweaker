@@ -28,6 +28,10 @@ class VoteCog(commands.Cog):
                             inline=False)
             embed.add_field(name=f"", value=f"✨ [Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/huetweaker/upvote)",
                             inline=False)
+
+            for guild in bot.guilds:
+                print(guild.name, "||", guild.id, "||", guild.member_count)
+
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
