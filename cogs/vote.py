@@ -22,15 +22,12 @@ class VoteCog(commands.Cog):
                               color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
-            embed.description = f"Every 12 hours you can help by voting for the bot on the following pages."
+            embed.description = f"Every 12 hours you can support by voting for the bot on the following pages."
             embed.add_field(name=f"",
                             value=f"✨ [Click here to vote on top.gg](https://top.gg/bot/1209187999934578738/vote)",
                             inline=False)
             embed.add_field(name=f"", value=f"✨ [Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/huetweaker/upvote)",
                             inline=False)
-
-            for guild in bot.guilds:
-                print(guild.name, "||", guild.id, "||", guild.member_count)
 
         except Exception as e:
             embed.clear_fields()
