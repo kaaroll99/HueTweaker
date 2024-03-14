@@ -38,7 +38,7 @@ class CheckCog(commands.Cog):
             image = color_format.generate_image_from_rgb_float([float(val) for val in output_color['RGB']])
 
             embed: Embed = discord.Embed(title=f"Details for color: **{output_color['Input']}**", description=f"",
-                                         color=config_file['EMBED_COLOR'], timestamp=datetime.now())
+                                         color=config_file['EMBED_COLOR'])
 
             embed.add_field(name=f"{messages_file['item_icon']} Hex:",
                             value=f"{output_color['Hex'].upper()}",
