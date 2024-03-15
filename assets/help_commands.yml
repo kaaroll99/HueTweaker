@@ -4,6 +4,7 @@ help:
   desc: Information about the bot and a list of available commands.
   usage: /help
   example: /help
+  docs: a
 
 ### SET ###
 set:
@@ -13,15 +14,16 @@ set:
     
     Color palettes:
     
-    > [Adobe Color Wheel](https://color.adobe.com/pl/create/color-wheel)
+    - [Adobe Color Wheel](https://color.adobe.com/pl/create/color-wheel)
     
-    > [Google](https://www.google.com/search?q=color+picker)
+    - [Google](https://www.google.com/search?q=color+picker)
     
     
     `<color>` - Color to set (hexadecimal format, e.g., __F5DF4D__ or name of [CSS color](https://htmlcolorcodes.com/color-names/), e.g., __royalblue__)
 
   usage: /set <color>
   example: /set f5df4d
+  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/set)
 
 ### REMOVE ###
 remove:
@@ -31,6 +33,7 @@ remove:
 
   usage: /remove
   example: /remove
+  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/remove)
 
 ### CHECK ###
 check:
@@ -54,6 +57,7 @@ check:
 
   usage: /check <color>
   example: /check \#F5DF4D
+  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/check)
 
 ### FORCESET ###
 forceset:
@@ -69,6 +73,7 @@ forceset:
 
   usage: /force set <user_name> <color>
   example: /force set @kaaroll99 f5df4d
+  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/force-set)
 
 ### FORCEREMOVE ###
 forceremove:
@@ -82,6 +87,7 @@ forceremove:
 
   usage: /force remove <user_name>
   example: /force remove @kaaroll99
+  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/force-remove)
 
 ### TOPROLE ###
 toprole:
@@ -117,6 +123,7 @@ toprole:
 
   usage: /toprole <role_name>
   example: /toprole @colors
+  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/toprole)
 
 ### EMBED ###
 embed:
@@ -163,5 +170,4 @@ embed:
 
   usage: /embed <channel_name> <json>
   example: /embed \#INFO {"title"...}
-
-
+  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/embed)

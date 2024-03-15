@@ -78,6 +78,8 @@ class HelpCog(commands.Cog):
                             inline=False)
             embed.add_field(name=f"Command example:", value=f"> {data[selected_option]['example']}",
                             inline=False)
+            embed.add_field(name=f"Docs:", value=f"{data[selected_option]['docs']}",
+                            inline=False)
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
