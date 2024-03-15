@@ -18,7 +18,7 @@ class ColorCog(commands.Cog):
         self.bot = bot
         self.color = config_file['EMBED_COLOR']
 
-    group = app_commands.Group(name="force", description="...")
+    group = app_commands.Group(name="force", description="Modify the colors of other users")
 
     @group.command(name="set", description="Setting the color of the user")
     @app_commands.checks.has_permissions(administrator=True)
