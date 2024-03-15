@@ -78,7 +78,9 @@ class HelpCog(commands.Cog):
                             inline=False)
             embed.add_field(name=f"Command example:", value=f"> {data[selected_option]['example']}",
                             inline=False)
-            embed.add_field(name=f"Docs:", value=f"{data[selected_option]['docs']}",
+            embed.add_field(name=f"Docs:",
+                            value=f"[See details of the command in the documentation]"
+                                  f"(https://huetweaker.gitbook.io/docs/commands/{data[selected_option]['docs']})",
                             inline=False)
         except Exception as e:
             embed.clear_fields()

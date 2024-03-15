@@ -4,7 +4,7 @@ help:
   desc: Information about the bot and a list of available commands.
   usage: /help
   example: /help
-  docs: a
+  docs:
 
 ### SET ###
 set:
@@ -23,7 +23,7 @@ set:
 
   usage: /set <color>
   example: /set f5df4d
-  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/set)
+  docs: set
 
 ### REMOVE ###
 remove:
@@ -33,7 +33,7 @@ remove:
 
   usage: /remove
   example: /remove
-  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/remove)
+  docs: remove
 
 ### CHECK ###
 check:
@@ -57,7 +57,7 @@ check:
 
   usage: /check <color>
   example: /check \#F5DF4D
-  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/check)
+  docs: check
 
 ### FORCESET ###
 forceset:
@@ -73,7 +73,7 @@ forceset:
 
   usage: /force set <user_name> <color>
   example: /force set @kaaroll99 f5df4d
-  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/force-set)
+  docs: force-set
 
 ### FORCEREMOVE ###
 forceremove:
@@ -87,7 +87,7 @@ forceremove:
 
   usage: /force remove <user_name>
   example: /force remove @kaaroll99
-  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/force-remove)
+  docs: force-remove
 
 ### TOPROLE ###
 toprole:
@@ -123,7 +123,7 @@ toprole:
 
   usage: /toprole <role_name>
   example: /toprole @colors
-  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/toprole)
+  docs: toprole
 
 ### EMBED ###
 embed:
@@ -170,4 +170,4 @@ embed:
 
   usage: /embed <channel_name> <json>
   example: /embed \#INFO {"title"...}
-  docs: [See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/embed)
+  docs: embed
