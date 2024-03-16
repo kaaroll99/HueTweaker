@@ -53,7 +53,7 @@ check:
     
     - 16113485
     
-    or name of [CSS color](https://htmlcolorcodes.com/color-names/), e.g. "royalblue"
+    - or name of [CSS color](https://htmlcolorcodes.com/color-names/), e.g. "royalblue"
 
   usage: /check <color>
   example: /check \#F5DF4D
@@ -63,7 +63,7 @@ check:
 forceset:
   name: forceset
   desc: >-
-    Set/change  the username color of the specific user using hex code or CSS color name.
+    Set/change the username color of the specific user using hex code or CSS color name.
     
     ⚠️ The command can only be executed by a user with administrator privileges.
     
@@ -96,6 +96,10 @@ toprole:
     Set the top role for color roles. All color roles will be set under the indicated role.
     Set `@everyone` to reset top role.
     
+    
+    ⚠️ The command can only be executed by a user with administrator privileges.
+    
+    
     ⚠️ **Important:**
     
     1. If the role is not indicated, color roles will be created at the bottom, which may cause the color to be obscured by higher roles.
@@ -114,9 +118,6 @@ toprole:
     > [color-00...]
     
     > [color-00...]
-    
-    
-    ⚠️ The command can only be executed by a user with administrator privileges.
     
     
     `<role_name>` - Name of the selected role

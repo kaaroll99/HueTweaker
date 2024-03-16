@@ -54,7 +54,7 @@ class EmbedCog(commands.Cog):
             logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /embed (len:{len(embed)})")
 
         except json.JSONDecodeError as e:
-            info_embed.description = f"⚠️ Error when parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` and choosing `/embed` from the list."
+            info_embed.description = f"⚠️ Error when parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` command"
         except Exception as e:
             info_embed.description = e
         finally:

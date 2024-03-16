@@ -41,13 +41,6 @@ async def main():
             await bot.wait_until_ready()
 
             tasks_defs.update_stats(
-                "bots.gg",
-                "https://discord.bots.gg/api/v1/bots/1209187999934578738/stats",
-                {"guildCount": len(bot.guilds)},
-                token_file['BOTS_GG_TOKEN']
-            )
-
-            tasks_defs.update_stats(
                 "discordbotlist",
                 "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats",
                 {"users": sum(guild.member_count for guild in bot.guilds), "guilds": len(bot.guilds)},

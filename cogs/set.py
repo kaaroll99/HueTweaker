@@ -64,7 +64,7 @@ class SetCog(commands.Cog):
             embed.clear_fields()
             embed.description = (
                 f"**{messages_file.get('exception')} The bot does not have the permissions to perform this operation.**"
-                f" Error may have been caused by misconfiguration of top-role bot (`/color toprole`). "
+                f" Error may have been caused by misconfiguration of top-role bot (`/toprole`). "
                 f"Notify the server administrator of the occurrence of this error.\n\n"
                 f"💡 Use the `/help` command to learn how to properly configure top role")
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception")

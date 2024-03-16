@@ -61,14 +61,12 @@ class ToproleCog(commands.Cog):
                 embed.description = (f"✨ **Top role has been set for __{role_name.name}__**\n\n"
                                      f"💡 Remember that the selected role should be under the highest role the bot has. "
                                      f"Otherwise it will cause errors when setting the username color.")
-        except ValueError:
-            embed.description = f"**{messages_file.get('exception')} You cannot set `@everyone` as top role. Check `/help` for more information.**"
 
         except discord.HTTPException:
             embed.clear_fields()
             embed.description = (
                 f"**{messages_file.get('exception')} The bot does not have the permissions to perform this operation.**"
-                f" Error may have been caused by misconfiguration of top-role bot (`/color toprole`). "
+                f" Error may have been caused by misconfiguration of top-role bot (`/toprole`). "
                 f"Notify the server administrator of the occurrence of this error.\n\n"
                 f"💡 Use the `/help` command to learn how to properly configure top role")
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception")

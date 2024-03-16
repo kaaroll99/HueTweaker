@@ -2,6 +2,13 @@
 
 Change the color of your username with a single command.
 
+- 🖌️ Set/change the username color using hex code or CSS color name.
+- 🗑️ Remove the username color.
+- 🔎 Get color information (HEX, RGB, HSL, CMYK, Integer).
+- ⚙️ Manage the color of a specific user's username.
+- 💫 Set the top role for color roles
+- 📋 JSON to Discord embed conversion.
+
 ## User commands:
 - `/help` - Information about the bot and a list of available commands
 - `/set` - Set/change the username color using hex code or CSS color name.
