@@ -6,6 +6,7 @@ from config import bot
 import logging
 from database import database
 import tasks_defs
+import datetime
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
@@ -21,9 +22,6 @@ async def on_ready():
             cmds.append(command.name)
         bot.remove_command('help')
 
-        # with open("assets/avatar_animated_500.gif", "rb") as f:
-        #     await bot.user.edit(avatar=f.read())
-
         logging.info(f"Cogs ({len(cogs)}): " + ", ".join([f'{cog}' for cog in cogs]))
         logging.info(f"Active commands ({len(cmds)}): " + ", ".join([f'{cmd}' for cmd in cmds]))
     except Exception as e:
@@ -36,7 +34,7 @@ async def main():
     db.database_init()
     async with bot:
 
-        @tasks.loop(hours=24)
+        @tasks.loop(time=datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')))
         async def update_stats_taks():
             await bot.wait_until_ready()
 

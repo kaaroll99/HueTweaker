@@ -12,17 +12,6 @@ config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
 
 
-@tasks.loop(hours=24)
-async def update_stats_topgg():
-    topgg_token = token_file['TOP_GG_TOKEN']
-    bot.topggpy = topgg.DBLClient(bot, topgg_token)
-    try:
-        await bot.topggpy.post_guild_count()
-        logging.info(f"Posted server count to topgg ({bot.topggpy.guild_count})")
-    except Exception as e:
-        logging.warning(f"Failed to post server count to topgg - {e.__class__.__name__}: {e}")
-
-
 def update_stats(name: str, url: str, data, token: str):
     json_data = json.dumps(data)
     headers = {
@@ -36,7 +25,24 @@ def update_stats(name: str, url: str, data, token: str):
         logging.warning(f"Failed to post guilds count to {name} - {response.status_code}")
 
 
-@tasks.loop(hours=24)
+top_gg_times = [
+    datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')),
+    datetime.time(hour=12, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET'))
+]
+
+
+@tasks.loop(time=top_gg_times)
+async def update_stats_topgg():
+    topgg_token = token_file['TOP_GG_TOKEN']
+    bot.topggpy = topgg.DBLClient(bot, topgg_token)
+    try:
+        await bot.topggpy.post_guild_count()
+        logging.info(f"Posted server count to topgg ({bot.topggpy.guild_count})")
+    except Exception as e:
+        logging.warning(f"Failed to post server count to topgg - {e.__class__.__name__}: {e}")
+
+
+@tasks.loop(time=datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')))
 async def database_backup():
     await bot.wait_until_ready()
     try:
@@ -66,5 +72,3 @@ async def send_command_list():
         logging.info(f"Server command list has been updated: {response.status_code}")
     else:
         logging.warning(f"Failed to post server commands - {response.status_code}")
-
-
