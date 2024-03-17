@@ -41,7 +41,7 @@ async def database_backup():
     await bot.wait_until_ready()
     try:
         db_file = discord.File("databases/guilds.db", filename=f"{str(datetime.date.today().strftime('%Y-%m-%d'))}.db")
-        channel = bot.get_channel(1209974090509713438)
+        channel = bot.get_channel(config_file['db_backup_channel'])
 
         if channel is None:
             logging.warning(f"Backup channel not found.")

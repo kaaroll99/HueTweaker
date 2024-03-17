@@ -21,8 +21,8 @@ async def on_ready():
             cmds.append(command.name)
         bot.remove_command('help')
 
-        with open("assets/avatar_animated_500.gif", "rb") as f:
-            await bot.user.edit(avatar=f.read())
+        # with open("assets/avatar_animated_500.gif", "rb") as f:
+        #     await bot.user.edit(avatar=f.read())
 
         logging.info(f"Cogs ({len(cogs)}): " + ", ".join([f'{cog}' for cog in cogs]))
         logging.info(f"Active commands ({len(cmds)}): " + ", ".join([f'{cmd}' for cmd in cmds]))
