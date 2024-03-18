@@ -10,7 +10,6 @@ from config import bot
 messages_file = config.load_yml('assets/messages.yml')
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
-language = config.load_yml('lang/en.yml')
 
 
 class VoteCog(commands.Cog):
@@ -19,7 +18,6 @@ class VoteCog(commands.Cog):
 
     @app_commands.command(name="vote", description="View links to vote")
     async def vote(self, interaction: discord.Interaction) -> None:
-        language = config.load_yml('lang/en.yml')
         print(interaction.guild.preferred_locale)
         print(interaction.locale)
         embed = discord.Embed(title=f"Vote for {bot.user.name}", description=f"",
