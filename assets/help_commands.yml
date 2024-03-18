@@ -89,6 +89,24 @@ forceremove:
   example: /force remove @kaaroll99
   docs: force-remove
 
+### FORCEPURGE ###
+forcepurge:
+  name: forcepurge
+  desc: >-
+    The command allows you to delete all roles with colors (created by HueTweaker) from the server.
+    
+    
+    ⚠️ The effect of the command is irreversible — execution at your own risk
+    
+    ⚠️ The command can only be executed by a user with administrator privileges.
+    
+
+    The command uses a regular expression. It will remove all roles that conform to the format: `color-{USER_ID}` e.g., `color-512674615223517205`
+
+  usage: /force purge
+  example: /force purge
+  docs: force-purge
+
 ### TOPROLE ###
 toprole:
   name: toprole

@@ -65,7 +65,7 @@ class CheckCog(commands.Cog):
             embed.set_image(url="attachment://" + file.filename)
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed, file=file)
-
+            file = None
         except ValueError:
             embed.clear_fields()
             embed.description = f"**{messages_file['exception']} Incorrect color format**"
@@ -81,7 +81,6 @@ class CheckCog(commands.Cog):
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed)
-
         finally:
             logging.info(
                 f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /check {color} (len:{len(embed)})")

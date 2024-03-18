@@ -24,6 +24,7 @@ class HelpCog(commands.Cog):
             discord.SelectOption(label="/check", value="check", emoji="🔍"),
             discord.SelectOption(label="/force set", value="forceset", emoji="⚙️"),
             discord.SelectOption(label="/force remove", value="forceremove", emoji="🔄"),
+            discord.SelectOption(label="/force purge", value="forcepurge", emoji="💥"),
             discord.SelectOption(label="/toprole", value="toprole", emoji="💫"),
             discord.SelectOption(label="/embed", value="embed", emoji="📋")
         ])
