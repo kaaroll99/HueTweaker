@@ -78,7 +78,7 @@ class SetCog(commands.Cog):
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /color set {color} (len:{len(embed)})")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /set {color} (len:{len(embed)})")
 
     @set.error
     async def cooldown_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

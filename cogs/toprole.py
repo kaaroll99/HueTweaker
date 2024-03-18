@@ -28,13 +28,11 @@ class ToproleCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            role_ids = []
             pattern = re.compile(f"color-\\d{{18,19}}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
 
             for role in interaction.guild.roles:
                 if pattern.match(role.name):
-                    role_ids.append(role.id)
                     role = discord.utils.get(interaction.guild.roles, id=role.id)
                     if top_role.position == 0:
                         await role.edit(position=1)
@@ -81,7 +79,7 @@ class ToproleCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /color toprole (len:{len(embed)})")
+                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /toprole (len:{len(embed)})")
 
     @toprole.error
     async def permission_error(self, interaction: discord.Interaction, error):

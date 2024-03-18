@@ -78,7 +78,7 @@ class ColorCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /color forceset {color} (len:{len(embed)})")
+                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /force set {color} (len:{len(embed)})")
 
     @group.command(name="remove", description="Removing the color of the user")
     @app_commands.describe(user_name="User name")
@@ -107,7 +107,61 @@ class ColorCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /color forceremove {user_name.name} (len:{len(embed)})")
+                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /force remove {user_name.name} (len:{len(embed)})")
+
+    @group.command(name="purge", description="Removing all color roles (irreversible)")
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
+    @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.guild_only()
+    async def purge(self, interaction: discord.Interaction) -> None:
+        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+        view = discord.ui.View()
+        try:
+            await interaction.response.defer(ephemeral=True)
+
+            embed.description = (f"**Are you sure you want to remove all roles with user colors?**\n\n"
+                                 f"⚠️ **The changes will be irreversible.**")
+
+            confirm_button = discord.ui.Button(label="CONFIRM", style=discord.ButtonStyle.green)
+            confirm_button.callback = self.__confirm_callback
+
+            view.add_item(confirm_button)
+
+        except Exception as e:
+            embed.clear_fields()
+            embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
+            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+
+        finally:
+            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
+            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+            await interaction.followup.send(embed=embed, view=view)
+            logging.info(
+                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /force purge (len:{len(embed)})")
+
+    @staticmethod
+    async def __confirm_callback(interaction: discord.Interaction):
+        view = discord.ui.View()
+        try:
+            pattern = re.compile(f"color-\\d{{18,19}}")
+            for role in interaction.guild.roles:
+                if pattern.match(role.name):
+                    role = discord.utils.get(interaction.guild.roles, id=role.id)
+                    await role.delete()
+
+            embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+            embed.description = (f"**All roles with colors have been successfully removed**")
+
+        except Exception as e:
+            embed.clear_fields()
+            embed.description = f""
+            embed.add_field(name=f"{messages_file['exception']} {messages_file['exception_description']}",
+                            value=f"```{repr(e)} ```", inline=False)
+            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+        finally:
+            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
+            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+            await interaction.response.edit_message(embed=embed, view=view)
 
     @forceset.error
     @forceremove.error

@@ -84,7 +84,7 @@ class CheckCog(commands.Cog):
 
         finally:
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /color check {color} (len:{len(embed)})")
+                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /check {color} (len:{len(embed)})")
 
     @check.error
     async def cooldown_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
