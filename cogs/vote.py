@@ -18,8 +18,8 @@ class VoteCog(commands.Cog):
 
     @app_commands.command(name="vote", description="View links to vote")
     async def vote(self, interaction: discord.Interaction) -> None:
-        print(interaction.guild.preferred_locale)
-        print(interaction.locale)
+        # print(interaction.guild.preferred_locale)
+        # print(interaction.locale)
         embed = discord.Embed(title=f"Vote for {bot.user.name}", description=f"",
                               color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
