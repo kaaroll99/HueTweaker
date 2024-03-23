@@ -13,7 +13,7 @@ messages_file = config.load_yml('assets/messages.yml')
 config_file = config.load_yml('config.yml')
 
 
-class ColorCog(commands.Cog):
+class ForceCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.color = config_file['EMBED_COLOR']
@@ -165,22 +165,20 @@ class ColorCog(commands.Cog):
 
     @forceset.error
     @forceremove.error
-    async def permission_error(self, interaction: discord.Interaction, error):
-        if isinstance(error, discord.app_commands.errors.MissingPermissions):
+    @purge.error
+    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.CommandOnCooldown):
+            retry_time = datetime.now() + timedelta(seconds=error.retry_after)
+            response = f"⚠️ Please cool down. Retry <t:{int(retry_time.timestamp())}:R>"
+            await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
+
+        elif isinstance(error, discord.app_commands.errors.MissingPermissions):
             embed: Embed = discord.Embed(title="", description=messages_file.get('no_permissions', ''),
                                          color=config_file['EMBED_COLOR'], timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-    @forceset.error
-    @forceremove.error
-    async def cooldown_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if isinstance(error, app_commands.CommandOnCooldown):
-            retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = f"⚠️ Please cool down. Retry <t:{int(retry_time.timestamp())}:R>"
-            await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
-
 
 async def setup(bot: commands.Bot) -> None:
-    await bot.add_cog(ColorCog(bot))
+    await bot.add_cog(ForceCog(bot))

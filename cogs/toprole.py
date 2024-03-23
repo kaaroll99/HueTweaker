@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
-from datetime import datetime
+from datetime import datetime, timedelta
 import config
 from config import bot
 import logging
@@ -18,7 +18,6 @@ class ToproleCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    # @app_commands.command(name="vote", description="View links to vote")
     @app_commands.command(name="toprole", description="Set top role for color roles")
     @app_commands.describe(role_name="Role name")
     @app_commands.checks.has_permissions(administrator=True)
@@ -82,8 +81,13 @@ class ToproleCog(commands.Cog):
                 f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /toprole (len:{len(embed)})")
 
     @toprole.error
-    async def permission_error(self, interaction: discord.Interaction, error):
-        if isinstance(error, discord.app_commands.errors.MissingPermissions):
+    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.CommandOnCooldown):
+            retry_time = datetime.now() + timedelta(seconds=error.retry_after)
+            response = f"⚠️ Please cool down. Retry <t:{int(retry_time.timestamp())}:R>"
+            await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
+
+        elif isinstance(error, discord.app_commands.errors.MissingPermissions):
             embed: Embed = discord.Embed(title="", description=messages_file.get('no_permissions', ''),
                                          color=config_file['EMBED_COLOR'], timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")

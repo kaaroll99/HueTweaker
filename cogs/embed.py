@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
-import datetime
+from datetime import datetime, timedelta
 import config
 import json
 import logging
@@ -17,13 +17,14 @@ class EmbedCog(commands.Cog):
 
     @app_commands.command(name="embed", description="JSON to discord embed conversion")
     @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def embed(self, interaction: discord.Interaction, channel: discord.TextChannel, data: str) -> None:
         info_embed: Embed = discord.Embed(
             title="",
             description=f"",
             color=config_file['EMBED_COLOR'],
-            timestamp=datetime.datetime.now()
+            timestamp=datetime.now()
         )
         try:
             await interaction.response.defer(ephemeral=True)
@@ -33,7 +34,7 @@ class EmbedCog(commands.Cog):
                 title=data.get("title", ""),
                 description=data.get("description", ""),
                 color=int(data.get("color", "000000"), 16),
-                timestamp=datetime.datetime.now()
+                timestamp=datetime.now()
             )
 
             for field_data in data.get("fields", []):
@@ -61,10 +62,15 @@ class EmbedCog(commands.Cog):
             await interaction.followup.send(embed=info_embed)
 
     @embed.error
-    async def permission_error(self, interaction: discord.Interaction, error):
-        if isinstance(error, discord.app_commands.errors.MissingPermissions):
-            embed: Embed = discord.Embed(title=messages_file.get('no_permissions', ''), description=f"",
-                                         color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.CommandOnCooldown):
+            retry_time = datetime.now() + timedelta(seconds=error.retry_after)
+            response = f"⚠️ Please cool down. Retry <t:{int(retry_time.timestamp())}:R>"
+            await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
+
+        elif isinstance(error, discord.app_commands.errors.MissingPermissions):
+            embed: Embed = discord.Embed(title="", description=messages_file.get('no_permissions', ''),
+                                         color=config_file['EMBED_COLOR'], timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.response.send_message(embed=embed, ephemeral=True)

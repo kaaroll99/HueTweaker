@@ -81,7 +81,7 @@ class SetCog(commands.Cog):
             logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /set {color} (len:{len(embed)})")
 
     @set.error
-    async def cooldown_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = f"⚠️ Please cool down. Retry <t:{int(retry_time.timestamp())}:R>"

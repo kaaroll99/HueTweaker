@@ -27,7 +27,8 @@ class JoinListenerCog(commands.Cog):
             if channel is not None:
                 embed = discord.Embed(title=f"", description=f"**Bot has been added to guild ({len(bot.guilds)})**\n"
                                                              f"> ID: `{guild.id}`\n"
-                                                             f"> Members: `{guild.member_count}`\n", color=0x23A55A)
+                                                             f"> Members: `{guild.member_count}`\n"
+                                                             f"> Lang: `{guild.preferred_locale}`", color=0x23A55A)
                 embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
                 await channel.send(embed=embed)
             else:
@@ -46,7 +47,8 @@ class JoinListenerCog(commands.Cog):
             if channel is not None:
                 embed = discord.Embed(title=f"", description=f"**Bot has been removed from guild ({len(bot.guilds)})**\n"
                                                              f"> ID: `{guild.id}`\n"
-                                                             f"> Members: `{guild.member_count}`\n", color=0xF23F42)
+                                                             f"> Members: `{guild.member_count}`\n"
+                                                             f"> Lang: `{guild.preferred_locale}`", color=0xF23F42)
                 embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
                 await channel.send(embed=embed)
             else:
