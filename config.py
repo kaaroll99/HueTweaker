@@ -9,7 +9,7 @@ intents.guilds = True
 intents.members = True
 
 activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
-bot = commands.Bot(command_prefix="!$%ht", intents=intents, activity=activity, status=discord.Status.online)
+bot = commands.AutoShardedBot(command_prefix="!$%ht", intents=intents, activity=activity, status=discord.Status.online)
 bot.remove_command('help')
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
