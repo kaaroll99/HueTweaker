@@ -6,7 +6,6 @@ from config import bot
 import logging
 from database import database
 import tasks_defs
-import datetime
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
@@ -33,20 +32,8 @@ async def main():
     db.connect()
     db.database_init()
     async with bot:
-
-        @tasks.loop(time=datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')))
-        async def update_stats_taks():
-            await bot.wait_until_ready()
-
-            tasks_defs.update_stats(
-                "discordbotlist",
-                "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats",
-                {"users": sum(guild.member_count for guild in bot.guilds), "guilds": len(bot.guilds)},
-                token_file['DISCORDBOTLIST_TOKEN']
-            )
-
         tasks_defs.update_stats_topgg.start()
-        update_stats_taks.start()
+        tasks_defs.update_stats_taks.start()
         tasks_defs.database_backup.start()
         tasks_defs.send_command_list.start()
 

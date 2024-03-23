@@ -43,6 +43,18 @@ async def update_stats_topgg():
 
 
 @tasks.loop(time=datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')))
+async def update_stats_taks():
+    await bot.wait_until_ready()
+
+    update_stats(
+        "discordbotlist",
+        "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats",
+        {"users": sum(guild.member_count for guild in bot.guilds), "guilds": len(bot.guilds)},
+        token_file['DISCORDBOTLIST_TOKEN']
+    )
+
+
+@tasks.loop(time=datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')))
 async def database_backup():
     await bot.wait_until_ready()
     try:
