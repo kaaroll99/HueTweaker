@@ -32,7 +32,7 @@ class DevCog(commands.Cog):
                 import csv
 
                 csv_file = 'guilds_info.csv'
-                fields = ['Guild Name', 'Guild ID', 'Owner Name', 'Member Count', 'Preferred Locale']
+                fields = ['Guild Name', 'Guild ID', 'Owner Name', 'Owner ID', 'Member Count', 'Preferred Locale']
 
                 with open(csv_file, 'w', newline='', encoding='utf-8') as f:
                     writer = csv.DictWriter(f, fieldnames=fields)
