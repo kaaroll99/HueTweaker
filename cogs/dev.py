@@ -47,7 +47,7 @@ class DevCog(commands.Cog):
                         })
 
                 embed.description = f"Dane zapisano do pliku CSV: {csv_file}"
-                file = discord.File(csv_file)
+                file = discord.File('assets/messages.yml')
 
             else:
                 embed.description = f"Command for bot developers only."
