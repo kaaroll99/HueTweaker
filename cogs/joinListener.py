@@ -25,9 +25,10 @@ class JoinListenerCog(commands.Cog):
         try:
             channel = bot.get_channel(config_file['io_channel'])
             if channel is not None:
+                owner_name = guild.owner.name if guild.owner else "-"
                 embed = discord.Embed(title=f"", description=f"**Bot has been added to guild ({len(bot.guilds)})**\n"
                                                              f"> ID: `{guild.id}`\n"
-                                                             f"> Members: `{guild.member_count} ({guild.owner.name})`\n"
+                                                             f"> Members: `{guild.member_count} ({owner_name})`\n"
                                                              f"> Lang: `{guild.preferred_locale}`",
                                       color=0x23A55A)
                 embed.set_image(url="https://i.imgur.com/rXe4MHa.png")

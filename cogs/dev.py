@@ -32,7 +32,7 @@ class DevCog(commands.Cog):
                 import csv
 
                 csv_file = 'guilds_info.csv'
-                fields = ['Guild Name', 'Owner Name', 'Member Count', 'Preferred Locale']
+                fields = ['Guild Name', 'Guild ID', 'Owner Name', 'Member Count', 'Preferred Locale']
 
                 with open(csv_file, 'w', newline='', encoding='utf-8') as f:
                     writer = csv.DictWriter(f, fieldnames=fields)
@@ -40,9 +40,12 @@ class DevCog(commands.Cog):
 
                     for guild in self.bot.guilds:
                         owner_name = guild.owner.name if guild.owner else "Brak właściciela"
+                        owner_id = guild.owner.id if guild.owner else 0
                         writer.writerow({
                             'Guild Name': guild.name,
+                            'Guild ID': guild.id,
                             'Owner Name': owner_name,
+                            'Owner ID': guild.owner_id,
                             'Member Count': guild.member_count,
                             'Preferred Locale': guild.preferred_locale
                         })
