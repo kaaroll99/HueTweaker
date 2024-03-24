@@ -41,13 +41,13 @@ class DevCog(commands.Cog):
                     for guild in self.bot.guilds:
                         writer.writerow({
                             'Guild Name': guild.name,
-                            'Owner Name': guild.owner.name,
+                            'Owner Name': "aa",
                             'Member Count': guild.member_count,
                             'Preferred Locale': guild.preferred_locale
                         })
 
                 embed.description = f"Dane zapisano do pliku CSV: {csv_file}"
-                file = discord.File('assets/messages.yml')
+                file = discord.File(csv_file)
 
             else:
                 embed.description = f"Command for bot developers only."
