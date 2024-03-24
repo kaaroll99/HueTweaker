@@ -72,10 +72,10 @@ class DevCog(commands.Cog):
             logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /vote (len:{len(embed)})")
 
     @dev.error
-    async def command_error(self, interaction: discord.Interaction):
+    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         embed: Embed = discord.Embed(title="",
-                                     description=f"This command is only available to the developers of this bot"
-                                                 f" and is used for testing.", color=config_file['EMBED_COLOR'])
+                                     description=f"This command is only available to the developers of this bot and is used for testing.",
+                                     color=config_file['EMBED_COLOR'])
         embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
         embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
         await interaction.response.send_message(embed=embed, ephemeral=True)
