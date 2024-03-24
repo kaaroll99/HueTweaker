@@ -39,9 +39,10 @@ class DevCog(commands.Cog):
                     writer.writeheader()
 
                     for guild in self.bot.guilds:
+                        owner_name = guild.owner.name if guild.owner else "Brak właściciela"
                         writer.writerow({
                             'Guild Name': guild.name,
-                            'Owner Name': "aa",
+                            'Owner Name': owner_name,
                             'Member Count': guild.member_count,
                             'Preferred Locale': guild.preferred_locale
                         })
