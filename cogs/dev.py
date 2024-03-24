@@ -45,7 +45,7 @@ class DevCog(commands.Cog):
                             'Guild Name': guild.name,
                             'Guild ID': guild.id,
                             'Owner Name': owner_name,
-                            'Owner ID': guild.owner_id,
+                            'Owner ID': owner_id,
                             'Member Count': guild.member_count,
                             'Preferred Locale': guild.preferred_locale
                         })
