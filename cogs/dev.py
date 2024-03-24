@@ -30,8 +30,9 @@ class DevCog(commands.Cog):
                 await interaction.response.defer(ephemeral=True)
 
                 import csv
+
                 csv_file = 'guilds_info.csv'
-                fields = ['Guild Name', 'Member Count', 'Preferred Locale']
+                fields = ['Guild Name', 'Owner Name', 'Member Count', 'Preferred Locale']
 
                 with open(csv_file, 'w', newline='', encoding='utf-8') as f:
                     writer = csv.DictWriter(f, fieldnames=fields)
@@ -40,11 +41,14 @@ class DevCog(commands.Cog):
                     for guild in self.bot.guilds:
                         writer.writerow({
                             'Guild Name': guild.name,
+                            'Owner Name': guild.owner.name,
                             'Member Count': guild.member_count,
                             'Preferred Locale': guild.preferred_locale
                         })
+
                 embed.description = f"Dane zapisano do pliku CSV: {csv_file}"
                 file = discord.File(csv_file)
+
             else:
                 embed.description = f"Command for bot developers only."
         except discord.HTTPException:
