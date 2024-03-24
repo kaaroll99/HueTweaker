@@ -32,7 +32,7 @@ class DevCog(commands.Cog):
                 import csv
 
                 csv_file = 'guilds_info.csv'
-                fields = ['Guild Name', 'Owner Name', 'Member Count', 'Preferred Locale']
+                fields = ['Guild Name', 'Member Count', 'Preferred Locale']
 
                 with open(csv_file, 'w', newline='', encoding='utf-8') as f:
                     writer = csv.DictWriter(f, fieldnames=fields)
@@ -41,7 +41,6 @@ class DevCog(commands.Cog):
                     for guild in self.bot.guilds:
                         writer.writerow({
                             'Guild Name': guild.name,
-                            'Owner Name': guild.owner.name,
                             'Member Count': guild.member_count,
                             'Preferred Locale': guild.preferred_locale
                         })
