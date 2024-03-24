@@ -37,8 +37,7 @@ class CheckCog(commands.Cog):
 
             image = color_format.generate_image_from_rgb_float([float(val) for val in output_color['RGB']])
 
-            embed: Embed = discord.Embed(title=f"Details for color: **{output_color['Input']}**", description=f"",
-                                         color=config_file['EMBED_COLOR'])
+            embed.title = f"Details for color: **{output_color['Input']}**"
 
             embed.add_field(name=f"{messages_file['item_icon']} Hex:",
                             value=f"{output_color['Hex'].upper()}",
@@ -65,7 +64,6 @@ class CheckCog(commands.Cog):
             embed.set_image(url="attachment://" + file.filename)
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed, file=file)
-            file = None
         except ValueError:
             embed.clear_fields()
             embed.description = f"**{messages_file['exception']} Incorrect color format**"

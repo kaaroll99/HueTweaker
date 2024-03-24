@@ -1,5 +1,5 @@
 import discord
-from discord import app_commands
+from discord import app_commands, Embed
 from discord.ext import commands
 import config
 import logging
@@ -16,7 +16,7 @@ class HelpCog(commands.Cog):
 
     @app_commands.command(name="help", description="Information about the bot and a list of available commands")
     async def help(self, interaction: discord.Interaction) -> None:
-        embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=config_file['EMBED_COLOR'])
         select = discord.ui.Select(placeholder='Choose a command from the list...', options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
             discord.SelectOption(label="/set", value="set", emoji="🌈"),
@@ -72,7 +72,7 @@ class HelpCog(commands.Cog):
             with open('assets/help_commands.yml', 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)
             selected_option = interaction.data['values'][0]
-            embed = discord.Embed(title=f"✨ Command `{data[selected_option]['name']}`",
+            embed: Embed = discord.Embed(title=f"✨ Command `{data[selected_option]['name']}`",
                                   description=f"{data[selected_option]['desc']}", color=config_file['EMBED_COLOR'])
 
             embed.add_field(name=f"Command syntax:", value=f"> {data[selected_option]['usage']}",

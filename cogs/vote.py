@@ -1,5 +1,5 @@
 import discord
-from discord import app_commands
+from discord import app_commands, Embed
 from discord.ext import commands
 import datetime
 import config
@@ -18,9 +18,7 @@ class VoteCog(commands.Cog):
 
     @app_commands.command(name="vote", description="View links to vote")
     async def vote(self, interaction: discord.Interaction) -> None:
-        # print(interaction.guild.preferred_locale)
-        # print(interaction.locale)
-        embed = discord.Embed(title=f"Vote for {bot.user.name}", description=f"",
+        embed: Embed = discord.Embed(title=f"Vote for {bot.user.name}", description=f"",
                               color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
             await interaction.response.defer(ephemeral=True)
