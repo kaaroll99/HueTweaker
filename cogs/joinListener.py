@@ -45,6 +45,7 @@ class JoinListenerCog(commands.Cog):
         try:
             channel = bot.get_channel(config_file['io_channel'])
             if channel is not None:
+                owner_name = guild.owner.name if guild.owner else "-"
                 embed = discord.Embed(title=f"", description=f"Bot has been removed from guild (**{len(bot.guilds)}**)\n"
                                                              f"> Guild: {guild.name} `[{guild.id}]`\n"
                                                              f"> Members: `{guild.member_count}` `[{owner_name}]`", color=0xF23F42)
