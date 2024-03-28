@@ -58,8 +58,11 @@ class EmbedCog(commands.Cog):
             info_embed.description = f"⚠️ Error when parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` command"
         except Exception as e:
             info_embed.description = e
+            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
             await interaction.followup.send(embed=info_embed)
+            logging.info(
+                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /embed (len:{len(embed)})")
 
     @embed.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

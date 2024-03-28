@@ -26,11 +26,9 @@ class JoinListenerCog(commands.Cog):
             channel = bot.get_channel(config_file['io_channel'])
             if channel is not None:
                 owner_name = guild.owner.name if guild.owner else "-"
-                embed = discord.Embed(title=f"", description=f"**Bot has been added to guild ({len(bot.guilds)})**\n"
-                                                             f"> ID: `{guild.id}`\n"
-                                                             f"> Members: `{guild.member_count} ({owner_name})`\n"
-                                                             f"> Lang: `{guild.preferred_locale}`",
-                                      color=0x23A55A)
+                embed = discord.Embed(title=f"", description=f"Bot has been added to guild (**{len(bot.guilds)}**)\n"
+                                                             f"> Guild: {guild.name} `[{guild.id}]`\n"
+                                                             f"> Members: `{guild.member_count}` `[{owner_name}]`", color=0x23A55A)
                 embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
                 await channel.send(embed=embed)
             else:
@@ -47,10 +45,9 @@ class JoinListenerCog(commands.Cog):
         try:
             channel = bot.get_channel(config_file['io_channel'])
             if channel is not None:
-                embed = discord.Embed(title=f"", description=f"**Bot has been removed from guild ({len(bot.guilds)})**\n"
-                                                             f"> ID: `{guild.id}`\n"
-                                                             f"> Members: `{guild.member_count}`\n"
-                                                             f"> Lang: `{guild.preferred_locale}`", color=0xF23F42)
+                embed = discord.Embed(title=f"", description=f"Bot has been removed from guild (**{len(bot.guilds)}**)\n"
+                                                             f"> Guild: {guild.name} `[{guild.id}]`\n"
+                                                             f"> Members: `{guild.member_count}` `[{owner_name}]`", color=0xF23F42)
                 embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
                 await channel.send(embed=embed)
             else:

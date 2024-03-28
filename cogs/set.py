@@ -26,15 +26,17 @@ class SetCog(commands.Cog):
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
+            color_match = color
             with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
-            search_color = color.lower().replace(" ", "")
-            if search_color in map(lambda x: x.lower(), data.keys()):
-                color = data[search_color]
-            if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
+            color_match = color_match.lower().replace(" ", "")
+            if color_match in map(lambda x: x.lower(), data.keys()):
+                color_match = data[color_match]
+            elif re.match(r"^(#?[0-9a-fA-F]{6})$", color_match):
+                color_match = color_match.strip("#")
+            else:
                 raise ValueError("color")
-            if color.startswith("#"):
-                color = color.strip("#")
+
             db = database.Database(url=f"sqlite:///databases/guilds.db")
             db.connect()
 
@@ -49,10 +51,10 @@ class SetCog(commands.Cog):
                 if top_role is not None and not top_role.position == 0:
                     await role.edit(position=top_role.position - 1)
 
-            await role.edit(colour=discord.Colour(int(color, 16)))
+            await role.edit(colour=discord.Colour(int(color_match, 16)))
             await interaction.user.add_roles(role)
-            embed.description = f"✨ **Color has been set to __#{color}__**"
-            embed.color = discord.Colour(int(color, 16))
+            embed.description = f"✨ **Color has been set to __#{color_match}__**"
+            embed.color = discord.Colour(int(color_match, 16))
 
         except ValueError:
             embed.description = "⚠️ **Incorrect color format**"

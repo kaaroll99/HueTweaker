@@ -29,15 +29,18 @@ class ForceCog(commands.Cog):
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
+            color_match = color
             with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
-            search_color = color.lower().replace(" ", "")
-            if search_color in map(lambda x: x.lower(), data.keys()):
-                color = data[search_color]
-            if not re.match(r"^(#?[0-9a-fA-F]{6})$", color.upper()):
-                raise ValueError
-            if color.startswith("#"):
-                color = color.strip("#")
+
+            color_match = color_match.lower().replace(" ", "")
+            if color_match in map(lambda x: x.lower(), data.keys()):
+                color_match = data[color_match]
+            elif re.match(r"^(#?[0-9a-fA-F]{6})$", color_match):
+                color_match = color_match.strip("#")
+            else:
+                raise ValueError("color")
+
             db = database.Database(url=f"sqlite:///databases/guilds.db")
             db.connect()
             sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
@@ -48,7 +51,7 @@ class ForceCog(commands.Cog):
                 top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0].get("role", 0))
                 if top_role is not None and not top_role.position == 0:
                     await role.edit(position=top_role.position - 1)
-            await role.edit(colour=discord.Colour(int(color, 16)))
+            await role.edit(colour=discord.Colour(int(color_match, 16)))
             await user_name.add_roles(role)
             embed.description = f"✨ **Color has been set for {user_name.name} to __#{color}__**"
             embed.color = discord.Colour(int(color, 16))
@@ -78,7 +81,7 @@ class ForceCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /force set {color} (len:{len(embed)})")
+                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /force set {user_name.name} {color} (len:{len(embed)})")
 
     @group.command(name="remove", description="Removing the color of the user")
     @app_commands.describe(user_name="User name")

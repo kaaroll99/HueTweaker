@@ -7,6 +7,7 @@ import config
 import color_format
 from config import bot
 import logging
+import re
 
 messages_file = config.load_yml('assets/messages.yml')
 config_file = config.load_yml('config.yml')
@@ -24,16 +25,18 @@ class CheckCog(commands.Cog):
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
+            color_match = color
             with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
-            search_color = color.lower().replace(" ", "")
-            if search_color in map(lambda x: x.lower(), data.keys()):
-                color = data[search_color]
-
-            output_color = color_format.color_converter(color)
-
-            if "error" in output_color:
+            color_match = color_match.lower().replace(" ", "")
+            if color_match in map(lambda x: x.lower(), data.keys()):
+                color_match = data[color_match]
+            elif re.match(r"^(#?[0-9a-fA-F]{6})$", color_match):
+                color_match = color_match.strip("#")
+            else:
                 raise ValueError
+
+            output_color = color_format.color_converter(color_match)
 
             image = color_format.generate_image_from_rgb_float([float(val) for val in output_color['RGB']])
 
