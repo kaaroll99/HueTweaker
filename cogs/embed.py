@@ -56,6 +56,16 @@ class EmbedCog(commands.Cog):
 
         except json.JSONDecodeError as e:
             info_embed.description = f"⚠️ Error when parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` command"
+        except discord.HTTPException as e:
+            embed.clear_fields()
+            if e.code == 50001:
+                info_embed.description = (f"**{messages_file.get('exception')} The bot does not have the channel access"
+                                          f" to perform this operation.**\n\n")
+            else:
+                info_embed.description = (f"**{messages_file.get('exception')} Bot could not perform this operation "
+                                          f"due to HTTP discord error.**\n\n"
+                                          f"{e.code} - {e.text}")
+            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
         except Exception as e:
             info_embed.description = e
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")

@@ -39,7 +39,7 @@ class DevCog(commands.Cog):
                     writer.writeheader()
 
                     for guild in self.bot.guilds:
-                        owner_name = guild.owner.name if guild.owner else "Brak właściciela"
+                        owner_name = guild.owner.name if guild.owner else "-"
                         owner_id = guild.owner.id if guild.owner else 0
                         writer.writerow({
                             'Guild Name': guild.name,
@@ -55,10 +55,10 @@ class DevCog(commands.Cog):
 
             else:
                 embed.description = f"Command for bot developers only."
-        except discord.HTTPException:
+        except discord.HTTPException as e:
             embed.clear_fields()
             embed.description = (f"**{messages_file.get('exception')}")
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception")
+            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
         except Exception as e:
             embed.clear_fields()
             embed.description = f""

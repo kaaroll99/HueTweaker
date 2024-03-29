@@ -1,5 +1,5 @@
 {
-  "title": "Edycja własnego koloru",
+  "title": "Bot has been removed from guild (**199**)",
   "description": "",
   "color": "454545",
   "image": "",
@@ -9,13 +9,18 @@
   "author_icon_url": "",
   "fields": [
     {
-      "title": "👤 kaaroll99",
-      "value": "",
+      "title": "Guild:",
+      "value": "> HueTweaker",
       "inline": false
     },
     {
-      "title": "🧮 12 ▸ 14 (+2)",
-      "value": "",
+      "title": "ID:",
+      "value": "> `123456789123456789`",
+      "inline": false
+    },
+    {
+      "title": "Members:",
+      "value": "> `12` `[kaaroll99]`",
       "inline": false
     }
   ]

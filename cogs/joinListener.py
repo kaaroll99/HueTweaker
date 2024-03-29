@@ -4,6 +4,7 @@ from discord.ext import commands
 import config
 from database import database, model
 from config import bot
+from datetime import datetime
 
 messages_file = config.load_yml('assets/messages.yml')
 config_file = config.load_yml('config.yml')
@@ -21,14 +22,16 @@ class JoinListenerCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        logging.info(f"Bot has been added to guild: {guild.id}(mem: {guild.member_count})")
+        logging.info(f"Bot has been added to guild: {guild.id} (mem: {guild.member_count})")
         try:
             channel = bot.get_channel(config_file['io_channel'])
             if channel is not None:
                 owner_name = guild.owner.name if guild.owner else "-"
                 embed = discord.Embed(title=f"", description=f"Bot has been added to guild (**{len(bot.guilds)}**)\n"
-                                                             f"> Guild: {guild.name} `[{guild.id}]`\n"
-                                                             f"> Members: `{guild.member_count}` `[{owner_name}]`", color=0x23A55A)
+                                                             f"> **Guild:** {guild.name}\n"
+                                                             f"> **ID:** `{guild.id}`\n"
+                                                             f"> **Members:** `{guild.member_count}` `[{owner_name}]`",
+                                      color=0x23A55A, timestamp=datetime.now())
                 embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
                 await channel.send(embed=embed)
             else:
@@ -41,14 +44,16 @@ class JoinListenerCog(commands.Cog):
         db = database.Database(url=f"sqlite:///databases/guilds.db")
         db.connect()
         db.delete(model.guilds_class("guilds"), {"server": guild.id})
-        logging.info(f"Bot has been removed from guild: {guild.id}(mem: {guild.member_count})")
+        logging.info(f"Bot has been removed from guild: {guild.id} (mem: {guild.member_count})")
         try:
             channel = bot.get_channel(config_file['io_channel'])
             if channel is not None:
                 owner_name = guild.owner.name if guild.owner else "-"
                 embed = discord.Embed(title=f"", description=f"Bot has been removed from guild (**{len(bot.guilds)}**)\n"
-                                                             f"> Guild: {guild.name} `[{guild.id}]`\n"
-                                                             f"> Members: `{guild.member_count}` `[{owner_name}]`", color=0xF23F42)
+                                                             f"> **Guild:** {guild.name}\n"
+                                                             f"> **ID:** `{guild.id}`\n"
+                                                             f"> **Members:** `{guild.member_count}` `[{owner_name}]`",
+                                      color=0x23A55A, timestamp=datetime.now())
                 embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
                 await channel.send(embed=embed)
             else:

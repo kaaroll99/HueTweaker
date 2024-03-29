@@ -59,14 +59,19 @@ class ToproleCog(commands.Cog):
                                      f"💡 Remember that the selected role should be under the highest role the bot has. "
                                      f"Otherwise it will cause errors when setting the username color.")
 
-        except discord.HTTPException:
+        except discord.HTTPException as e:
             embed.clear_fields()
-            embed.description = (
-                f"**{messages_file.get('exception')} The bot does not have the permissions to perform this operation.**"
-                f" Error may have been caused by misconfiguration of top-role bot (`/toprole`). "
-                f"Notify the server administrator of the occurrence of this error.\n\n"
-                f"💡 Use the `/help` command to learn how to properly configure top role")
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception")
+            if e.code == 50013:
+                embed.description = (
+                    f"**{messages_file.get('exception')} The bot does not have the permissions to perform this operation.**"
+                    f" Error may have been caused by misconfiguration of top-role bot (`/toprole`). "
+                    f"Make sure you have chosen the right role for the bot.\n\n"
+                    f"💡 Use the `/help` command to learn how to properly configure top role")
+            else:
+                info_embed.description = (f"**{messages_file.get('exception')} Bot could not perform this operation "
+                                          f"due to HTTP discord error.**\n\n"
+                                          f"{e.code} - {e.text}")
+            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
 
         except Exception as e:
             embed.clear_fields()

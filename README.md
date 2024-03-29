@@ -1,5 +1,11 @@
 # HueTweaker
 
+The application allows users to manage the name color themselves with a single command. The application also includes several commands for administrators to customize the bot's operation for a specific server.
+
+- **[Gitbook docs](https://huetweaker.gitbook.io/docs/)**
+- **[Discord Application directory](https://discord.com/application-directory/1209187999934578738)**
+- **[Top.gg](https://top.gg/bot/1209187999934578738)**
+
 Change the color of your username with a single command.
 
 - 🖌️ Set/change the username color using hex code or CSS color name.
@@ -18,10 +24,11 @@ Change the color of your username with a single command.
 ## Admin commands:
 - `/force set` - Set/change the username color of the specific user using hex code or CSS color name.
 - `/force remove` - Remove the username color of the specific user.
+- `/force purge` - Removing all color roles.
 - `/toprole` - Set the top role for color roles. All color roles will be set under the indicated role.
 - `/embed` - Embed generator that allows you to send embed messages based on JSON format.
 
-JSON format example:
+Embed JSON format example:
 ```json
 {
     "title": "Your Title",
