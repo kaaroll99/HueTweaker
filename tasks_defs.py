@@ -7,6 +7,7 @@ import topgg
 import datetime
 import json
 import requests
+import csv
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
@@ -66,6 +67,37 @@ async def database_backup():
             return
         await channel.send(file=db_file)
         logging.info(f"Database saved to {db_file.filename}")
+    except Exception as e:
+        logging.warning(f"Database backup error - {e.__class__.__name__}: {e}")
+
+@tasks.loop(time=datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')))
+async def guilds_csv():
+    await bot.wait_until_ready()
+    try:
+        csv_file = 'guilds_info.csv'
+        fields = ['Guild Name', 'Guild ID', 'Owner Name', 'Member Count']
+
+        with open(csv_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fields)
+            writer.writeheader()
+
+            for guild in bot.guilds:
+                owner_name = guild.owner.name if guild.owner else "-"
+                writer.writerow({
+                    'Guild Name': guild.name,
+                    'Guild ID': guild.id,
+                    'Owner Name': owner_name,
+                    'Member Count': guild.member_count,
+                })
+
+        file = discord.File(csv_file, filename=f"{str(datetime.date.today().strftime('%Y-%m-%d'))}.csv")
+        channel = bot.get_channel(config_file['db_backup_channel'])
+
+        if channel is None:
+            logging.warning(f"Backup channel not found.")
+            return
+        await channel.send(file=file)
+        logging.info(f"CSV saved to {file.filename}")
     except Exception as e:
         logging.warning(f"Database backup error - {e.__class__.__name__}: {e}")
 

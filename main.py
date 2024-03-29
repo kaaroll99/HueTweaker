@@ -9,7 +9,7 @@ import tasks_defs
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
-cogs = ['help', 'set', 'remove', 'check', 'force', 'toprole', 'embed', 'joinListener', 'vote', 'dev']
+cogs = ['help', 'set', 'remove', 'check', 'force', 'toprole', 'embed', 'joinListener', 'vote']
 
 
 @bot.event
@@ -35,6 +35,7 @@ async def main():
         tasks_defs.update_stats_topgg.start()
         tasks_defs.update_stats_taks.start()
         tasks_defs.database_backup.start()
+        tasks_defs.guilds_csv.start()
         tasks_defs.send_command_list.start()
 
         logging.info('Bot is running.')
