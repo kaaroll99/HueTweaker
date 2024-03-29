@@ -15,7 +15,7 @@ class EmbedCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="embed", description="JSON to discord embed conversion")
+    @app_commands.command(name="embed", description="Send discord embed using json format")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
@@ -55,7 +55,7 @@ class EmbedCog(commands.Cog):
             logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /embed (len:{len(embed)})")
 
         except json.JSONDecodeError as e:
-            info_embed.description = f"⚠️ Error when parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` command"
+            info_embed.description = f"⚠️ Error while parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` command"
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50001:

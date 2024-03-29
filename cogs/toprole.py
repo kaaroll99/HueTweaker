@@ -45,9 +45,9 @@ class ToproleCog(commands.Cog):
                 if sb_query:
                     db.delete(model.guilds_class(f"guilds"), {"server": interaction.guild.id})
 
-                embed.description = (f"✨ **Top role settings has been reset**\n\n"
-                                     f"💡 Remember that the selected role should be under the highest role the bot has. "
-                                     f"Otherwise it will cause errors when setting the username color.")
+                embed.description = (f"✨ **Top role settings have been reset**\n\n"
+                                     f"💡 Please remember the selected role should be positioned below the bot's highest role."
+                                     f" Otherwise it will cause errors when setting the username color.")
             else:
                 if sb_query:
                     db.update(model.guilds_class(f"guilds"), {"server": interaction.guild.id},
@@ -57,7 +57,7 @@ class ToproleCog(commands.Cog):
 
                 embed.description = (f"✨ **Top role has been set for __{role_name.name}__**\n\n"
                                      f"💡 Remember that the selected role should be under the highest role the bot has. "
-                                     f"Otherwise it will cause errors when setting the username color.")
+                                     f"Otherwise, it will cause errors when setting the username color.")
 
         except discord.HTTPException as e:
             embed.clear_fields()

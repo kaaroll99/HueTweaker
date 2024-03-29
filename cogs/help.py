@@ -14,7 +14,7 @@ class HelpCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="help", description="Information about the bot and a list of available commands")
+    @app_commands.command(name="help", description="View information about the bot and a list of available commands")
     async def help(self, interaction: discord.Interaction) -> None:
         embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=config_file['EMBED_COLOR'])
         select = discord.ui.Select(placeholder='Choose a command from the list...', options=[

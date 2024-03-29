@@ -18,7 +18,7 @@ class ForceCog(commands.Cog):
         self.bot = bot
         self.color = config_file['EMBED_COLOR']
 
-    group = app_commands.Group(name="force", description="Modify the colors of specific users")
+    group = app_commands.Group(name="force", description="Modify the color of specific user")
 
     @group.command(name="set", description="Setting the color of the user")
     @app_commands.checks.has_permissions(administrator=True)
@@ -88,7 +88,7 @@ class ForceCog(commands.Cog):
             logging.info(
                 f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /force set {user_name.name} {color} (len:{len(embed)})")
 
-    @group.command(name="remove", description="Removing the color of the user")
+    @group.command(name="remove", description="Remove the color of the user")
     @app_commands.describe(user_name="User name")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
@@ -117,7 +117,7 @@ class ForceCog(commands.Cog):
             logging.info(
                 f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /force remove {user_name.name} (len:{len(embed)})")
 
-    @group.command(name="purge", description="Removing all color roles (irreversible)")
+    @group.command(name="purge", description="Remove all color roles (irreversible)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()

@@ -16,7 +16,7 @@ class RemoveCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="remove", description="Removing the color")
+    @app_commands.command(name="remove", description="Remove the color")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def remove(self, interaction: discord.Interaction) -> None:
