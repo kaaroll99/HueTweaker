@@ -32,7 +32,6 @@ class JoinListenerCog(commands.Cog):
                                                              f"> **ID:** `{guild.id}`\n"
                                                              f"> **Members:** `{guild.member_count}` `[{owner_name}]`",
                                       color=0x23A55A, timestamp=datetime.now())
-                embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
                 await channel.send(embed=embed)
             else:
                 logging.warning(f"I/O channel not found.")
@@ -53,8 +52,7 @@ class JoinListenerCog(commands.Cog):
                                                              f"> **Guild:** {guild.name}\n"
                                                              f"> **ID:** `{guild.id}`\n"
                                                              f"> **Members:** `{guild.member_count}` `[{owner_name}]`",
-                                      color=0x23A55A, timestamp=datetime.now())
-                embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+                                      color=0xF23F42, timestamp=datetime.now())
                 await channel.send(embed=embed)
             else:
                 logging.warning(f"I/O channel not found.")
