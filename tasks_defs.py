@@ -38,7 +38,7 @@ async def update_stats_topgg():
     bot.topggpy = topgg.DBLClient(bot, topgg_token)
     try:
         await bot.topggpy.post_guild_count()
-        await bot.topggpy.post_shard_count
+        # await bot.topggpy.post_shard_count
         logging.info(f"Posted server info to topgg ({bot.topggpy.guild_count})")
     except Exception as e:
         logging.warning(f"Failed to post server info to topgg - {e.__class__.__name__}: {e}")

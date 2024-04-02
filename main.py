@@ -35,7 +35,7 @@ async def main():
         tasks_defs.update_stats_topgg.start()
         tasks_defs.update_stats_taks.start()
         tasks_defs.database_backup.start()
-        tasks_defs.guilds_csv.start()
+        # tasks_defs.guilds_csv.start()
         tasks_defs.send_command_list.start()
 
         logging.info('Bot is running.')
