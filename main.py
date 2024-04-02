@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands, tasks
 import asyncio
 import config
-from config import bot
+from config import bot, db
 import logging
 from database import database
 import tasks_defs
@@ -28,9 +28,9 @@ async def on_ready():
 
 
 async def main():
-    db = database.Database(url=f"sqlite:///databases/guilds.db")
     db.connect()
     db.database_init()
+    db.close()
     async with bot:
         tasks_defs.update_stats_topgg.start()
         tasks_defs.update_stats_taks.start()

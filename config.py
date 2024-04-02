@@ -2,6 +2,7 @@ import yaml
 import discord
 from discord.ext import commands
 from logging.handlers import TimedRotatingFileHandler
+from database import database, model
 import logging
 
 intents = discord.Intents.none()
@@ -9,8 +10,10 @@ intents.guilds = True
 intents.members = True
 
 activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
-bot = commands.AutoShardedBot(command_prefix="!$%ht", intents=intents, activity=activity, status=discord.Status.online)
+bot = commands.Bot(command_prefix="!$%ht", intents=intents, activity=activity, status=discord.Status.online)
 bot.remove_command('help')
+
+db = database.Database(url=f"sqlite:///databases/guilds.db")
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)

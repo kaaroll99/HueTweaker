@@ -4,7 +4,7 @@ from discord import app_commands, Embed
 from discord.ext import commands
 from datetime import datetime, timedelta
 import config
-from config import bot
+from config import bot, db
 import logging
 import re
 from database import database, model
@@ -41,9 +41,9 @@ class ForceCog(commands.Cog):
             else:
                 raise ValueError("color")
 
-            db = database.Database(url=f"sqlite:///databases/guilds.db")
             db.connect()
             sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+            db.close()
             role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
             if role is None:
                 role = await interaction.guild.create_role(name=f"color-{user_name.id}")

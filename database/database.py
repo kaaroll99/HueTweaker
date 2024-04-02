@@ -47,50 +47,50 @@ class Database:
         else:
             return False
 
-    def check(self, guild_id: int):
-        if not self.__engine:
-            raise Exception("Database is not connected. Call connect() first.")
+    # def check(self, guild_id: int):
+    #     if not self.__engine:
+    #         raise Exception("Database is not connected. Call connect() first.")
+    #
+    #     inspector = inspect(self.__engine)
+    #
+    #     if not inspector.has_table('guild_info') or not inspector.has_table('list_scoreboard'):
+    #         return True
+    #     else:
+    #         return False
 
-        inspector = inspect(self.__engine)
+    # def create_scoreboard(self, table_name):
+    #     if not self.__engine:
+    #         raise Exception("Database is not connected. Call connect() first.")
+    #
+    #     metadata = MetaData()
+    #
+    #     Table(
+    #         table_name, metadata,
+    #         Column('id', Integer, primary_key=True, autoincrement=True),
+    #         Column('name', String),
+    #         Column('score', Integer)
+    #     )
+    #
+    #     inspector = inspect(self.__engine)
+    #
+    #     if not inspector.has_table(table_name):
+    #         metadata.create_all(self.__engine)
+    #         return True
+    #     else:
+    #         return False
 
-        if not inspector.has_table('guild_info') or not inspector.has_table('list_scoreboard'):
-            return True
-        else:
-            return False
-
-    def create_scoreboard(self, table_name):
-        if not self.__engine:
-            raise Exception("Database is not connected. Call connect() first.")
-
-        metadata = MetaData()
-
-        Table(
-            table_name, metadata,
-            Column('id', Integer, primary_key=True, autoincrement=True),
-            Column('name', String),
-            Column('score', Integer)
-        )
-
-        inspector = inspect(self.__engine)
-
-        if not inspector.has_table(table_name):
-            metadata.create_all(self.__engine)
-            return True
-        else:
-            return False
-
-    def drop_table(self, table_name):
-        if not self.__engine:
-            raise Exception("Database is not connected. Call connect() first.")
-
-        inspector = inspect(self.__engine)
-
-        if inspector.has_table(table_name):
-            table_to_drop = Table(table_name, MetaData())
-            table_to_drop.drop(self.__engine)
-            return True
-        else:
-            return False
+    # def drop_table(self, table_name):
+    #     if not self.__engine:
+    #         raise Exception("Database is not connected. Call connect() first.")
+    #
+    #     inspector = inspect(self.__engine)
+    #
+    #     if inspector.has_table(table_name):
+    #         table_to_drop = Table(table_name, MetaData())
+    #         table_to_drop.drop(self.__engine)
+    #         return True
+    #     else:
+    #         return False
 
     def select(self, table, parameters=None):
         if not table:

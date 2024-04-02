@@ -3,7 +3,7 @@ from discord import app_commands, Embed
 from discord.ext import commands
 from datetime import datetime, timedelta
 import config
-from config import bot
+from config import bot, db
 import logging
 import re
 from database import database, model
@@ -38,7 +38,6 @@ class ToproleCog(commands.Cog):
                     else:
                         await role.edit(position=top_role.position - 1)
 
-            db = database.Database(url=f"sqlite:///databases/guilds.db")
             db.connect()
             sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
             if top_role.position == 0:
@@ -58,6 +57,7 @@ class ToproleCog(commands.Cog):
                 embed.description = (f"✨ **Top role has been set for __{role_name.name}__**\n\n"
                                      f"💡 Remember that the selected role should be under the highest role the bot has. "
                                      f"Otherwise, it will cause errors when setting the username color.")
+            db.close()
 
         except discord.HTTPException as e:
             embed.clear_fields()
