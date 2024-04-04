@@ -35,7 +35,6 @@ async def main():
         tasks_defs.update_stats_topgg.start()
         tasks_defs.update_stats_taks.start()
         tasks_defs.database_backup.start()
-        # tasks_defs.guilds_csv.start()
         tasks_defs.send_command_list.start()
 
         logging.info('Bot is running.')
@@ -46,4 +45,4 @@ try:
     asyncio.run(main())
 
 except KeyboardInterrupt:
-    logging.warning(f"bot has been terminated from console line")
+    logging.warning(f"Bot has been terminated from console line")

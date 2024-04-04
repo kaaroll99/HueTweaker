@@ -38,15 +38,15 @@ class SetCog(commands.Cog):
                 raise ValueError("color")
 
             db.connect()
-            sb_query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+            query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
             db.close()
 
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
             if role is None:
                 role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
 
-            if sb_query:
-                top_role = discord.utils.get(interaction.guild.roles, id=sb_query[0]["role"])
+            if query:
+                top_role = discord.utils.get(interaction.guild.roles, id=query[0]["role"])
 
                 if top_role is not None and not top_role.position == 0:
                     await role.edit(position=top_role.position - 1)
@@ -56,17 +56,16 @@ class SetCog(commands.Cog):
             embed.description = f"✨ **Color has been set to __#{color_match}__**"
             embed.color = discord.Colour(int(color_match, 16))
 
-        except ValueError:
-            embed.description = "⚠️ **Incorrect color format**"
-            embed.add_field(name=f"Color format:",
-                            value=f"`#F5DF4D` or name of [CSS color](https://htmlcolorcodes.com/color-names/)",
-                            inline=False)
+        except ValueError as e:
+            embed.description = ("⚠️ **Incorrect color format**\n\n"
+                                 "Please use hexadecimal format, e.g. __F5DF4D__ \n"
+                                 "or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__")
 
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
                 embed.description = (
-                    f"**{messages_file.get('exception')} The bot does not have the permissions to perform this operation.**"
+                    f"**{messages_file.get('exception')} The bot does not have permissions to perform this operation.**"
                     f" Error may have been caused by misconfiguration of top-role bot (`/toprole`). "
                     f"Notify the server administrator of the occurrence of this error.\n\n"
                     f"💡 Use the `/help` command to learn how to properly configure top role")
@@ -85,7 +84,7 @@ class SetCog(commands.Cog):
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /set {color} (len:{len(embed)})")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /set {color}")
 
     @set.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

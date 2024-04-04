@@ -39,7 +39,7 @@ class VoteCog(commands.Cog):
             embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /vote (len:{len(embed)})")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /vote")
 
 
 async def setup(bot: commands.Bot) -> None:

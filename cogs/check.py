@@ -70,8 +70,10 @@ class CheckCog(commands.Cog):
         except ValueError:
             embed.clear_fields()
             embed.description = f"**{messages_file['exception']} Incorrect color format**"
-            embed.add_field(value=f"💡 Correct formats:\n* 9932f0\n* rgb(153, 50, 240)\n* hsl(272.53, 86.36%, 56.86%)"
-                                  f"\n* cmyk(36.25%, 79.17%, 0.00%, 5.88%)\n* 10040048", name="", inline=False)
+            embed.add_field(value=f"**Correct formats:**\n* 9932f0\n* rgb(153, 50, 240)\n* hsl(272.53, 86.36%, 56.86%)"
+                                  f"\n* cmyk(36.25%, 79.17%, 0.00%, 5.88%)\n* 10040048"
+                                  f"\n* [CSS color](https://huetweaker.gitbook.io/docs/main/colors)",
+                            name="", inline=False)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed)
@@ -84,7 +86,7 @@ class CheckCog(commands.Cog):
             await interaction.followup.send(embed=embed)
         finally:
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /check {color} (len:{len(embed)})")
+                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /check {color}")
 
     @check.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

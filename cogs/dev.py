@@ -69,7 +69,7 @@ class DevCog(commands.Cog):
             embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, file=file)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /vote (len:{len(embed)})")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /vote")
 
     @dev.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

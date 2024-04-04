@@ -48,10 +48,10 @@ class HelpCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
             total_users = sum(guild.member_count for guild in bot.guilds)
-            embed.description = (f"🧮 **Some information:**\n"
-                                 f"> - Online on `{len(bot.guilds)}` servers.\n"
-                                 f"> - Used by `{total_users}` people.\n"
-                                 f"> - Created by `@kaaroll99`\n\n"
+            embed.description = (f""
+                                 f"- Online on `{len(bot.guilds)}` servers.\n"
+                                 f"- Used by `{total_users}` people.\n"
+                                 f"- Created by `@kaaroll99`\n\n"
                                  f"**Select one of the available commands from the list to learn more.**")
 
         except Exception as e:
@@ -64,7 +64,7 @@ class HelpCog(commands.Cog):
             embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /help (len:{len(embed)})")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /help")
 
     @staticmethod
     async def __select_callback(interaction: discord.Interaction):

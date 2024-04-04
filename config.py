@@ -19,14 +19,14 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(level
 logger = logging.getLogger(__name__)
 
 log_file = f'logs/latest.log'
-file_handler = logging.FileHandler(log_file, mode='w')
+file_handler = logging.FileHandler(log_file, mode='w', encoding='utf-8')
 file_handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
 logger.root.addHandler(file_handler)
 
 log_file = f'logs/info'
-handler = TimedRotatingFileHandler(log_file, when="midnight")
+handler = TimedRotatingFileHandler(log_file, when="midnight", encoding='utf-8')
 handler.namer = lambda name: name.replace(".log", "") + ".log"
 handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')

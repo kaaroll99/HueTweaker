@@ -17,6 +17,7 @@ class EmbedCog(commands.Cog):
 
     @app_commands.command(name="embed", description="Send discord embed using json format")
     @app_commands.checks.has_permissions(administrator=True)
+    @app_commands.describe(channel="The channel to which the message is to be sent", data="JSON data")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def embed(self, interaction: discord.Interaction, channel: discord.TextChannel, data: str) -> None:
@@ -51,8 +52,6 @@ class EmbedCog(commands.Cog):
 
             await channel.send(embed=embed)
             info_embed.description = f"Embed sent to: <#{channel.id}>"
-
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /embed (len:{len(embed)})")
 
         except json.JSONDecodeError as e:
             info_embed.description = f"⚠️ Error while parsing JSON data: `{e}`. \n\n💡 Check JSON format using `/help` command"
