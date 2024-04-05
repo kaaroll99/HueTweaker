@@ -26,7 +26,8 @@ class HelpCog(commands.Cog):
             discord.SelectOption(label="/force remove", value="forceremove", emoji="🔄"),
             discord.SelectOption(label="/force purge", value="forcepurge", emoji="💥"),
             discord.SelectOption(label="/toprole", value="toprole", emoji="💫"),
-            discord.SelectOption(label="/embed", value="embed", emoji="📋")
+            discord.SelectOption(label="/embed", value="embed", emoji="📋"),
+            discord.SelectOption(label="/vote", value="vote", emoji="🗳️")
         ])
         invite_button = discord.ui.Button(label="Invite bot", style=discord.ButtonStyle.url,
                                     url="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot")

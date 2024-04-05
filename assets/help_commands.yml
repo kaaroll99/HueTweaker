@@ -59,6 +59,16 @@ check:
   example: /check \#F5DF4D
   docs: check
 
+### VOTE ###
+vote:
+  name: vote
+  desc: >-
+    Displays the URL for voting.
+
+  usage: /vote
+  example: /vote
+  docs: vote
+
 ### FORCESET ###
 forceset:
   name: forceset
