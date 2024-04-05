@@ -57,8 +57,9 @@ class CheckCog(commands.Cog):
                             value=f"cmyk({output_color['CMYK'][0] * 100:.2f}%, {output_color['CMYK'][1] * 100:.2f}%,"
                                   f" {output_color['CMYK'][2] * 100:.2f}%, {output_color['CMYK'][3] * 100:.2f}%)",
                             inline=False)
-            embed.add_field(name=f"{messages_file['item_icon']} Integer:",
-                            value=f"{output_color['Integer']}",
+            embed.add_field(name=f"{messages_file['item_icon']} The most similar CSS colors:",
+                            value=f"{', '.join(str(x) for x in output_color['Similars']) if output_color['Similars'] 
+                            else '-'}",
                             inline=False)
 
             image.save("output/color_fill.png")

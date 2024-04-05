@@ -46,8 +46,28 @@ def parse_hsl(input_color):
 def parse_cmyk(input_color):
     match = re.match(r"cmyk\((\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$", input_color)
     if match:
-        return (float(match.group(1)) / 100.0, float(match.group(3)) / 100.0, float(match.group(5)) / 100.0, float(match.group(7)) / 100.0)
+        return (float(match.group(1)) / 100.0, float(match.group(3)) / 100.0, float(match.group(5)) / 100.0,
+                float(match.group(7)) / 100.0)
     return None
+
+
+def hsl_distance(hsl1, hsl2):
+    return sum((x[0] - x[1]) ** 2 for x in zip(hsl1, hsl2))
+
+
+def find_similar_colors(color, threshold=0.2):
+    with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
+        color_dict = json.load(file)
+    similar_colors = []
+
+    for color_name, color_hex in color_dict.items():
+        rgb_color = sRGBColor.new_from_rgb_hex(color_hex)
+        compare_hsl = convert_color(rgb_color, HSLColor).get_value_tuple()
+        distance = hsl_distance(color, compare_hsl)
+        if distance <= threshold:
+            similar_colors.append(color_name)
+
+    return similar_colors
 
 
 def color_converter(input_color):
@@ -74,7 +94,8 @@ def color_converter(input_color):
             cmyk_values = parse_cmyk(input_color)
             if cmyk_values is None:
                 raise ValueError("Invalid CMYK format")
-            rgb_color = convert_color(CMYKColor(cmyk_values[0], cmyk_values[1], cmyk_values[2], cmyk_values[3]), sRGBColor)
+            rgb_color = convert_color(CMYKColor(cmyk_values[0], cmyk_values[1], cmyk_values[2], cmyk_values[3]),
+                                      sRGBColor)
         elif color_format == "integer":
             integer_value = int(input_color)
             r = (integer_value >> 16) & 0xFF
@@ -86,7 +107,8 @@ def color_converter(input_color):
         rgb_values = rgb_color.get_value_tuple()
         hsl_color = convert_color(rgb_color, HSLColor).get_value_tuple()
         cmyk_color = convert_color(rgb_color, CMYKColor).get_value_tuple()
-        integer_color = int("0x"+hex_color[1:], 16)
+        integer_color = int("0x" + hex_color[1:], 16)
+        similar_colors = find_similar_colors(hsl_color)
 
         result = {
             "Input": input_color,
@@ -94,7 +116,8 @@ def color_converter(input_color):
             "RGB": rgb_values,
             "HSL": hsl_color,
             "CMYK": cmyk_color,
-            "Integer": str(integer_color)
+            "Integer": str(integer_color),
+            "Similars": similar_colors
         }
 
         return result
