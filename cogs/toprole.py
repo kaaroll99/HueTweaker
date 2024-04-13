@@ -99,5 +99,6 @@ class ToproleCog(commands.Cog):
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
+
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(ToproleCog(bot))

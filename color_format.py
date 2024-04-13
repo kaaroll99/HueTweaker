@@ -55,7 +55,7 @@ def hsl_distance(hsl1, hsl2):
     return sum((x[0] - x[1]) ** 2 for x in zip(hsl1, hsl2))
 
 
-def find_similar_colors(color, threshold=0.2):
+def find_similar_colors(color, threshold=20):
     with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
         color_dict = json.load(file)
     similar_colors = []
@@ -65,9 +65,10 @@ def find_similar_colors(color, threshold=0.2):
         compare_hsl = convert_color(rgb_color, HSLColor).get_value_tuple()
         distance = hsl_distance(color, compare_hsl)
         if distance <= threshold:
-            similar_colors.append(color_name)
+            similar_colors.append((color_name, distance))
 
-    return similar_colors
+    similar_colors.sort(key=lambda x: x[1])
+    return [color[0] for color in similar_colors]
 
 
 def color_converter(input_color):
