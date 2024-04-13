@@ -4,7 +4,7 @@ from discord import app_commands, Embed
 from discord.ext import commands
 from datetime import datetime, timedelta
 import config
-from config import bot, db
+from config import bot, db, hex_regex
 import logging
 import re
 from database import database, model
@@ -36,8 +36,11 @@ class ForceCog(commands.Cog):
             color_match = color_match.lower().replace(" ", "")
             if color_match in map(lambda x: x.lower(), data.keys()):
                 color_match = data[color_match]
-            elif re.match(r"^(#?[0-9a-fA-F]{6})$", color_match):
-                color_match = color_match.strip("#")
+            elif config.hex_regex.match(color_match):
+                if len(color_match.strip("#")) == 3:
+                    color_match = ''.join([x * 2 for x in color_match.strip("#")])
+                else:
+                    color_match = color_match.strip("#")
             else:
                 raise ValueError("color")
 

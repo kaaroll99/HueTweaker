@@ -39,7 +39,7 @@ remove:
 check:
   name: check
   desc: >-
-    Get color information (HEX, RGB, HSL, CMYK, Integer).
+    Get color information (HEX, RGB, HSL, CMYK).
     
     **Formats:**
     
@@ -50,8 +50,6 @@ check:
     - hsl(52.14, 89.36%, 63.14%)
     
     - cmyk(0.00%, 8.98%, 68.57%, 3.92%)
-    
-    - 16113485
     
     - or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. "royalblue"
 

@@ -5,7 +5,7 @@ from discord.ext import commands
 from datetime import datetime, timedelta
 import config
 import color_format
-from config import bot
+from config import bot, hex_regex, rgb_regex, hsl_regex, cmyk_regex
 import logging
 import re
 
@@ -18,7 +18,7 @@ class CheckCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="check", description="Check color information (HEX, RGB, HSL, CMYK, Integer)")
+    @app_commands.command(name="check", description="Check color information (HEX, RGB, HSL, CMYK)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
@@ -31,12 +31,23 @@ class CheckCog(commands.Cog):
             color_match = color_match.lower().replace(" ", "")
             if color_match in map(lambda x: x.lower(), data.keys()):
                 color_match = data[color_match]
-            elif re.match(r"^(#?[0-9a-fA-F]{6})$", color_match):
-                color_match = color_match.strip("#")
+                color_type = "hex"
+            elif config.hex_regex.match(color_match):
+                if len(color_match.strip("#")) == 3:
+                    color_match = ''.join([x * 2 for x in color_match.strip("#")])
+                else:
+                    color_match = color_match.strip("#")
+                color_type = "hex"
+            elif config.rgb_regex.match(color_match):
+                color_type = "rgb"
+            elif config.hsl_regex.match(color_match):
+                color_type = "hsl"
+            elif config.cmyk_regex.match(color_match):
+                color_type = "cmyk"
             else:
                 raise ValueError
 
-            output_color = color_format.color_converter(color_match)
+            output_color = color_format.color_converter(color_match, color_type)
 
             image = color_format.generate_image_from_rgb_float([float(val) for val in output_color['RGB']])
 
@@ -71,7 +82,7 @@ class CheckCog(commands.Cog):
             embed.clear_fields()
             embed.description = f"**{messages_file['exception']} Incorrect color format**"
             embed.add_field(value=f"**Correct formats:**\n* 9932f0\n* rgb(153, 50, 240)\n* hsl(272.53, 86.36%, 56.86%)"
-                                  f"\n* cmyk(36.25%, 79.17%, 0.00%, 5.88%)\n* 10040048"
+                                  f"\n* cmyk(36.25%, 79.17%, 0.00%, 5.88%)"
                                   f"\n* [CSS color](https://huetweaker.gitbook.io/docs/main/colors)",
                             name="", inline=False)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")

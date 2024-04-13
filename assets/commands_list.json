@@ -18,7 +18,7 @@
   },
   {
     "name": "check",
-    "description": "Get color information (HEX, RGB, HSL, CMYK, Integer).",
+    "description": "Get color information (HEX, RGB, HSL, CMYK).",
     "type": 1,
     "required": true
   },

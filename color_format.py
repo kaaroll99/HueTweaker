@@ -4,47 +4,27 @@ from colormath.color_objects import sRGBColor, CMYKColor, HSLColor
 from colormath.color_conversions import convert_color
 from PIL import Image
 
-
-def detect_color_format(input_color):
-    hex_pattern = r"^(#?[0-9a-fA-F]{6})$"
-    rgb_pattern = r"^rgb\((\d+),\s*(\d+),\s*(\d+)\)$"
-    hsl_pattern = r"^hsl\((\d+(\.\d+)?),\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$"
-    cmyk_pattern = r"^cmyk\((\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$"
-    integer_pattern = r"^\d+$"
-
-    if re.match(hex_pattern, input_color):
-        return "hex"
-    elif re.match(rgb_pattern, input_color):
-        return "rgb"
-    elif re.match(hsl_pattern, input_color):
-        return "hsl"
-    elif re.match(cmyk_pattern, input_color):
-        return "cmyk"
-    elif re.match(integer_pattern, input_color):
-        return "integer"
-    else:
-        return None
+rgb = re.compile(r"rgb\((\d+),\s*(\d+),\s*(\d+)\)")
+hsl = re.compile(r"hsl\((\d+(\.\d+)?),\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$")
+cmyk = re.compile(r"cmyk\((\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$")
 
 
 def parse_rgb(input_color):
-    match = re.match(r"rgb\((\d+),\s*(\d+),\s*(\d+)\)", input_color)
+    match = rgb.match(input_color)
     if match:
-        r = int(match.group(1))
-        g = int(match.group(2))
-        b = int(match.group(3))
-        return (r, g, b)
+        return (int(match.group(1)), int(match.group(2)), int(match.group(3)))
     return None
 
 
 def parse_hsl(input_color):
-    match = re.match(r"hsl\((\d+(\.\d+)?),\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$", input_color)
+    match = hsl.match(input_color)
     if match:
         return (float(match.group(1)), float(match.group(3)), float(match.group(5)))
     return None
 
 
 def parse_cmyk(input_color):
-    match = re.match(r"cmyk\((\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$", input_color)
+    match = cmyk.match(input_color)
     if match:
         return (float(match.group(1)) / 100.0, float(match.group(3)) / 100.0, float(match.group(5)) / 100.0,
                 float(match.group(7)) / 100.0)
@@ -71,12 +51,9 @@ def find_similar_colors(color, threshold=20):
     return [color[0] for color in similar_colors]
 
 
-def color_converter(input_color):
-    color_format = detect_color_format(input_color)
-
+def color_converter(input_color, color_format):
     if color_format is None:
-        result = {"error": "Invalid color format"}
-        return json.dumps(result)
+        return None
 
     try:
         if color_format == "hex":
@@ -97,18 +74,11 @@ def color_converter(input_color):
                 raise ValueError("Invalid CMYK format")
             rgb_color = convert_color(CMYKColor(cmyk_values[0], cmyk_values[1], cmyk_values[2], cmyk_values[3]),
                                       sRGBColor)
-        elif color_format == "integer":
-            integer_value = int(input_color)
-            r = (integer_value >> 16) & 0xFF
-            g = (integer_value >> 8) & 0xFF
-            b = integer_value & 0xFF
-            rgb_color = sRGBColor(r / 255.0, g / 255.0, b / 255.0)
 
         hex_color = rgb_color.get_rgb_hex()
         rgb_values = rgb_color.get_value_tuple()
         hsl_color = convert_color(rgb_color, HSLColor).get_value_tuple()
         cmyk_color = convert_color(rgb_color, CMYKColor).get_value_tuple()
-        integer_color = int("0x" + hex_color[1:], 16)
         similar_colors = find_similar_colors(hsl_color)
 
         result = {
@@ -117,17 +87,13 @@ def color_converter(input_color):
             "RGB": rgb_values,
             "HSL": hsl_color,
             "CMYK": cmyk_color,
-            "Integer": str(integer_color),
             "Similars": similar_colors
         }
 
         return result
 
     except ValueError as e:
-        result = {
-            "error": str(e)
-        }
-        return json.dumps(result)
+        color_converter("ffffff", "hex")
 
 
 def generate_image_from_rgb_float(rgb_float_color):
