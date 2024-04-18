@@ -56,7 +56,7 @@ class ToproleCog(commands.Cog):
 
                 embed.description = (f"✨ **Top role has been set for __{role_name.name}__**\n\n"
                                      f"💡 Remember that the selected role should be under the highest role the bot has."
-                                     f"Otherwise, it will cause errors when setting the username color.")
+                                     f" Otherwise, it will cause errors when setting the username color.")
             db.close()
 
         except discord.HTTPException as e:

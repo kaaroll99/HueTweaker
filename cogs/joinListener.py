@@ -16,9 +16,12 @@ class JoinListenerCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
-        role = discord.utils.get(member.guild.roles, name=f"color-{member.id}")
-        if role is not None:
-            await role.delete()
+        try:
+            role = discord.utils.get(member.guild.roles, name=f"color-{member.id}")
+            if role is not None:
+                await role.delete()
+        except discord.HTTPException:
+            pass
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):

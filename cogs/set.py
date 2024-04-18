@@ -38,7 +38,7 @@ class SetCog(commands.Cog):
                 else:
                     color_match = color_match.strip("#")
             else:
-                raise ValueError("color")
+                raise ValueError
 
             db.connect()
             query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
@@ -50,8 +50,7 @@ class SetCog(commands.Cog):
 
             if query:
                 top_role = discord.utils.get(interaction.guild.roles, id=query[0]["role"])
-
-                if top_role is not None and not top_role.position == 0:
+                if top_role and top_role.position < 1:
                     await role.edit(position=top_role.position - 1)
 
             await role.edit(colour=discord.Colour(int(color_match, 16)))
@@ -59,7 +58,7 @@ class SetCog(commands.Cog):
             embed.description = f"✨ **Color has been set to __#{color_match}__**"
             embed.color = discord.Colour(int(color_match, 16))
 
-        except ValueError as e:
+        except ValueError:
             embed.description = ("⚠️ **Incorrect color format**\n\n"
                                  "Please use hexadecimal format, e.g. __F5DF4D__ \n"
                                  "or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__")
