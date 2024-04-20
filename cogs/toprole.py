@@ -8,7 +8,6 @@ import logging
 import re
 from database import database, model
 
-
 messages_file = config.load_yml('assets/messages.yml')
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
@@ -33,8 +32,8 @@ class ToproleCog(commands.Cog):
             for role in interaction.guild.roles:
                 if pattern.match(role.name):
                     role = discord.utils.get(interaction.guild.roles, id=role.id)
-                    if top_role.position == 0:
-                        await role.edit(position=1)
+                    if top_role.position <= 1:
+                        await role.edit(position=top_role.position)
                     else:
                         await role.edit(position=top_role.position - 1)
 

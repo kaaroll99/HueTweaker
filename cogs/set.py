@@ -50,8 +50,11 @@ class SetCog(commands.Cog):
 
             if query:
                 top_role = discord.utils.get(interaction.guild.roles, id=query[0]["role"])
-                if top_role and top_role.position < 1:
-                    await role.edit(position=top_role.position - 1)
+                if top_role:
+                    if top_role.position <= 1:
+                        await role.edit(position=top_role.position)
+                    else:
+                        await role.edit(position=top_role.position - 1)
 
             await role.edit(colour=discord.Colour(int(color_match, 16)))
             await interaction.user.add_roles(role)
