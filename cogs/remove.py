@@ -47,5 +47,6 @@ class RemoveCog(commands.Cog):
             response = f"⚠️ Please cool down. Retry <t:{int(retry_time.timestamp())}:R>"
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
+
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(RemoveCog(bot))
