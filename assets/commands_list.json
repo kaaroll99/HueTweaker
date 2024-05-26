@@ -48,10 +48,22 @@
     ]
   },
   {
-    "name": "toprole",
-    "description": "Set the top role for color roles. All color roles will be set under the indicated role.",
-    "type": 1,
-    "required": true
+    "name": "setup",
+    "description": "Setup bot on your server.",
+    "options": [
+      {
+        "name": "toprole",
+        "description": "Set the top role for color roles. All color roles will be set under the indicated role.",
+        "type": 1,
+        "required": true
+      },
+      {
+        "name": "select",
+        "description": "Setup static colors on server.",
+        "type": 1,
+        "required": true
+      }
+    ]
   },
   {
     "name": "embed",
