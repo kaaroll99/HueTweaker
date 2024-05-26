@@ -9,7 +9,7 @@ import tasks_defs
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
-cogs = ['help', 'set', 'remove', 'check', 'force', 'toprole', 'embed', 'joinListener', 'vote', 'select']
+cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'embed', 'joinListener', 'vote', 'select']
 
 
 @bot.event

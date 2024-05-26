@@ -159,6 +159,13 @@ class ForceCog(commands.Cog):
                     role = discord.utils.get(interaction.guild.roles, id=role.id)
                     await role.delete()
 
+            for i, static_role in enumerate(interaction.guild.roles, start=1):
+                if i > 5:
+                    break
+                role = discord.utils.get(interaction.guild.roles, name=f"color-static-{i}")
+                if role:
+                    await role.delete()
+
             embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
             embed.description = (f"**All roles with colors have been successfully removed**")
 

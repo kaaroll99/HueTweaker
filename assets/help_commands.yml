@@ -115,9 +115,9 @@ forcepurge:
   example: /force purge
   docs: force-purge
 
-### TOPROLE ###
+### SETUP TOPROLE ###
 toprole:
-  name: toprole
+  name: setup toprole
   desc: >-
     Set the top role for color roles. All color roles will be set under the indicated role.
     Set `@everyone` to reset top role.
@@ -148,9 +148,23 @@ toprole:
     
     `<role_name>` - Name of the selected role
 
-  usage: /toprole <role_name>
-  example: /toprole @colors
-  docs: toprole
+  usage: /setup toprole <role_name>
+  example: /setup toprole @colors
+  docs: setup-toprole
+
+### SETUP SELECT ###
+
+setupselect:
+  name: setup select
+  desc: >-
+    aa
+    aa
+
+
+  usage: /setup select
+  example: /setup select
+  docs: setup-select
+
 
 ### EMBED ###
 embed:
