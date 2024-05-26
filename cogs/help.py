@@ -21,11 +21,13 @@ class HelpCog(commands.Cog):
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
             discord.SelectOption(label="/set", value="set", emoji="🌈"),
             discord.SelectOption(label="/remove", value="remove", emoji="🗑️"),
+            discord.SelectOption(label="/select", value="select", emoji="⭐"),
             discord.SelectOption(label="/check", value="check", emoji="🔍"),
             discord.SelectOption(label="/force set", value="forceset", emoji="⚙️"),
             discord.SelectOption(label="/force remove", value="forceremove", emoji="🔄"),
             discord.SelectOption(label="/force purge", value="forcepurge", emoji="💥"),
-            discord.SelectOption(label="/toprole", value="toprole", emoji="💫"),
+            discord.SelectOption(label="/setup toprole", value="toprole", emoji="💫"),
+            discord.SelectOption(label="/setup select", value="setupselect", emoji="💫"),
             discord.SelectOption(label="/embed", value="embed", emoji="📋"),
             discord.SelectOption(label="/vote", value="vote", emoji="🗳️")
         ])

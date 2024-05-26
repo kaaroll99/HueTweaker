@@ -35,6 +35,17 @@ remove:
   example: /remove
   docs: remove
 
+### SELECT ###
+select:
+  name: select
+  desc: >-
+    Choose one of the prepared colors on the server using the button under the message. 
+    You can remove the color by pressing the red button.
+
+  usage: /select
+  example: /select
+  docs: select
+
 ### CHECK ###
 check:
   name: check
@@ -157,12 +168,14 @@ toprole:
 setupselect:
   name: setup select
   desc: >-
-    aa
-    aa
+    Configure the colors that will be available for selection using the `/select` command.
+    Two colors are required. The others are optional. Up to 5.
+  
+  
+    `<color>` - Color to set (hexadecimal format, e.g. __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__) 
 
-
-  usage: /setup select
-  example: /setup select
+  usage: /setup select <color> <color> <color> <color> <color>
+  example: /setup select `red` `F5DF4D` `gold` `royalblue` `#9ACD32`
   docs: setup-select
 
 
