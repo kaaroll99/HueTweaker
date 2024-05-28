@@ -121,12 +121,22 @@ class ForceCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
 
             embed.description = (f"**Are you sure you want to remove all roles with user colors?**\n\n"
+                                 f"Choose which type of roles you want to remove."
                                  f"⚠️ **The changes will be irreversible.**")
 
-            confirm_button = discord.ui.Button(label="CONFIRM", style=discord.ButtonStyle.green)
-            confirm_button.callback = self.__confirm_callback
+            individual_button = discord.ui.Button(label="INDIVIDUAL ROLES", style=discord.ButtonStyle.green,
+                                           custom_id="individual_roles")
+            statinc_button = discord.ui.Button(label="STATIC ROLES", style=discord.ButtonStyle.green,
+                                               custom_id="static_roles")
+            both_button = discord.ui.Button(label="INDIVIDUAL&STATIC ROLES", style=discord.ButtonStyle.green,
+                                            custom_id="both")
+            individual_button.callback = self.__confirm_callback
+            statinc_button.callback = self.__confirm_callback
+            both_button.callback = self.__confirm_callback
 
-            view.add_item(confirm_button)
+            view.add_item(individual_button)
+            view.add_item(statinc_button)
+            view.add_item(both_button)
 
         except Exception as e:
             embed.clear_fields()
@@ -143,19 +153,30 @@ class ForceCog(commands.Cog):
     @staticmethod
     async def __confirm_callback(interaction: discord.Interaction):
         view = discord.ui.View()
-        try:
-            pattern = re.compile(f"color-\\d{{18,19}}")
-            for role in interaction.guild.roles:
-                if pattern.match(role.name):
-                    role = discord.utils.get(interaction.guild.roles, id=role.id)
-                    await role.delete()
 
+        async def del_static_roles():
             for i, static_role in enumerate(interaction.guild.roles, start=1):
                 if i > 5:
                     break
                 role = discord.utils.get(interaction.guild.roles, name=f"color-static-{i}")
                 if role:
                     await role.delete()
+
+        async def del_individual_roles():
+            pattern = re.compile(f"color-\\d{{18,19}}")
+            for role in interaction.guild.roles:
+                if pattern.match(role.name):
+                    role = discord.utils.get(interaction.guild.roles, id=role.id)
+                    await role.delete()
+
+        try:
+            if interaction.data['custom_id'] == 'individual_roles':
+                await del_individual_roles()
+            elif interaction.data['custom_id'] == 'static_roles':
+                await del_static_roles()
+            elif interaction.data['custom_id'] == 'both':
+                await del_individual_roles()
+                await del_static_roles()
 
             embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
             embed.description = (f"**All roles with colors have been successfully removed**")

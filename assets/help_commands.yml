@@ -113,7 +113,13 @@ forcepurge:
   name: forcepurge
   desc: >-
     The command allows you to delete all roles with colors (created by HueTweaker) from the server.
+    The user selects which roles he wants to delete:
     
+    - individual roles
+    
+    - static roles (if configured)
+    
+    - both
     
     ⚠️ The effect of the command is irreversible — execution at your own risk
     
