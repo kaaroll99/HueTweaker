@@ -3,15 +3,15 @@ import discord
 from discord import app_commands, Embed, ui
 from discord.ext import commands
 from datetime import datetime, timedelta
-import config
-from config import bot, db, hex_regex
+from config import bot, db, hex_regex, load_yml
+from color_format import ColorUtils
 import logging
 import re
 from database import database, model
 
-messages_file = config.load_yml('assets/messages.yml')
-config_file = config.load_yml('config.yml')
-token_file = config.load_yml('token.yml')
+messages_file = load_yml('assets/messages.yml')
+config_file = load_yml('config.yml')
+token_file = load_yml('token.yml')
 
 class SetupCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -44,17 +44,11 @@ class SetupCog(commands.Cog):
                 if i > 5:
                     break
                 if color:
-                    color_match = color
-                    color_match = str(color_match).lower().replace(" ", "")
-                    if color_match in map(lambda x: str(x).lower(), data.keys()):
-                        color_match = data[color_match]
-                    elif config.hex_regex.match(color_match):
-                        if len(color_match.strip("#")) == 3:
-                            color_match = ''.join([x * 2 for x in color_match.strip("#")])
-                        else:
-                            color_match = color_match.strip("#")
-                    else:
+                    color_utils = ColorUtils(color)
+                    color_match = color_utils.color_parser()
+                    if color_match == -1:
                         raise ValueError
+
                     role = discord.utils.get(interaction.guild.roles, name=f"color-static-{i}")
                     if role is None:
                         role = await interaction.guild.create_role(name=f"color-static-{i}",

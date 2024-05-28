@@ -2,13 +2,12 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 from datetime import datetime, timedelta
-import config
 import json
 import logging
-from config import bot
+from config import bot, load_yml
 
-messages_file = config.load_yml('assets/messages.yml')
-config_file = config.load_yml('config.yml')
+messages_file = load_yml('assets/messages.yml')
+config_file = load_yml('config.yml')
 
 
 class EmbedCog(commands.Cog):

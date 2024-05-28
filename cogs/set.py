@@ -3,15 +3,15 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 from datetime import datetime, timedelta
-import config
-from config import bot, db, hex_regex
+from config import bot, db, hex_regex, load_yml
 import logging
+from color_format import ColorUtils
 import re
 from database import database, model
 
-messages_file = config.load_yml('assets/messages.yml')
-config_file = config.load_yml('config.yml')
-token_file = config.load_yml('token.yml')
+messages_file = load_yml('assets/messages.yml')
+config_file = load_yml('config.yml')
+token_file = load_yml('token.yml')
 
 
 class SetCog(commands.Cog):
@@ -26,18 +26,10 @@ class SetCog(commands.Cog):
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
-            color_match = color
-            with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
-                data = json.load(file)
-            color_match = color_match.lower().replace(" ", "")
-            if color_match in map(lambda x: x.lower(), data.keys()):
-                color_match = data[color_match]
-            elif config.hex_regex.match(color_match):
-                if len(color_match.strip("#")) == 3:
-                    color_match = ''.join([x * 2 for x in color_match.strip("#")])
-                else:
-                    color_match = color_match.strip("#")
-            else:
+
+            color_utils = ColorUtils(color)
+            color_match = color_utils.color_parser()
+            if color_match == -1:
                 raise ValueError
 
             db.connect()

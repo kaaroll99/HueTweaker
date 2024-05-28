@@ -2,14 +2,13 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 import datetime
-import config
 import logging
-from config import bot
+from config import bot, load_yml
 
 
-messages_file = config.load_yml('assets/messages.yml')
-config_file = config.load_yml('config.yml')
-token_file = config.load_yml('token.yml')
+messages_file = load_yml('assets/messages.yml')
+config_file = load_yml('config.yml')
+token_file = load_yml('token.yml')
 
 
 class DevCog(commands.Cog):

@@ -3,15 +3,14 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 from datetime import datetime, timedelta
-import config
-import color_format
-from config import bot, hex_regex, rgb_regex, hsl_regex, cmyk_regex
+from color_format import ColorUtils
+from config import bot, hex_regex, rgb_regex, hsl_regex, cmyk_regex, load_yml
 import logging
 import re
 
-messages_file = config.load_yml('assets/messages.yml')
-config_file = config.load_yml('config.yml')
-token_file = config.load_yml('token.yml')
+messages_file = load_yml('assets/messages.yml')
+config_file = load_yml('config.yml')
+token_file = load_yml('token.yml')
 
 
 class CheckCog(commands.Cog):
@@ -47,9 +46,9 @@ class CheckCog(commands.Cog):
             else:
                 raise ValueError
 
-            output_color = color_format.color_converter(color_match, color_type)
-
-            image = color_format.generate_image_from_rgb_float([float(val) for val in output_color['RGB']])
+            color_utils = ColorUtils(color_match)
+            output_color = color_utils.color_converter(color_type)
+            image = color_utils.generate_image_from_rgb_float([float(val) for val in output_color['RGB']])
 
             embed.title = f"Details for color: **{output_color['Input']}**"
 
