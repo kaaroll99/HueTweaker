@@ -56,7 +56,7 @@ class SetupCog(commands.Cog):
                     else:
                         await role.edit(colour=discord.Colour(int(color_match, 16)))
                     if query:
-                        top_role = discord.utils.get(interaction.guild.roles, id=query[0]["role"])
+                        top_role = discord.utils.get(interaction.guild.roles, id=query[0].get("role", None))
                         if top_role:
                             await role.edit(position=top_role.position + 1)
 
@@ -109,23 +109,8 @@ class SetupCog(commands.Cog):
             pattern = re.compile(f"color-\\d{{18,19}}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
 
-            for role in interaction.guild.roles:
-                if pattern.match(role.name):
-                    role = discord.utils.get(interaction.guild.roles, id=role.id)
-                    if top_role.position <= 1:
-                        await role.edit(position=top_role.position)
-                    else:
-                        await role.edit(position=top_role.position - 1)
-
-            for i, static_role in enumerate(interaction.guild.roles, start=1):
-                if i > 5:
-                    break
-                role = discord.utils.get(interaction.guild.roles, name=f"color-static-{i}")
-                if role:
-                    await role.edit(position=top_role.position + 1)
-
-
             db.connect()
+            print(top_role.position)
             query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
             if top_role.position == 0:
                 if query:
@@ -144,7 +129,22 @@ class SetupCog(commands.Cog):
                 embed.description = (f"✨ **Top role has been set for __{role_name.name}__**\n\n"
                                      f"💡 Remember that the selected role should be under the highest role the bot has."
                                      f" Otherwise, it will cause errors when setting the username color.")
-            db.close()
+                db.close()
+
+                for role in interaction.guild.roles:
+                    if pattern.match(role.name):
+                        role = discord.utils.get(interaction.guild.roles, id=role.id)
+                        if top_role.position <= 1:
+                            await role.edit(position=top_role.position)
+                        else:
+                            await role.edit(position=top_role.position - 1)
+
+                for i, static_role in enumerate(interaction.guild.roles, start=1):
+                    if i > 5:
+                        break
+                    role = discord.utils.get(interaction.guild.roles, name=f"color-static-{i}")
+                    if role:
+                        await role.edit(position=top_role.position + 1)
 
         except discord.HTTPException as e:
             embed.clear_fields()

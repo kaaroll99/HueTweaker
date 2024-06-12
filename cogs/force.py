@@ -42,7 +42,7 @@ class ForceCog(commands.Cog):
             if role is None:
                 role = await interaction.guild.create_role(name=f"color-{user_name.id}")
             if query:
-                top_role = discord.utils.get(interaction.guild.roles, id=query[0].get("role", 0))
+                top_role = discord.utils.get(interaction.guild.roles, id=query[0].get("role", None))
                 if top_role and top_role.position < 1:
                     await role.edit(position=top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color_match, 16)))

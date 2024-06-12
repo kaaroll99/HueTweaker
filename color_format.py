@@ -57,7 +57,8 @@ class ColorUtils:
             return self.color_converter("hex")
 
     @staticmethod
-    def generate_image_from_rgb_float(rgb_float_color):
+    def generate_image_from_rgb_float(color):
+        rgb_float_color = [float(val) for val in color]
         image = Image.new("RGB", (300, 100))
         for x in range(300):
             for y in range(100):

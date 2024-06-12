@@ -31,24 +31,24 @@ class CheckCog(commands.Cog):
             if color_match in map(lambda x: x.lower(), data.keys()):
                 color_match = data[color_match]
                 color_type = "hex"
-            elif config.hex_regex.match(color_match):
+            elif hex_regex.match(color_match):
                 if len(color_match.strip("#")) == 3:
                     color_match = ''.join([x * 2 for x in color_match.strip("#")])
                 else:
                     color_match = color_match.strip("#")
                 color_type = "hex"
-            elif config.rgb_regex.match(color_match):
+            elif rgb_regex.match(color_match):
                 color_type = "rgb"
-            elif config.hsl_regex.match(color_match):
+            elif hsl_regex.match(color_match):
                 color_type = "hsl"
-            elif config.cmyk_regex.match(color_match):
+            elif cmyk_regex.match(color_match):
                 color_type = "cmyk"
             else:
                 raise ValueError
 
             color_utils = ColorUtils(color_match)
             output_color = color_utils.color_converter(color_type)
-            image = color_utils.generate_image_from_rgb_float([float(val) for val in output_color['RGB']])
+            image = color_utils.generate_image_from_rgb_float(output_color['RGB'])
 
             embed.title = f"Details for color: **{output_color['Input']}**"
 
