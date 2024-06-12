@@ -1,4 +1,5 @@
 # HueTweaker
+![Discord Bots](https://top.gg/api/widget/status/1209187999934578738.svg?noavatar=true) ![Discord Bots](https://top.gg/api/widget/servers/1209187999934578738.svg?noavatar=true)
 
 The application allows users to manage the name color themselves with a single command. 
 The user can choose one of the predefined colors prepared on the server or set his own. 
