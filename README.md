@@ -1,23 +1,19 @@
 # HueTweaker
 
+![License](https://img.shields.io/github/license/kaaroll99/HueTweaker.svg?style=for-the-badge&logo=unlicense&logoColor=white)
+![Servers](https://img.shields.io/badge/dynamic/json?url=https://discordbotlist.com/api/v1/bots/1209187999934578738&query=$.stats.guilds&style=for-the-badge&label=servers&color=5865F2&logo=serverless&logoColor=white)
+![Servers](https://img.shields.io/badge/dynamic/json?url=https://discordbotlist.com/api/v1/bots/1209187999934578738&query=$.stats.users&style=for-the-badge&label=users&color=5865F2&logo=cilium&logoColor=white)
+
 [![Invite the bot](https://img.shields.io/badge/Invite_the_bot-FE5F50?style=for-the-badge)](https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot)
-[![Gitbook docs](https://img.shields.io/badge/Gitbook_docs-BBDDE5?style=for-the-badge&logo=gitbook&logoColor=black)](https://huetweaker.gitbook.io/docs/)
 [![Discord Application directory](https://img.shields.io/badge/Discord_App_directory-2b2d31?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/application-directory/1209187999934578738)
-[![Top.gg](https://img.shields.io/badge/Top.gg-FF3366?style=for-the-badge&logo=top.gg&logoColor=white)](https://top.gg/bot/1209187999934578738)
-![License](https://img.shields.io/badge/license-gpl--3.0-f5df4d?style=for-the-badge&logo=unlicense&logoColor=white)
+[![Gitbook docs](https://img.shields.io/badge/Gitbook_docs-BBDDE5?style=for-the-badge&logo=gitbook&logoColor=black)](https://huetweaker.gitbook.io/docs/)
+
 
 The application allows users to manage the name color themselves with a single command.
 The user can choose one of the predefined colors prepared on the server or set his own.
 The application also includes several commands for administrators to customize the bot's operation for a specific server.
 
-<a href="https://top.gg/bot/1209187999934578738">
-<img src="https://top.gg/api/widget/status/1209187999934578738.svg?noavatar=true" height="25">
-</a>
-<a href="https://top.gg/bot/1209187999934578738">
-<img src="https://top.gg/api/widget/servers/1209187999934578738.svg?noavatar=true" height="25">
-</a>
-
-Change the color of your username with a single command.
+**Change the color of your username with a single command.**
 
 - 🖌️ Set/change the username color using hex code or CSS color name.
 - 🗂️ Create a list of predefined colors for users.
