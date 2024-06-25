@@ -121,7 +121,7 @@ class ForceCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
 
             embed.description = (f"**Are you sure you want to remove all roles with user colors?**\n\n"
-                                 f"Choose which type of roles you want to remove."
+                                 f"Choose which type of roles you want to remove.\n"
                                  f"⚠️ **The changes will be irreversible.**")
 
             individual_button = discord.ui.Button(label="INDIVIDUAL ROLES", style=discord.ButtonStyle.green,
