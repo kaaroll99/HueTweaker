@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy import text, inspect, insert, select, update, delete, and_
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import OperationalError
-from sqlalchemy import Table, Column, Integer, String, MetaData
+from sqlalchemy import Table, Column, Integer, String, MetaData, BigInteger
 from sqlalchemy_utils import database_exists, create_database
 from database import model
 
@@ -21,7 +21,7 @@ class Database:
         return session
 
     def connect(self):
-        self.__engine = create_engine(self.__url, connect_args={"check_same_thread": False})
+        self.__engine = create_engine(self.__url)
 
     def close(self):
         if self.__engine:
@@ -30,22 +30,17 @@ class Database:
     def database_init(self):
         if not self.__engine:
             raise Exception("Database is not connected. Call connect() first.")
-
-        if not database_exists(self.__url):
-            create_database(self.__url)
+        else:
             metadata = MetaData()
-
             Table(
                 'guilds', metadata,
                 Column('id', Integer, primary_key=True, autoincrement=True),
-                Column('server', Integer),
-                Column('role', Integer),
+                Column('server', BigInteger),
+                Column('role', BigInteger),
             )
 
             metadata.create_all(self.__engine)
             return True
-        else:
-            return False
 
     def select(self, table, parameters=None):
         if not table:

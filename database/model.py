@@ -1,5 +1,5 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, BigInteger
 from sqlalchemy.exc import SAWarning
 
 Base = declarative_base()
@@ -8,9 +8,9 @@ Base = declarative_base()
 class Guilds(Base):
     __tablename__ = 'guilds'
     __table_args__ = {'extend_existing': True}
-    id = Column('id', Integer, primary_key=True, autoincrement=True)
-    server = Column('server', Integer)
-    role = Column('role', Integer)
+    id = Column('id', BigInteger, primary_key=True, autoincrement=True)
+    server = Column('server', BigInteger)
+    role = Column('role', BigInteger)
 
 
 def guilds_class(table_name):
