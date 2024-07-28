@@ -1,10 +1,10 @@
 import sqlite3
 import mysql.connector
+import config
 
 
 def import_database():
     token_file = config.load_yml('token.yml')
-    db = database.Database(url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
 
     # Połączenie z bazą SQLite
     sqlite_conn = sqlite3.connect('guilds.db')
