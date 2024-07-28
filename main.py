@@ -29,7 +29,8 @@ async def on_ready():
 
 async def main():
     db.connect()
-    db.database_init()
+    print(db.database_init())
+    print(db.select(model.guilds_class("guilds"), {"server": 123}))
     db.close()
     async with bot:
         tasks_defs.update_stats_topgg.start()

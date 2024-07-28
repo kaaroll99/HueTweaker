@@ -6,6 +6,13 @@ from database import database, model
 import logging
 import re
 
+
+def load_yml(path):
+    with open(path, 'r', encoding='utf-8') as file:
+        output = yaml.safe_load(file)
+    return output
+
+
 intents = discord.Intents.none()
 intents.guilds = True
 intents.members = True
@@ -14,7 +21,8 @@ activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
 bot = commands.Bot(command_prefix="!$%ht", intents=intents, activity=activity, status=discord.Status.online)
 bot.remove_command('help')
 
-db = database.Database(url=f"sqlite:///databases/guilds.db")
+token_file = load_yml('token.yml')
+db = database.Database(url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
 
 hex_regex = re.compile(r"^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 rgb_regex = re.compile(r"^rgb\((25[0-5]|2[0-4]\d|[01]?\d{1,2})\s*,\s*(25[0-5]|2[0-4]\d|[01]?\d{1,2})\s*,\s*(25[0-5]|2[0-4]\d|[01]?\d{1,2})\)$")
@@ -39,9 +47,3 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 handler.setFormatter(formatter)
 logger.root.addHandler(handler)
 logger.info("Log file has been created.")
-
-
-def load_yml(path):
-    with open(path, 'r', encoding='utf-8') as file:
-        output = yaml.safe_load(file)
-    return output
