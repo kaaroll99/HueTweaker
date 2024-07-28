@@ -4,7 +4,7 @@ import asyncio
 import config
 from config import bot, db
 import logging
-from database import database
+from database import database, model
 import tasks_defs
 
 config_file = config.load_yml('config.yml')
