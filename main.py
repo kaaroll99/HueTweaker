@@ -29,21 +29,18 @@ async def on_ready():
 
 async def main():
     db.connect()
-    print(db.database_init())
-    print(db.select(model.guilds_class("guilds")))
+    db.database_init()
     db.close()
     async with bot:
         tasks_defs.update_stats_topgg.start()
         tasks_defs.update_stats_taks.start()
-        tasks_defs.database_backup.start()
-        tasks_defs.send_command_list.start()
 
         logging.info('Bot is running.')
         for cog in cogs:
             await bot.load_extension(f"cogs.{cog}")
         await bot.start(token_file['TOKEN'])
+
 try:
     asyncio.run(main())
-
 except KeyboardInterrupt:
     logging.warning(f"Bot has been terminated from console line")

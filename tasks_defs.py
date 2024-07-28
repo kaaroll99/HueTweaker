@@ -55,6 +55,19 @@ async def update_stats_taks():
         token_file['DISCORDBOTLIST_TOKEN']
     )
 
+    url = f"https://discordbotlist.com/api/v1/bots/1209187999934578738/commands"
+    with open("assets/commands_list.json", "r") as f:
+        json_payload = json.load(f)
+    headers = {
+        "Authorization": token_file['DISCORDBOTLIST_TOKEN'],
+        "Content-Type": "application/json"
+    }
+    response = requests.post(url, json=json_payload, headers=headers)
+    if response.status_code == 200:
+        logging.info(f"Server command list has been updated: {response.status_code}")
+    else:
+        logging.warning(f"Failed to post server commands - {response.status_code}")
+
 
 @tasks.loop(time=datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')))
 async def database_backup():
@@ -101,19 +114,3 @@ async def guilds_csv():
         logging.info(f"CSV saved to {file.filename}")
     except Exception as e:
         logging.warning(f"Database backup error - {e.__class__.__name__}: {e}")
-
-
-@tasks.loop(hours=72)
-async def send_command_list():
-    url = f"https://discordbotlist.com/api/v1/bots/1209187999934578738/commands"
-    with open("assets/commands_list.json", "r") as f:
-        json_payload = json.load(f)
-    headers = {
-        "Authorization": token_file['DISCORDBOTLIST_TOKEN'],
-        "Content-Type": "application/json"
-    }
-    response = requests.post(url, json=json_payload, headers=headers)
-    if response.status_code == 200:
-        logging.info(f"Server command list has been updated: {response.status_code}")
-    else:
-        logging.warning(f"Failed to post server commands - {response.status_code}")
