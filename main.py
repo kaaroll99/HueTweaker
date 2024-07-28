@@ -30,8 +30,7 @@ async def on_ready():
 async def main():
     db.connect()
     print(db.database_init())
-    data_import.import_database()
-    print(db.select(model.guilds_class("guilds"), {"server": 123}))
+    print(db.select(model.guilds_class("guilds")))
     db.close()
     async with bot:
         tasks_defs.update_stats_topgg.start()
