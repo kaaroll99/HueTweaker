@@ -2,6 +2,7 @@ import csv
 import mysql.connector
 import config
 from config import bot, db
+from database import database, model
 
 
 def import_database():
