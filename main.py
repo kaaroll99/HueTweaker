@@ -4,7 +4,7 @@ import asyncio
 import config
 from config import bot, db
 import logging
-from database import database, model
+from database import database, model, data_import
 import tasks_defs
 
 config_file = config.load_yml('config.yml')
@@ -30,6 +30,7 @@ async def on_ready():
 async def main():
     db.connect()
     print(db.database_init())
+    data_import.import_database()
     print(db.select(model.guilds_class("guilds"), {"server": 123}))
     db.close()
     async with bot:
