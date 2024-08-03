@@ -27,7 +27,6 @@ class HelpCog(commands.Cog):
             discord.SelectOption(label="/force purge", value="forcepurge", emoji="💥"),
             discord.SelectOption(label="/setup toprole", value="toprole", emoji="💫"),
             discord.SelectOption(label="/setup select", value="setupselect", emoji="💫"),
-            discord.SelectOption(label="/embed", value="embed", emoji="📋"),
             discord.SelectOption(label="/vote", value="vote", emoji="🗳️")
         ])
         invite_button = discord.ui.Button(label="Invite bot", style=discord.ButtonStyle.url,
