@@ -9,9 +9,10 @@ import logging
 import re
 from database import database, model
 
-messages_file = load_yml('assets/messages.yml')
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
+lang = load_yml('lang/en.yml')
+
 
 class SetupCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -68,34 +69,25 @@ class SetupCog(commands.Cog):
 
         except ValueError:
             embed.clear_fields()
-            embed.description = ("⚠️ **Incorrect color format**\n\n"
-                                 "Please use hexadecimal format, e.g. __F5DF4D__ \n"
-                                 "or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__")
-
+            embed.description = lang['color_format']
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
-                embed.description = (
-                    f"**{messages_file.get('exception')} The bot does not have permissions to perform this operation.**"
-                    f" Error may have been caused by misconfiguration of top-role bot (`/toprole`). "
-                    f"Notify the server administrator of the occurrence of this error.\n\n"
-                    f"💡 Use the `/help` command to learn how to properly configure top role")
+                embed.description = lang['err_50013']
             else:
-                info_embed.description = (f"**{messages_file.get('exception')} Bot could not perform this operation "
-                                          f"due to HTTP discord error.**\n\n"
-                                          f"{e.code} - {e.text}")
+                info_embed.description = lang['err_http'].format(e.code, e.text)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = (f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**")
+            embed.description = lang['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
+            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /setup select")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] issued bot command: /setup select")
 
     @group.command(name="toprole", description="Setup top role for color roles")
     @app_commands.describe(role_name="Role name")
@@ -110,15 +102,12 @@ class SetupCog(commands.Cog):
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
 
             db.connect()
-            print(top_role.position)
             query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
             if top_role.position == 0:
                 if query:
                     db.delete(model.guilds_class(f"guilds"), {"server": interaction.guild.id})
 
-                embed.description = (f"✨ **Top role settings have been reset**\n\n"
-                                     f"💡 Please remember the selected role should be positioned below the bot's highest role."
-                                     f" Otherwise it will cause errors when setting the username color.")
+                embed.description = lang['toprole_reset']
             else:
                 if query:
                     db.update(model.guilds_class(f"guilds"), {"server": interaction.guild.id},
@@ -126,9 +115,7 @@ class SetupCog(commands.Cog):
                 else:
                     db.create(model.guilds_class(f"guilds"), {"server": interaction.guild.id, "role": role_name.id})
 
-                embed.description = (f"✨ **Top role has been set for __{role_name.name}__**\n\n"
-                                     f"💡 Remember that the selected role should be under the highest role the bot has."
-                                     f" Otherwise, it will cause errors when setting the username color.")
+                embed.description = lang['toprole_set'].format(role_name.name)
                 db.close()
 
                 for role in interaction.guild.roles:
@@ -149,43 +136,38 @@ class SetupCog(commands.Cog):
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
-                embed.description = (
-                    f"**{messages_file.get('exception')} The bot does not have permissions to perform this operation.**"
-                    f" Error may have been caused by misconfiguration of top-role bot (`/toprole`). "
-                    f"Make sure you have chosen the right role for the bot.\n\n"
-                    f"💡 Use the `/help` command to learn how to properly configure top role")
+                embed.description = lang['err_50013']
             else:
-                info_embed.description = (f"**{messages_file.get('exception')} Bot could not perform this operation "
-                                          f"due to HTTP discord error.**\n\n"
-                                          f"{e.code} - {e.text}")
+                info_embed.description = lang['err_http'].format(e.code, e.text)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = (f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**")
+            embed.description = lang['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
+            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /setup toprole")
+                f"{interaction.user.name}[{interaction.user.id}] issued bot command: /setup toprole")
 
     @toprole.error
     @select.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = f"⚠️ Please cool down. Retry <t:{int(retry_time.timestamp())}:R>"
+            response = lang["cool_down"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
         elif isinstance(error, discord.app_commands.errors.MissingPermissions):
-            embed: Embed = discord.Embed(title="", description=messages_file.get('no_permissions', ''),
+            embed: Embed = discord.Embed(title="", description=lang['no_permissions'],
                                          color=config_file['EMBED_COLOR'], timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.response.send_message(embed=embed, ephemeral=True)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(SetupCog(bot))

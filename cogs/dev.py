@@ -5,10 +5,9 @@ import datetime
 import logging
 from config import bot, load_yml
 
-
-messages_file = load_yml('assets/messages.yml')
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
+lang = load_yml('lang/en.yml')
 
 
 class DevCog(commands.Cog):
@@ -56,19 +55,17 @@ class DevCog(commands.Cog):
                 embed.description = f"Command for bot developers only."
         except discord.HTTPException as e:
             embed.clear_fields()
-            embed.description = (f"**{messages_file.get('exception')}")
+            embed.description = lang['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
         except Exception as e:
             embed.clear_fields()
-            embed.description = f""
-            embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
-                            value=f"", inline=False)
+            embed.description = lang['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
             embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, file=file)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /vote")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] issued bot command: /vote")
 
     @dev.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

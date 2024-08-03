@@ -22,7 +22,11 @@ bot = commands.Bot(command_prefix="!$%ht", intents=intents, activity=activity, s
 bot.remove_command('help')
 
 token_file = load_yml('token.yml')
-db = database.Database(url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
+if token_file.get('system', None) == 'dev':
+    db = database.Database(url=f"sqlite:///databases/guilds.db")
+else:
+    db = database.Database(
+        url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
 
 hex_regex = re.compile(r"^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
 rgb_regex = re.compile(r"^rgb\((25[0-5]|2[0-4]\d|[01]?\d{1,2})\s*,\s*(25[0-5]|2[0-4]\d|[01]?\d{1,2})\s*,\s*(25[0-5]|2[0-4]\d|[01]?\d{1,2})\)$")

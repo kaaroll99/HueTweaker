@@ -6,7 +6,6 @@ import json
 import logging
 from config import bot, load_yml
 
-messages_file = load_yml('assets/messages.yml')
 config_file = load_yml('config.yml')
 
 
@@ -70,7 +69,7 @@ class EmbedCog(commands.Cog):
         finally:
             await interaction.followup.send(embed=info_embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /embed (len:{len(embed)})")
+                f"{interaction.user.name}[{interaction.user.id}] issued bot command: /embed (len:{len(embed)})")
 
     @embed.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

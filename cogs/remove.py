@@ -6,10 +6,9 @@ import config
 from config import bot, load_yml
 import logging
 
-
-messages_file = load_yml('assets/messages.yml')
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
+lang = load_yml('lang/en.yml')
 
 
 class RemoveCog(commands.Cog):
@@ -27,24 +26,24 @@ class RemoveCog(commands.Cog):
             if role is not None:
                 await interaction.user.remove_roles(role)
                 await role.delete()
-            embed.description = f"✨ **Color has been removed**"
+            embed.description = lang['color_remove']
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**"
+            embed.description = lang['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
+            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /remove")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] issued bot command: /remove")
 
     @remove.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = f"⚠️ Please cool down. Retry <t:{int(retry_time.timestamp())}:R>"
+            response = lang["cool_down"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
 

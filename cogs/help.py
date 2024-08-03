@@ -5,8 +5,8 @@ import logging
 import yaml
 from config import bot, load_yml
 
-messages_file = load_yml('assets/messages.yml')
 config_file = load_yml('config.yml')
+lang = load_yml('lang/en.yml')
 
 
 class HelpCog(commands.Cog):
@@ -16,7 +16,7 @@ class HelpCog(commands.Cog):
     @app_commands.command(name="help", description="View information about the bot and a list of available commands")
     async def help(self, interaction: discord.Interaction) -> None:
         embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=config_file['EMBED_COLOR'])
-        select = discord.ui.Select(placeholder='Choose a command from the list...', options=[
+        select = discord.ui.Select(placeholder=lang['help_choose'], options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
             discord.SelectOption(label="/set", value="set", emoji="🌈"),
             discord.SelectOption(label="/remove", value="remove", emoji="🗑️"),
@@ -50,23 +50,18 @@ class HelpCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
             total_users = sum(guild.member_count for guild in bot.guilds)
-            embed.description = (f""
-                                 f"- Online on `{len(bot.guilds)}` servers.\n"
-                                 f"- Used by `{total_users}` people.\n"
-                                 f"- Created by `@kaaroll99`\n\n"
-                                 f"**Select one of the available commands from the list to learn more.**")
+            embed.description = lang['help_desc'].format(len(bot.guilds), total_users)
 
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
-            embed.add_field(name=f"{messages_file.get('exception')} {messages_file.get('exception_message', '')}",
-                            value=f"", inline=False)
+            embed.add_field(name=lang['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
+            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /help")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] issued bot command: /help")
 
     @staticmethod
     async def __select_callback(interaction: discord.Interaction):
@@ -74,25 +69,19 @@ class HelpCog(commands.Cog):
             with open('assets/help_commands.yml', 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)
             selected_option = interaction.data['values'][0]
-            embed: Embed = discord.Embed(title=f"✨ Command `{data[selected_option]['name']}`",
+            embed: Embed = discord.Embed(title=f"<:star:1269273735358058496> Command `{data[selected_option]['name']}`",
                                   description=f"{data[selected_option]['desc']}", color=config_file['EMBED_COLOR'])
 
-            embed.add_field(name=f"Command syntax:", value=f"> {data[selected_option]['usage']}",
-                            inline=False)
-            embed.add_field(name=f"Command example:", value=f"> {data[selected_option]['example']}",
-                            inline=False)
-            embed.add_field(name=f"Docs:",
-                            value=f"[See details of the command in the documentation]"
-                                  f"(https://huetweaker.gitbook.io/docs/commands/{data[selected_option]['docs']})",
-                            inline=False)
+            embed.add_field(name=lang['com_syntax'], value=f"> {data[selected_option]['usage']}", inline=False)
+            embed.add_field(name=lang['com_syntax'], value=f"> {data[selected_option]['example']}", inline=False)
+            embed.add_field(name=f"Docs:", value=lang['com_syntax'].format(data[selected_option]['docs']), inline=False)
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
-            embed.add_field(name=f"{messages_file['exception']} {messages_file['exception_description']}",
-                            value=f"```{repr(e)} ```", inline=False)
+            embed.add_field(name=lang['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
+            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.edit_message(embed=embed)
 
