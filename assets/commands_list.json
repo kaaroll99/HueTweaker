@@ -66,11 +66,6 @@
     ]
   },
   {
-    "name": "embed",
-    "description": "JSON to Discord embed conversion. The command can only be executed by a user with administrator privileges.",
-    "type": 1
-  },
-  {
     "name": "vote",
     "description": "Displays the URL for voting.",
     "type": 1
