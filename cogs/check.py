@@ -51,18 +51,18 @@ class CheckCog(commands.Cog):
 
             embed.title = lang['check_title'].format(output_color['Input'])
 
-            embed.add_field(name=f"<:star:1269273735358058496> Hex:",
+            embed.add_field(name=f"<:star:1269288950174978100> Hex:",
                             value=f"{output_color['Hex'].upper()}",
                             inline=False)
-            embed.add_field(name=f"<:star:1269273735358058496> RGB:",
+            embed.add_field(name=f"<:star:1269288950174978100> RGB:",
                             value=f"rgb({output_color['RGB'][0] * 255:.0f}, {output_color['RGB'][1] * 255:.0f},"
                                   f" {output_color['RGB'][2] * 255:.0f})",
                             inline=False)
-            embed.add_field(name=f"<:star:1269273735358058496> HSL:",
+            embed.add_field(name=f"<:star:1269288950174978100> HSL:",
                             value=f"hsl({output_color['HSL'][0]:.2f}, {output_color['HSL'][1] * 100:.2f}%,"
                                   f" {output_color['HSL'][2] * 100:.2f}%)",
                             inline=False)
-            embed.add_field(name=f"<:star:1269273735358058496> CMYK:",
+            embed.add_field(name=f"<:star:1269288950174978100> CMYK:",
                             value=f"cmyk({output_color['CMYK'][0] * 100:.2f}%, {output_color['CMYK'][1] * 100:.2f}%,"
                                   f" {output_color['CMYK'][2] * 100:.2f}%, {output_color['CMYK'][3] * 100:.2f}%)",
                             inline=False)
