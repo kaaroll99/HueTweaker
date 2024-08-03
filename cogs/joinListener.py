@@ -6,7 +6,6 @@ from database import database, model
 from config import bot, db, load_yml
 from datetime import datetime
 
-messages_file = load_yml('assets/messages.yml')
 config_file = load_yml('config.yml')
 
 

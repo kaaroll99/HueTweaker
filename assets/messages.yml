@@ -1,6 +1,0 @@
-item_icon: "✨"
-exception: "❌"
-logs_issued: "issued bot command"
-exception_message: "The bot encountered an unexpected error."
-no_permissions: "⚠️ You don't have permission to perform this command."
-footer_message: "Support the bot by voting with the /vote command"

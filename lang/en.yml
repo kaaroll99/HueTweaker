@@ -1,0 +1,96 @@
+#set
+color_set: "<:ok:1269273721051418624> **Color has been set to __#{}__**"
+
+#revove
+color_remove: "<:ok:1269273721051418624> **Color has been removed**"
+
+#select
+select_set: "<:ok:1269273721051418624> **Static color has been set to {}**"
+select_remove: "<:ok:1269273721051418624> **Static color has been removed**"
+select_no_colors: "<:warn:1269273748700270613> **There are no static colors configured on this server.**"
+available_colors: "Available colors:"
+
+#vote
+vote_title: "Vote for {}"
+vote_desc: "Every 12 hours you can support by voting for the bot on the following pages."
+vote_topgg: "<:star:1269273735358058496> [Click here to vote on top.gg](https://top.gg/bot/1209187999934578738/vote)"
+vote_dbl: "<:star:1269273735358058496> [Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/huetweaker/upvote)"
+
+#check
+check_title: "Details for color: **{}**"
+check_css: "<:star:1269273735358058496> The most similar CSS colors:"
+
+#force set
+force_set_set: "<:ok:1269273721051418624> **Color has been set for {} to __#{}__**"
+
+#force remove
+force_remove_remove: "<:ok:1269273721051418624> **Color has been removed for {}**"
+force_remove_no_color: "<:warn:1269273748700270613> **The user with the given name did not have the color set**"
+
+#force purge
+purge_confirm: |
+  **Are you sure you want to remove all roles with user colors?**
+  
+  Choose which type of roles you want to remove.
+  <:warn:1269273748700270613> **The changes will be irreversible.**
+bttn_ind: "INDIVIDUAL ROLES"
+bttn_stat: "STATIC ROLES"
+bttn_both: "INDIVIDUAL&STATIC ROLES"
+purge_ok: "**All roles with colors have been successfully removed**"
+
+#setup select
+
+#setup toprole
+toprole_reset: |
+  <:ok:1269273721051418624> **Top role settings have been reset**
+  
+  <:bubble:1269273709265555528> Please remember the selected role should be positioned below the bot's highest role.
+  Otherwise it will cause errors when setting the username color.
+toprole_set: |
+  <:ok:1269273721051418624> **Top role has been set for __{}__**
+  
+  <:bubble:1269273709265555528> Remember that the selected role should be under the highest role the bot has.
+  Otherwise, it will cause errors when setting the username color.
+
+#help
+help_choose: "Choose a command from the list..."
+help_desc: |
+  Online on `{}` servers.
+  Used by `{}` people.
+  Created by `@kaaroll99`
+  
+  **Select one of the available commands from the list to learn more.**
+com_syntax: "Command syntax:"
+com_example: "Command example:"
+com_docs: "[See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/{})"
+
+#exceptions
+exception: "<:warn:1269273748700270613> **The bot encountered an unexpected error.**"
+color_format: |
+  <:warn:1269273748700270613> **Incorrect color format**
+  
+  Please use hexadecimal format, e.g. __F5DF4D__
+  or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__
+err_50013: |
+  <:warn:1269273748700270613> **The bot does not have permissions to perform this operation.**
+  
+  Error may have been caused by misconfiguration of top-role bot (`/toprole`).
+  Notify the server administrator of the occurrence of this error.
+  
+  <:bubble:1269273709265555528> Use the `/help` command to learn how to properly configure top role.
+err_http: |
+  <:warn:1269273748700270613> Bot could not perform this operation due to HTTP discord error.**
+  
+  {} - {}
+check_color_format: |
+  <:warn:1269273748700270613> **Incorrect color format**
+  
+  **Correct formats:**
+  * 9932f0
+  * rgb(153, 50, 240)
+  * hsl(272.53, 86.36%, 56.86%)
+  * cmyk(36.25%, 79.17%, 0.00%, 5.88%)
+  * [CSS color](https://huetweaker.gitbook.io/docs/main/colors)
+cool_down: "<:warn:1269273748700270613> Please cool down. Retry <t:{}:R>"
+no_permissions: "<:warn:1269273748700270613> You don't have permission to perform this command."
+footer_message: "Support the bot by voting with the /vote command"

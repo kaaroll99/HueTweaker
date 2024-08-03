@@ -8,9 +8,9 @@ import logging
 import re
 from database import database, model
 
-messages_file = load_yml('assets/messages.yml')
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
+lang = load_yml('lang/en.yml')
 
 
 class SelectCog(commands.Cog):
@@ -27,13 +27,13 @@ class SelectCog(commands.Cog):
             view = discord.ui.View()
 
             role_count = 0
+            embed.add_field(name=lang['available_colors'], value=f"", inline=False)
             for number in range(1, 10):
                 role = discord.utils.get(interaction.guild.roles, name=f"color-static-{number}")
                 if role:
                     role_count += 1
                     embed.add_field(name=f"", value=f"**{role.mention}**", inline=False)
 
-            embed.add_field(name=f"Available colors:", value=f"", inline=False)
             role1 = discord.utils.get(interaction.guild.roles, name=f"color-static-1")
             if role1:
                 button1 = discord.ui.Button(label="1", style=discord.ButtonStyle.primary, custom_id="1")
@@ -66,7 +66,7 @@ class SelectCog(commands.Cog):
 
             if role_count == 0:
                 embed.clear_fields()
-                embed.add_field(name=f"", value=f"⚠️ **There are no static colors configured on this server.**", inline=False)
+                embed.add_field(name=f"", value=lang['select_no_colors'], inline=False)
             else:
                 button_delete = discord.ui.Button(label="❌", style=discord.ButtonStyle.danger, custom_id="delete")
                 button_delete.callback = self.__select_callback
@@ -75,29 +75,23 @@ class SelectCog(commands.Cog):
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
-                embed.description = (
-                    f"**{messages_file.get('exception')} The bot does not have permissions to perform this operation.**"
-                    f" Error may have been caused by misconfiguration of top-role bot (`/toprole`). "
-                    f"Notify the server administrator of the occurrence of this error.\n\n"
-                    f"💡 Use the `/help` command to learn how to properly configure top role")
+                embed.description = lang['err_50013']
             if e.code == 10062:
                 pass
             else:
-                info_embed.description = (f"**{messages_file.get('exception')} Bot could not perform this operation "
-                                          f"due to HTTP discord error.**\n\n"
-                                          f"{e.code} - {e.text}")
+                info_embed.description = lang['err_http'].format(e.code, e.text)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = (f"**{messages_file.get('exception')} {messages_file.get('exception_message', '')}**")
+            embed.description = lang['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
+            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] {messages_file['logs_issued']}: /select")
+            logging.info(f"{interaction.user.name}[{interaction.user.id}] issued bot command: /select")
 
     @staticmethod
     async def __select_callback(interaction: discord.Interaction):
@@ -107,10 +101,10 @@ class SelectCog(commands.Cog):
                 role = discord.utils.get(interaction.guild.roles, name=f"color-static-{number}")
                 if role:
                     await interaction.user.remove_roles(role)
-                embed: Embed = discord.Embed(title=f"", description=f"✨ **Static color has been removed**", color=config_file['EMBED_COLOR'])
+                embed: Embed = discord.Embed(title=f"", description=lang['select_remove'], color=config_file['EMBED_COLOR'])
             if interaction.data['custom_id'] != "delete":
                 role = discord.utils.get(interaction.guild.roles, name=f"color-static-{interaction.data['custom_id']}")
-                embed: Embed = discord.Embed(title=f"", description=f"✨ **Color has been set to {role.mention}**",
+                embed: Embed = discord.Embed(title=f"", description=lang['select_set'].format(role.mention),
                                              color=config_file['EMBED_COLOR'])
                 if role:
                     await interaction.user.add_roles(role)
@@ -118,11 +112,10 @@ class SelectCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
-            embed.add_field(name=f"{messages_file['exception']} {messages_file['exception_description']}",
-                            value=f"```{repr(e)} ```", inline=False)
+            embed.add_field(name=lang['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=messages_file.get('footer_message'), icon_url=bot.user.avatar)
+            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.edit_message(embed=embed, view=edited_view)
 
@@ -130,7 +123,7 @@ class SelectCog(commands.Cog):
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = f"⚠️ Please cool down. Retry <t:{int(retry_time.timestamp())}:R>"
+            response = lang["cool_down"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
 
