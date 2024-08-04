@@ -13,19 +13,6 @@ config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
 
 
-def update_stats(name: str, url: str, data, token: str):
-    json_data = json.dumps(data)
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": token
-    }
-    response = requests.post(url, data=json_data, headers=headers)
-    if response.status_code == 200:
-        logging.info(f"Posted servers count to {name} ({data})")
-    else:
-        logging.warning(f"Failed to post guilds count to {name} - {response.status_code}")
-
-
 top_gg_times = [
     datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')),
     datetime.time(hour=12, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET'))
@@ -47,13 +34,19 @@ async def update_stats_topgg():
 @tasks.loop(time=datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')))
 async def update_stats_taks():
     await bot.wait_until_ready()
-
-    update_stats(
-        "discordbotlist",
-        "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats",
-        {"users": sum(guild.member_count for guild in bot.guilds), "guilds": len(bot.guilds)},
-        token_file['DISCORDBOTLIST_TOKEN']
-    )
+    stats_url = "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats"
+    stats_headers = {"Content-Type": "application/json", "Authorization": token_file['DISCORDBOTLIST_TOKEN']}
+    stats_data = json.dumps({"users": sum(guild.member_count for guild in bot.guilds), "guilds": len(bot.guilds)})
+    try:
+        response = requests.post(stats_url, data=stats_data, headers=stats_headers, timeout=10)
+        response.raise_for_status()
+        logging.info(f"Servers count has been updated: {response.status_code}")
+    except requests.exceptions.Timeout:
+        logging.error("Request timed out")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Failed to post servers count: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error occurred: {e}", exc_info=True)
 
     url = f"https://discordbotlist.com/api/v1/bots/1209187999934578738/commands"
     with open("assets/commands_list.json", "r") as f:
@@ -62,11 +55,16 @@ async def update_stats_taks():
         "Authorization": token_file['DISCORDBOTLIST_TOKEN'],
         "Content-Type": "application/json"
     }
-    response = requests.post(url, json=json_payload, headers=headers)
-    if response.status_code == 200:
+    try:
+        response = requests.post(url, json=json_payload, headers=headers, timeout=10)
+        response.raise_for_status()
         logging.info(f"Server command list has been updated: {response.status_code}")
-    else:
-        logging.warning(f"Failed to post server commands - {response.status_code}")
+    except requests.exceptions.Timeout:
+        logging.error("Request timed out")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Failed to post bot commands: {e}")
+    except Exception as e:
+        logging.error(f"Unexpected error occurred: {e}", exc_info=True)
 
 
 @tasks.loop(time=datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')))
