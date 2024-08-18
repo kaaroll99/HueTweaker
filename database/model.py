@@ -1,6 +1,5 @@
+from sqlalchemy import Column, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, BigInteger
-from sqlalchemy.exc import SAWarning
 
 Base = declarative_base()
 

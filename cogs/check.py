@@ -1,12 +1,13 @@
 import json
+import logging
+from datetime import datetime, timedelta
+
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
-from datetime import datetime, timedelta
+
 from color_format import ColorUtils
 from config import bot, hex_regex, rgb_regex, hsl_regex, cmyk_regex, load_yml
-import logging
-import re
 
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')

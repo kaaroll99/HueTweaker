@@ -1,12 +1,11 @@
-import json
+import logging
+from datetime import datetime, timedelta
+
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
-from datetime import datetime, timedelta
-from config import bot, db, hex_regex, load_yml
-import logging
-import re
-from database import database, model
+
+from config import bot, load_yml
 
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
