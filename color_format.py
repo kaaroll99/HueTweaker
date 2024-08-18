@@ -3,9 +3,11 @@ import json
 from colormath.color_objects import sRGBColor, CMYKColor, HSLColor
 from colormath.color_conversions import convert_color
 from PIL import Image
+import numpy as np
 from config import hex_regex
 
 class ColorUtils:
+    __slots__ = ['color']
     rgb_pattern = re.compile(r"rgb\((\d+),\s*(\d+),\s*(\d+)\)")
     hsl_pattern = re.compile(r"hsl\((\d+(\.\d+)?),\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$")
     cmyk_pattern = re.compile(r"cmyk\((\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$")
@@ -58,12 +60,9 @@ class ColorUtils:
 
     @staticmethod
     def generate_image_from_rgb_float(color):
-        rgb_float_color = [float(val) for val in color]
-        image = Image.new("RGB", (300, 100))
-        for x in range(300):
-            for y in range(100):
-                image.putpixel((x, y), tuple(int(val * 255) for val in rgb_float_color))
-        return image
+        rgb_float_color = np.array([float(val) for val in color])
+        image_array = np.tile(rgb_float_color, (100, 300, 1)) * 255
+        return Image.fromarray(image_array.astype('uint8'), 'RGB')
 
     def color_parser(self):
         with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
