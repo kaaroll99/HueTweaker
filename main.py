@@ -26,9 +26,8 @@ async def on_ready():
 
 
 async def main():
-    db.connect()
-    db.database_init()
-    db.close()
+    with db as db_session:
+        db_session.database_init()
     async with bot:
         tasks_defs.update_stats_topgg.start()
         tasks_defs.update_stats_taks.start()

@@ -43,9 +43,8 @@ class JoinListenerCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        db.connect()
-        db.delete(model.guilds_class("guilds"), {"server": guild.id})
-        db.close()
+        with db as db_session:
+            db_session.delete(model.guilds_class("guilds"), {"server": guild.id})
         logging.info(f"Bot has been removed from guild: {guild.id} (mem: {guild.member_count})")
         try:
             channel = bot.get_channel(config_file['io_channel'])

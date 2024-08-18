@@ -39,9 +39,8 @@ class SetupCog(commands.Cog):
             with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)
 
-            db.connect()
-            query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
-            db.close()
+            with db as db_session:
+                query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
             for i, color in enumerate(local_vars.values(), start=1):
                 if i > 5:
@@ -103,8 +102,8 @@ class SetupCog(commands.Cog):
             pattern = re.compile(f"color-\\d{{18,19}}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
 
-            db.connect()
-            query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+            with db as db_session:
+                query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
             if top_role.position == 0:
                 if query:
                     db.delete(model.guilds_class(f"guilds"), {"server": interaction.guild.id})

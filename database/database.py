@@ -7,23 +7,15 @@ from sqlalchemy.orm import sessionmaker
 
 class Database:
     def __init__(self, url):
-        self.__engine = None
-        self.__url = url
+        self.__engine = create_engine(url)
+        self.__Session = sessionmaker(autocommit=False, autoflush=False, bind=self.__engine)
 
-    def __createsessions(self):
-        if not self.__engine:
-            raise Exception("Database is not connected. Call connect() first.")
+    def __enter__(self):
+        self.__session = self.__Session()
+        return self
 
-        Session = sessionmaker(autocommit=False, autoflush=False, bind=self.__engine)
-        session = Session()
-        return session
-
-    def connect(self):
-        self.__engine = create_engine(self.__url)
-
-    def close(self):
-        if self.__engine:
-            self.__engine.dispose()
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.__session.close()
 
     def database_init(self):
         if not self.__engine:
@@ -41,10 +33,6 @@ class Database:
             return True
 
     def select(self, table, parameters=None):
-        if not table:
-            raise AttributeError("Lack of required arguments.")
-
-        session = self.__createsessions()
         try:
             if not parameters:
                 query = select(table)
@@ -52,54 +40,43 @@ class Database:
                 where_clause = and_(*(getattr(table, k) == v for k, v in parameters.items()))
                 query = select(table).where(where_clause)
 
-            result = session.execute(query)
+            result = self.__session.execute(query)
             rows = [{column.key: getattr(row, column.key) for column in row.__table__.columns} for row in result.scalars()]
             return rows
 
         except OperationalError as e:
+            self.__session.rollback()
             return False
 
     def create(self, table, values):
-        if not table or not values:
-            raise AttributeError("Lack of required arguments.")
-
-        session = self.__createsessions()
         try:
             query = insert(table).values(**values)
-            session.execute(query, values)
-            session.commit()
+            self.__session.execute(query)
+            self.__session.commit()
             return True
         except OperationalError as e:
+            self.__session.rollback()
             return False
 
     def update(self, table, criteria, values):
-        if not table or not criteria or not values:
-            raise AttributeError("Lack of required arguments.")
-
-        session = self.__createsessions()
         try:
             query = (update(table)
                      .where(and_(*(getattr(table, k) == v for k, v in criteria.items())))
                      .values(**values))
-
-            combined_values = {**values, **criteria}
-            session.execute(query, combined_values)
-            session.commit()
-
+            self.__session.execute(query)
+            self.__session.commit()
             return True
         except OperationalError as e:
+            self.__session.rollback()
             return False
 
     def delete(self, table, criteria):
-        if not table or not criteria:
-            raise AttributeError("Lack of required arguments.")
-        session = self.__createsessions()
         try:
             where_clause = and_(*(getattr(table, k) == v for k, v in criteria.items()))
             query = delete(table).where(where_clause)
-            session.execute(query)
-            session.commit()
+            self.__session.execute(query)
+            self.__session.commit()
             return True
         except OperationalError as e:
+            self.__session.rollback()
             return False
-
