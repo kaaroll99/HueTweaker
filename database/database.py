@@ -1,10 +1,8 @@
+from sqlalchemy import Table, Column, Integer, MetaData, BigInteger
 from sqlalchemy import create_engine
-from sqlalchemy import text, inspect, insert, select, update, delete, and_
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import insert, select, update, delete, and_
 from sqlalchemy.exc import OperationalError
-from sqlalchemy import Table, Column, Integer, String, MetaData, BigInteger
-from sqlalchemy_utils import database_exists, create_database
-from database import model
+from sqlalchemy.orm import sessionmaker
 
 
 class Database:

@@ -1,10 +1,11 @@
 import logging
+from datetime import datetime
+
 import discord
 from discord.ext import commands
-import config
-from database import database, model
+
 from config import bot, db, load_yml
-from datetime import datetime
+from database import model
 
 config_file = load_yml('config.yml')
 

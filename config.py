@@ -1,10 +1,12 @@
-import yaml
-import discord
-from discord.ext import commands
-from logging.handlers import TimedRotatingFileHandler
-from database import database, model
 import logging
 import re
+from logging.handlers import TimedRotatingFileHandler
+
+import discord
+import yaml
+from discord.ext import commands
+
+from database import database
 
 
 def load_yml(path):

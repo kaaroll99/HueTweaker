@@ -1,10 +1,13 @@
-import re
 import json
-from colormath.color_objects import sRGBColor, CMYKColor, HSLColor
-from colormath.color_conversions import convert_color
-from PIL import Image
+import re
+
 import numpy as np
+from PIL import Image
+from colormath.color_conversions import convert_color
+from colormath.color_objects import sRGBColor, CMYKColor, HSLColor
+
 from config import hex_regex
+
 
 class ColorUtils:
     __slots__ = ['color']
@@ -14,6 +17,13 @@ class ColorUtils:
 
     def __init__(self, color):
         self.color = color
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # Tutaj możemy dodać kod czyszczący, jeśli jest potrzebny
+        del self.color  # Wyraźne usunięcie atrybutu, chociaż to niekonieczne w tym przypadku
 
     def color_converter(self, color_format):
         if color_format is None:

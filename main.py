@@ -1,11 +1,9 @@
-import discord
-from discord.ext import commands, tasks
 import asyncio
-import config
-from config import bot, db
 import logging
-from database import database, model, data_import
+
+import config
 import tasks_defs
+from config import bot, db
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')

@@ -1,13 +1,15 @@
-import discord
-from discord.ext import commands, tasks
-import config
-from config import bot
-import logging
-import topgg
+import csv
 import datetime
 import json
+import logging
+
+import discord
 import requests
-import csv
+import topgg
+from discord.ext import tasks
+
+import config
+from config import bot
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')

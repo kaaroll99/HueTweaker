@@ -1,8 +1,10 @@
+import logging
+
 import discord
+import yaml
 from discord import app_commands, Embed
 from discord.ext import commands
-import logging
-import yaml
+
 from config import bot, load_yml
 
 config_file = load_yml('config.yml')
