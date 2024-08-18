@@ -35,9 +35,8 @@ class ForceCog(commands.Cog):
             if color_match == -1:
                 raise ValueError
 
-            db.connect()
-            query = db.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
-            db.close()
+            with db as db_session:
+                query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
             role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
             if role is None:
                 role = await interaction.guild.create_role(name=f"color-{user_name.id}")
