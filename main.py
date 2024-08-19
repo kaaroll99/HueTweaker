@@ -7,7 +7,7 @@ from config import bot, db
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
-cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
+cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select', 'dev']
 
 
 @bot.event
