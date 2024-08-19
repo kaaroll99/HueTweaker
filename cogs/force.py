@@ -30,7 +30,8 @@ class ForceCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
             if color.startswith("<@") and color.endswith(">"):
-                copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{color.strip("<>@")}")
+                cleaned_color = color.replace("<", "").replace(">", "").replace("@", "")
+                copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{cleaned_color}")
                 if copy_role is None:
                     raise ValueError
                 else:
