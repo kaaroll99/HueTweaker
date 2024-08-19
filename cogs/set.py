@@ -9,6 +9,8 @@ from color_format import ColorUtils
 from config import bot, db, load_yml
 from database import model
 
+import random
+
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
 lang = load_yml('lang/en.yml')
@@ -26,9 +28,17 @@ class SetCog(commands.Cog):
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
-
+            if color.startswith("<@") and color.endswith(">"):
+                copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{color.strip("<>@")}")
+                if copy_role is None:
+                    raise ValueError
+                else:
+                    color = str(copy_role.color)
+            elif color == "random":
+                color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
             color_utils = ColorUtils(color)
             color_match = color_utils.color_parser()
+
             if color_match == -1:
                 raise ValueError
 

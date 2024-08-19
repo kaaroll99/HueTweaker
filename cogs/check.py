@@ -24,6 +24,14 @@ class CheckCog(commands.Cog):
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
             await interaction.response.defer(ephemeral=True)
+            if color.startswith("<@") and color.endswith(">"):
+                copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{color.strip("<>@")}")
+                if copy_role is None:
+                    raise ValueError
+                else:
+                    color = str(copy_role.color)
+            elif color == "random":
+                color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
             color_match = color
             with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
                 data = json.load(file)

@@ -67,7 +67,7 @@ com_docs: "[See details of the command in the documentation](https://huetweaker.
 #exceptions
 exception: "<:warn:1269288966754926623> **The bot encountered an unexpected error.**"
 color_format: |
-  <:warn:1269288966754926623> **Incorrect color format**
+  <:warn:1269288966754926623> **Incorrect color format or the selected user does not have the color set**
   
   Please use hexadecimal format, e.g. __F5DF4D__
   or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__

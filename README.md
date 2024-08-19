@@ -16,23 +16,46 @@ The application also includes several commands for administrators to customize t
 
 **Change the color of your username with a single command.**
 
-- 🖌️ Set/change the username color using hex code or CSS color name.
-- 🗂️ Create a list of predefined colors for users.
-- 🗑️ Remove the username color.
-- 🔎 Get color information (HEX, RGB, HSL, CMYK, Integer).
-- ⚙️ Manage the color of a specific user's username.
-- 💫 Set the top role for color roles
+![Imgur](https://i.imgur.com/zGR2PO9.png)
 
-## User commands:
-- `/help` - Information about the bot and a list of available commands.
-- `/set` - Set/change the username color using hex code or CSS color name.
-- `/select` - Choose one of the prepared colors on the server using the button under the message. 
-- `/remove` - Remove the username color.
-- `/check` - Color information (HEX, RGB, HSL, CMYK, Integer).
+💡 **Easy to use Slash Commands**
 
-## Admin commands:
-- `/force set` - Set/change the username color of the specific user using hex code or CSS color name.
-- `/force remove` - Remove the username color of the specific user.
-- `/force purge` - Removing all color roles.
-- `/setup toprole` - Set the top role for color roles. All color roles will be set under the indicated role.
-- `/setup select` - Configure the colors that will be available for selection using the `/select` command.
+🖌️ **Set a custom username color by choosing one of many available**
+
+![set_img](https://huetweaker.gitbook.io/~gitbook/image?url=https%3A%2F%2F1695017796-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FM2Vo1viRZPJzP6HW2d34%252Fuploads%252Fro8Cp6OIvrdxdovavqSK%252Fimage.png%3Falt%3Dmedia%26token%3D0e3f4b1d-76b6-4798-983c-d2149de7258e&width=768&dpr=1&quality=100&sign=e882482d&sv=1 "set")
+
+🗂️ **Create color lists for users on the server**
+
+![select_img](https://huetweaker.gitbook.io/~gitbook/image?url=https%3A%2F%2F1695017796-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FM2Vo1viRZPJzP6HW2d34%252Fuploads%252FZdQ2kPw90w8fJYiio8Pt%252Fimage.png%3Falt%3Dmedia%26token%3Db0c43e92-adcc-48e1-a27e-88f1f67a6c87&width=768&dpr=1&quality=100&sign=973c69f3&sv=1 "select")
+
+🔎 **Check color information (HEX, RGB, HSL, CMYK, Integer)**
+
+![check_img](https://huetweaker.gitbook.io/~gitbook/image?url=https%3A%2F%2F1695017796-files.gitbook.io%2F%7E%2Ffiles%2Fv0%2Fb%2Fgitbook-x-prod.appspot.com%2Fo%2Fspaces%252FM2Vo1viRZPJzP6HW2d34%252Fuploads%252FaCa773P11jJcoyVeVC2N%252Fimage.png%3Falt%3Dmedia%26token%3Daf828eef-ca89-4433-85bc-ee3d6e28d53e&width=768&dpr=1&quality=100&sign=e69bb8a1&sv=1 "check")
+
+⚙️ **Manage the color of a specific user's username on the server**
+
+💫 **Commands to configure the bot on the server**
+
+![Imgur](https://i.imgur.com/waQB9yV.png)
+
+`/help` - Information about the bot and a list of available commands.
+
+`/set` - Set/change the username color using hex code or CSS color name.
+
+`/select` - Choose one of the prepared colors on the server using the button under the message. 
+
+`/remove` - Remove the username color.
+
+`/check` - Color information (HEX, RGB, HSL, CMYK, Integer).
+
+![Imgur](https://i.imgur.com/F4If6wN.png)
+
+`/force set` - Set/change the username color of the specific user using hex code or CSS color name.
+
+`/force remove` - Remove the username color of the specific user.
+
+`/force purge` - Removing all color roles.
+
+`/setup toprole` - Set the top role for color roles. All color roles will be set under the indicated role.
+
+`/setup select` - Configure the colors that will be available for selection using the `/select` command.

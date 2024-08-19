@@ -1,4 +1,5 @@
 import logging
+import os
 import re
 from logging.handlers import TimedRotatingFileHandler
 
@@ -13,6 +14,35 @@ def load_yml(path):
     with open(path, 'r', encoding='utf-8') as file:
         output = yaml.safe_load(file)
     return output
+
+
+def setup_logger():
+    os.makedirs('logs', exist_ok=True)
+
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    latest_handler = logging.FileHandler('logs/latest.log', mode='w', encoding='utf-8')
+    latest_handler.setFormatter(formatter)
+    logger.addHandler(latest_handler)
+
+    daily_handler = TimedRotatingFileHandler(
+        'logs/daily.log',
+        when="midnight",
+        backupCount=7,
+        encoding='utf-8'
+    )
+    daily_handler.setFormatter(formatter)
+    daily_handler.namer = lambda name: name.replace("daily.log.", "") + ".log"
+    logger.addHandler(daily_handler)
+
+    return logger
 
 
 intents = discord.Intents.none()
@@ -35,21 +65,5 @@ rgb_regex = re.compile(r"^rgb\((25[0-5]|2[0-4]\d|[01]?\d{1,2})\s*,\s*(25[0-5]|2[
 hsl_regex = re.compile(r"^hsl\((\d+(\.\d+)?|100(\.0+)?),\s*(\d+(\.\d+)?|100(\.0+)?)%\s*,\s*(\d+(\.\d+)?|100(\.0+)?)%\)$")
 cmyk_regex = re.compile(r"^cmyk\((100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%\)$")
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-log_file = f'logs/latest.log'
-file_handler = logging.FileHandler(log_file, mode='w', encoding='utf-8')
-file_handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(formatter)
-logger.root.addHandler(file_handler)
-
-log_file = f'logs/info'
-handler = TimedRotatingFileHandler(log_file, when="midnight", encoding='utf-8')
-handler.namer = lambda name: name.replace(".log", "") + ".log"
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-logger.root.addHandler(handler)
+logger = setup_logger()
 logger.info("Log file has been created.")
