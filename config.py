@@ -50,7 +50,8 @@ intents.guilds = True
 intents.members = True
 
 activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
-bot = commands.AutoShardedBot(command_prefix="!$%ht", intents=intents, activity=activity, status=discord.Status.online)
+bot = commands.AutoShardedBot(command_prefix="!$%ht", intents=intents, activity=activity, status=discord.Status.online
+                              , shard_count=2)
 bot.remove_command('help')
 
 token_file = load_yml('token.yml')
