@@ -104,20 +104,19 @@ class SetupCog(commands.Cog):
 
             with db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
-            if top_role.position == 0:
-                if query:
-                    db.delete(model.guilds_class(f"guilds"), {"server": interaction.guild.id})
+                if top_role.position == 0:
+                    if query:
+                        db.delete(model.guilds_class(f"guilds"), {"server": interaction.guild.id})
 
-                embed.description = lang['toprole_reset']
-            else:
-                if query:
-                    db.update(model.guilds_class(f"guilds"), {"server": interaction.guild.id},
-                              {"role": role_name.id})
+                    embed.description = lang['toprole_reset']
                 else:
-                    db.create(model.guilds_class(f"guilds"), {"server": interaction.guild.id, "role": role_name.id})
+                    if query:
+                        db.update(model.guilds_class(f"guilds"), {"server": interaction.guild.id},
+                                  {"role": role_name.id})
+                    else:
+                        db.create(model.guilds_class(f"guilds"), {"server": interaction.guild.id, "role": role_name.id})
 
                 embed.description = lang['toprole_set'].format(role_name.name)
-                db.close()
 
                 for role in interaction.guild.roles:
                     if pattern.match(role.name):
