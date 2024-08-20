@@ -75,7 +75,7 @@ class HelpCog(commands.Cog):
 
             embed.add_field(name=lang['com_syntax'], value=f"> {data[selected_option]['usage']}", inline=False)
             embed.add_field(name=lang['com_syntax'], value=f"> {data[selected_option]['example']}", inline=False)
-            embed.add_field(name=f"Docs:", value=lang['com_docs'].format(data[selected_option]['docs']), inline=False)
+            embed.add_field(name=f"<:star:1269288950174978100> Docs:", value="> "+lang['com_docs'].format(data[selected_option]['docs']), inline=False)
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
