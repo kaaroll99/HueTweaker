@@ -1,8 +1,23 @@
-2024-02-19 20:20:22,391 - config - INFO - Log file has been created.
-2024-02-19 20:20:22,719 - root - INFO - Bot is running.
-2024-02-19 20:20:22,985 - discord.client - INFO - logging in using static token
-2024-02-19 20:20:23,974 - discord.gateway - INFO - Shard ID None has connected to Gateway (Session ID: db33233407da09c27dcf88527fe25518).
-2024-02-19 20:20:26,446 - root - INFO - Cogs (3): help, color, embed
-2024-02-19 20:20:26,447 - root - INFO - Active commands (4): help, vote, color, embed
-2024-02-19 20:20:27,078 - root - INFO - kaaroll99 issued bot command: /vote (len:162)
-2024-02-19 21:12:11,718 - root - WARNING - bot has been terminated from console line
+2024-08-20 17:18:45,846 - root - INFO - Log file has been created.
+2024-08-20 17:18:46,052 - discord.ext.commands.bot - WARNING - Privileged message content intent is missing, commands may not work as expected.
+2024-08-20 17:18:46,052 - root - INFO - Bot is running.
+2024-08-20 17:18:46,458 - discord.client - INFO - logging in using static token
+2024-08-20 17:18:47,226 - discord.gateway - INFO - Shard ID 0 has connected to Gateway (Session ID: 26bfc7cf80ecd568321236a0f268e5fb).
+2024-08-20 17:18:47,680 - discord.gateway - WARNING - WebSocket in shard ID 0 is ratelimited, waiting 59.35 seconds
+2024-08-20 17:18:48,037 - root - INFO - Bot has been removed from guild: 1216310983014748161 (mem: None)
+2024-08-20 17:18:48,596 - root - INFO - Bot has been removed from guild: 1236791408611033270 (mem: None)
+2024-08-20 17:18:48,960 - root - INFO - Bot has been removed from guild: 1252289762405122119 (mem: None)
+2024-08-20 17:18:52,379 - discord.gateway - INFO - Shard ID 1 has connected to Gateway (Session ID: 09d5e16c10663990efd4a49c2c4dfb13).
+2024-08-20 17:18:52,822 - discord.gateway - WARNING - WebSocket in shard ID 1 is ratelimited, waiting 54.36 seconds
+2024-08-20 17:19:47,042 - discord.gateway - WARNING - WebSocket in shard ID 0 is ratelimited, waiting 59.99 seconds
+2024-08-20 17:19:47,190 - discord.gateway - WARNING - WebSocket in shard ID 1 is ratelimited, waiting 59.99 seconds
+2024-08-20 17:20:47,047 - discord.gateway - WARNING - WebSocket in shard ID 0 is ratelimited, waiting 59.99 seconds
+2024-08-20 17:20:47,191 - discord.gateway - WARNING - WebSocket in shard ID 1 is ratelimited, waiting 59.99 seconds
+2024-08-20 17:21:47,048 - discord.gateway - WARNING - WebSocket in shard ID 0 is ratelimited, waiting 59.99 seconds
+2024-08-20 17:21:47,192 - discord.gateway - WARNING - WebSocket in shard ID 1 is ratelimited, waiting 59.99 seconds
+2024-08-20 17:23:24,027 - root - INFO - Cogs (9): help, set, remove, check, force, setup, joinListener, vote, select
+2024-08-20 17:23:24,027 - root - INFO - Active commands (8): help, set, remove, check, force, setup, vote, select
+2024-08-20 17:34:39,971 - root - INFO - lanthann[429432602999521281] issued bot command: /set 78cdde
+2024-08-20 17:36:23,421 - discord.gateway - INFO - Shard ID 1 has successfully RESUMED session 09d5e16c10663990efd4a49c2c4dfb13.
+2024-08-20 17:39:26,996 - root - CRITICAL - kaaroll99[512674615223517205] raise critical exception - FileNotFoundError(2, 'No such file or directory')
+2024-08-20 17:39:27,218 - root - INFO - kaaroll99[512674615223517205] issued bot command: /check royal blue
