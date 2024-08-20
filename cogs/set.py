@@ -71,7 +71,7 @@ class SetCog(commands.Cog):
             if e.code == 50013:
                 embed.description = lang['err_50013']
             else:
-                info_embed.description = lang['err_http'].format(e.code, e.text)
+                embed.description = lang['err_http'].format(e.code, e.text)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
 
         except Exception as e:
