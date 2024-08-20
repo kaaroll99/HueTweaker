@@ -11,15 +11,26 @@ set:
   name: set
   desc: >-
     Set/change the username color using hex code or CSS color name.
+ 
+ 
+    `<color>` - Color to set
     
-    Color palettes:
+  
+    **Color to set:**
     
-    - [Adobe Color Wheel](https://color.adobe.com/pl/create/color-wheel)
+    __Color code__
     
-    - [Google](https://www.google.com/search?q=color+picker)
+    > Set the color hexadecimal format, e.g., __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g., __royalblue__
+
+    __Username__
     
+    > Set the color using the name of the user whose color is to be copied, e.g. __@kaaroll99__. If the selected one does not have a role with color an error will be returned
+
+    __Random color__
     
-    `<color>` - Color to set (hexadecimal format, e.g., __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g., __royalblue__)
+    > Set the color using a random color using __random__
+    
+    > -
 
   usage: /set <color>
   example: /set f5df4d
@@ -50,20 +61,35 @@ select:
 check:
   name: check
   desc: >-
-    Get color information (HEX, RGB, HSL, CMYK).
+    Get color information (HEX, RGB, HSL, CMYK).  
     
-    **Formats:**
     
+    `<color>` - Color to set
+    
+    
+    **Color to set:**
+
+    __Color code__
+
     - #f5df4d
-    
+
     - rgb(245, 223, 77)
-    
+
     - hsl(52.14, 89.36%, 63.14%)
-    
+
     - cmyk(0.00%, 8.98%, 68.57%, 3.92%)
-    
+
     - or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. "royalblue"
 
+    __Username__
+
+    > Set the color using the name of the user whose color is to be copied, e.g. __@kaaroll99__. If the selected one does not have a role with color an error will be returned
+
+    __Random color__
+
+    > Set the color using a random color using __random__
+    
+    > -
   usage: /check <color>
   example: /check \#F5DF4D
   docs: check
@@ -86,10 +112,27 @@ forceset:
     
     ⚠️ The command can only be executed by a user with administrator privileges.
     
+    
     `<user_name>` - Name of the selected user
     
-    `<color>` - Color to set (hexadecimal format, e.g. __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__)
+    `<color>` - Color to set
+    
+    
+    **Color to set:**
+    
+    __Color code__
+    
+    > Set the color hexadecimal format, e.g., __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g., __royalblue__
 
+    __Username__
+    
+    > Set the color using the name of the user whose color is to be copied, e.g. __@kaaroll99__. If the selected one does not have a role with color an error will be returned
+
+    __Random color__
+    
+    > Set the color using a random color using __random__
+    
+    > -
   usage: /force set <user_name> <color>
   example: /force set @kaaroll99 f5df4d
   docs: force-set

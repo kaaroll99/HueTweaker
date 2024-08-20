@@ -55,13 +55,13 @@ toprole_set: |
 #help
 help_choose: "Choose a command from the list..."
 help_desc: |
-  Online on `{}` servers.
-  Used by `{}` people.
-  Created by `@kaaroll99`
+  <:star:1269288950174978100> Online on `{}` servers.
+  <:star:1269288950174978100> Used by `{}` people.
+  <:star:1269288950174978100> Created by `@kaaroll99`
   
-  **Select one of the available commands from the list to learn more.**
-com_syntax: "Command syntax:"
-com_example: "Command example:"
+  **<:bubble:1269288932340662333> Select one of the available commands from the list to learn more.**
+com_syntax: "<:star:1269288950174978100> Command syntax:"
+com_example: "<:star:1269288950174978100> Command example:"
 com_docs: "[See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/{})"
 
 #exceptions
