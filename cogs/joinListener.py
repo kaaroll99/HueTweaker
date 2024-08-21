@@ -28,7 +28,7 @@ class JoinListenerCog(commands.Cog):
         logging.info(f"Bot has been added to guild: {guild.id} (mem: {guild.member_count})")
         try:
             channel = bot.get_channel(config_file['io_channel'])
-            if channel is not None:
+            if channel and guild.member_count is not None:
                 owner_name = guild.owner.name if guild.owner else "-"
                 embed = discord.Embed(title=f"", description=f"Bot has been added to guild (**{len(bot.guilds)}**)\n"
                                                              f"> **Guild:** {guild.name}\n"
@@ -37,7 +37,7 @@ class JoinListenerCog(commands.Cog):
                                       color=0x23A55A, timestamp=datetime.now())
                 await channel.send(embed=embed)
             else:
-                logging.warning(f"I/O channel not found.")
+                logging.warning(f"I/O channel not found or member_count is None.")
         except Exception as e:
             logging.warning(f"I/O channel error - {e.__class__.__name__}: {e}")
 
@@ -48,7 +48,7 @@ class JoinListenerCog(commands.Cog):
         logging.info(f"Bot has been removed from guild: {guild.id} (mem: {guild.member_count})")
         try:
             channel = bot.get_channel(config_file['io_channel'])
-            if channel is not None:
+            if channel and guild.member_count is not None:
                 owner_name = guild.owner.name if guild.owner else "-"
                 embed = discord.Embed(title=f"", description=f"Bot has been removed from guild (**{len(bot.guilds)}**)\n"
                                                              f"> **Guild:** {guild.name}\n"
@@ -57,7 +57,7 @@ class JoinListenerCog(commands.Cog):
                                       color=0xF23F42, timestamp=datetime.now())
                 await channel.send(embed=embed)
             else:
-                logging.warning(f"I/O channel not found.")
+                logging.warning(f"I/O channel not found or member_count is None.")
         except Exception as e:
             logging.warning(f"I/O channel error - {e.__class__.__name__}: {e}")
 
