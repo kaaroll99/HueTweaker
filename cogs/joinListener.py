@@ -25,10 +25,10 @@ class JoinListenerCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        logging.info(f"Bot has been added to guild: {guild.id} (mem: {guild.member_count})")
         try:
             channel = bot.get_channel(config_file['io_channel'])
             if channel and guild.member_count is not None:
+                logging.info(f"Bot has been added to guild: {guild.id} (mem: {guild.member_count})")
                 owner_name = guild.owner.name if guild.owner else "-"
                 embed = discord.Embed(title=f"", description=f"Bot has been added to guild (**{len(bot.guilds)}**)\n"
                                                              f"> **Guild:** {guild.name}\n"
@@ -45,10 +45,10 @@ class JoinListenerCog(commands.Cog):
     async def on_guild_remove(self, guild):
         with db as db_session:
             db_session.delete(model.guilds_class("guilds"), {"server": guild.id})
-        logging.info(f"Bot has been removed from guild: {guild.id} (mem: {guild.member_count})")
         try:
             channel = bot.get_channel(config_file['io_channel'])
             if channel and guild.member_count is not None:
+                logging.info(f"Bot has been removed from guild: {guild.id} (mem: {guild.member_count})")
                 owner_name = guild.owner.name if guild.owner else "-"
                 embed = discord.Embed(title=f"", description=f"Bot has been removed from guild (**{len(bot.guilds)}**)\n"
                                                              f"> **Guild:** {guild.name}\n"
