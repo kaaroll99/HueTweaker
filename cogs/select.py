@@ -5,23 +5,23 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, load_yml
+from config import bot, load_yml, langs
 
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
-lang = load_yml('lang/en.yml')
 
 
 class SelectCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="select", description="Choose one of the static colors on the server")
+    @app_commands.command(name=app_commands.locale_str("select-name"), description=app_commands.locale_str("select"))
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
+            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
             view = discord.ui.View()
 
@@ -95,6 +95,8 @@ class SelectCog(commands.Cog):
     @staticmethod
     async def __select_callback(interaction: discord.Interaction):
         edited_view = discord.ui.View()
+        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
+            'lang/en-US.yml')
         try:
             for number in range(1, 10):
                 role = discord.utils.get(interaction.guild.roles, name=f"color-static-{number}")
@@ -120,6 +122,8 @@ class SelectCog(commands.Cog):
 
     @select.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
+            'lang/en-US.yml')
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = lang["cool_down"].format(int(retry_time.timestamp()))

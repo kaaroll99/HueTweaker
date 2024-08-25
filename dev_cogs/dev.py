@@ -9,7 +9,7 @@ from config import bot, load_yml
 
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
-lang = load_yml('lang/en.yml')
+lang = load_yml('lang/en-US.yml')
 
 
 class DevCog(commands.Cog):
@@ -78,5 +78,6 @@ class DevCog(commands.Cog):
         embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
+
 async def setup(bot: commands.Bot) -> None:
-    await bot.add_cog(DevCog(bot))
+    await bot.dev_tree.add_cog(DevCog(bot))

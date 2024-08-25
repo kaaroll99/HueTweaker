@@ -7,22 +7,22 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from color_format import ColorUtils
-from config import bot, hex_regex, rgb_regex, hsl_regex, cmyk_regex, load_yml
+from config import bot, hex_regex, rgb_regex, hsl_regex, cmyk_regex, load_yml, langs
 
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
-lang = load_yml('lang/en.yml')
 
 class CheckCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="check", description="Check color information (HEX, RGB, HSL, CMYK)")
+    @app_commands.command(name=app_commands.locale_str("check-name"), description=app_commands.locale_str("check"))
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
+            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
             if color.startswith("<@") and color.endswith(">"):
                 cleaned_color = color.replace("<", "").replace(">", "").replace("@", "")
@@ -105,6 +105,8 @@ class CheckCog(commands.Cog):
 
     @check.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
+            'lang/en-US.yml')
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = lang["cool_down"].format(int(retry_time.timestamp()))

@@ -5,18 +5,18 @@ import yaml
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, load_yml
+from config import bot, load_yml, langs
 
 config_file = load_yml('config.yml')
-lang = load_yml('lang/en.yml')
 
 
 class HelpCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="help", description="View information about the bot and a list of available commands")
+    @app_commands.command(name=app_commands.locale_str("help-name"), description=app_commands.locale_str("help"))
     async def help(self, interaction: discord.Interaction) -> None:
+        lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
         embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=config_file['EMBED_COLOR'])
         select = discord.ui.Select(placeholder=lang['help_choose'], options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
@@ -66,6 +66,8 @@ class HelpCog(commands.Cog):
 
     @staticmethod
     async def __select_callback(interaction: discord.Interaction):
+        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
+            'lang/en-US.yml')
         try:
             with open('assets/help_commands.yml', 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)

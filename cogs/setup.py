@@ -8,12 +8,11 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from color_format import ColorUtils
-from config import bot, db, load_yml
+from config import bot, db, load_yml, langs
 from database import model
 
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
-lang = load_yml('lang/en.yml')
 
 
 class SetupCog(commands.Cog):
@@ -22,7 +21,7 @@ class SetupCog(commands.Cog):
 
     group = app_commands.Group(name="setup", description="Setup bot on your server")
 
-    @group.command(name="select", description="Setup static colors on server")
+    @group.command(name=app_commands.locale_str("setupselect-name"), description=app_commands.locale_str("setupselect"))
     @app_commands.checks.cooldown(1, 5.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
@@ -30,6 +29,7 @@ class SetupCog(commands.Cog):
                      color_3: str = None, color_4: str = None, color_5: str = None) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
+            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
 
             local_vars = locals()
@@ -90,13 +90,15 @@ class SetupCog(commands.Cog):
             await interaction.followup.send(embed=embed)
             logging.info(f"{interaction.user.name}[{interaction.user.id}] issued bot command: /setup select")
 
-    @group.command(name="toprole", description="Setup top role for color roles")
+    @group.command(name=app_commands.locale_str("setuptoprole-name"),
+                   description=app_commands.locale_str("setuptoprole"))
     @app_commands.describe(role_name="Role name")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
+            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
 
             pattern = re.compile(f"color-\\d{{18,19}}")
@@ -156,6 +158,8 @@ class SetupCog(commands.Cog):
     @toprole.error
     @select.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
+            'lang/en-US.yml')
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = lang["cool_down"].format(int(retry_time.timestamp()))
