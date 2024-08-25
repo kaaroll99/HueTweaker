@@ -3,11 +3,12 @@ import logging
 
 import config
 import tasks_defs
-from config import bot, db
+from config import db, bot
 
 config_file = config.load_yml('config.yml')
 token_file = config.load_yml('token.yml')
 cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
+dev_cogs = ['dev']
 
 
 @bot.event
@@ -33,8 +34,6 @@ async def main():
         tasks_defs.update_stats_taks.start()
 
         logging.info('Bot is running.')
-        for cog in cogs:
-            await bot.load_extension(f"cogs.{cog}")
         await bot.start(token_file['TOKEN'])
 
 try:

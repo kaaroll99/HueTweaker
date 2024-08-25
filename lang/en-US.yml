@@ -74,7 +74,7 @@ color_format: |
 err_50013: |
   <:warn:1269288966754926623> **The bot does not have permissions to perform this operation.**
   
-  Error may have been caused by misconfiguration of top-role bot (`/toprole`).
+  Error may have been caused by misconfiguration of top-role bot (`/setup toprole`).
   Notify the server administrator of the occurrence of this error.
   
   <:bubble:1269288932340662333> Use the `/help` command to learn how to properly configure top role.

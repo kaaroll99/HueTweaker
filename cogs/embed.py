@@ -89,4 +89,4 @@ class EmbedCog(commands.Cog):
 
 
 async def setup(bot: commands.Bot) -> None:
-    await bot.add_cog(EmbedCog(bot))
+    await bot.user_tree.add_cog(EmbedCog(bot))

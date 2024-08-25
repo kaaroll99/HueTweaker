@@ -5,22 +5,22 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, load_yml
+from config import bot, load_yml, langs
 
 config_file = load_yml('config.yml')
 token_file = load_yml('token.yml')
-lang = load_yml('lang/en.yml')
 
 
 class VoteCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name="vote", description="View links to vote")
+    @app_commands.command(name=app_commands.locale_str("vote-name"), description=app_commands.locale_str("vote"))
     async def vote(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title=lang['vote_title'].format(bot.user.name), description=f"",
-                              color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
         try:
+            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
+            embed: Embed = discord.Embed(title=lang['vote_title'].format(bot.user.name), description=f"",
+                                         color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
             await interaction.response.defer(ephemeral=True)
             embed.description = lang['vote_desc']
             embed.add_field(name=f"", value=lang['vote_topgg'], inline=False)

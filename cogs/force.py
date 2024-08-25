@@ -7,20 +7,19 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from color_format import ColorUtils
-from config import bot, db, load_yml
+from config import bot, db, load_yml, langs
 from database import model
 
 config_file = load_yml('config.yml')
-lang = load_yml('lang/en.yml')
 
 class ForceCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.color = config_file['EMBED_COLOR']
 
-    group = app_commands.Group(name="force", description="Modify the color of specific user")
+    group = app_commands.Group(name=app_commands.locale_str("force-name"), description=app_commands.locale_str("force"))
 
-    @group.command(name="set", description="Setting the color of the user")
+    @group.command(name=app_commands.locale_str("forceset-name"), description=app_commands.locale_str("forceset"))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(user_name="User name", color="Color to set")
@@ -28,6 +27,7 @@ class ForceCog(commands.Cog):
     async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
+            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
             if color.startswith("<@") and color.endswith(">"):
                 cleaned_color = color.replace("<", "").replace(">", "").replace("@", "")
@@ -80,7 +80,7 @@ class ForceCog(commands.Cog):
             logging.info(
                 f"{interaction.user.name}[{interaction.user.id}] issued bot command: /force set {user_name.name} {color}")
 
-    @group.command(name="remove", description="Remove the color of the user")
+    @group.command(name=app_commands.locale_str("forceremove-name"), description=app_commands.locale_str("forceremove"))
     @app_commands.describe(user_name="User name")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
@@ -88,6 +88,7 @@ class ForceCog(commands.Cog):
     async def forceremove(self, interaction: discord.Interaction, user_name: discord.Member) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         try:
+            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
             role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
             if role is not None:
@@ -109,7 +110,7 @@ class ForceCog(commands.Cog):
             logging.info(
                 f"{interaction.user.name}[{interaction.user.id}] issued bot command: /force remove {user_name.name}")
 
-    @group.command(name="purge", description="Remove all color roles (irreversible)")
+    @group.command(name=app_commands.locale_str("forcepurge-name"), description=app_commands.locale_str("forcepurge"))
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
@@ -117,6 +118,7 @@ class ForceCog(commands.Cog):
         embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
         view = discord.ui.View()
         try:
+            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
 
             embed.description = lang['purge_confirm']
@@ -150,6 +152,8 @@ class ForceCog(commands.Cog):
     @staticmethod
     async def __confirm_callback(interaction: discord.Interaction):
         view = discord.ui.View()
+        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
+            'lang/en-US.yml')
 
         async def del_static_roles():
             for i, static_role in enumerate(interaction.guild.roles, start=1):
@@ -192,6 +196,8 @@ class ForceCog(commands.Cog):
     @forceremove.error
     @purge.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
+            'lang/en-US.yml')
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = lang["cool_down"].format(int(retry_time.timestamp()))

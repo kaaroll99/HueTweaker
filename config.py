@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import re
@@ -13,6 +14,12 @@ from database import database
 def load_yml(path):
     with open(path, 'r', encoding='utf-8') as file:
         output = yaml.safe_load(file)
+    return output
+
+
+def load_json(path):
+    with open(path, 'r', encoding='utf-8') as file:
+        output = json.load(file)
     return output
 
 
@@ -45,13 +52,26 @@ def setup_logger():
     return logger
 
 
+def init_bot():
+    from bot_init import MyBot
+
+    bot = MyBot(
+        command_prefix="!$%ht",
+        intents=intents,
+        activity=activity,
+        status=discord.Status.online,
+        shard_count=2
+    )
+    bot.remove_command('help')
+    return bot
+
+
+langs = ["en-US", "pl"]
 intents = discord.Intents.none()
 intents.guilds = True
 intents.members = True
-
 activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
-bot = commands.AutoShardedBot(command_prefix="!$%ht", intents=intents, activity=activity, status=discord.Status.online
-                              , shard_count=2)
+bot = init_bot()
 bot.remove_command('help')
 
 token_file = load_yml('token.yml')
