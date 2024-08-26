@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord import app_commands, Locale
 from config import load_json
+import logging
 
 translations = load_json('lang/translations.json')
 
@@ -24,6 +25,9 @@ class MyBot(commands.AutoShardedBot):
 
         await self.tree.set_translator(MyTranslator(self))
         await self.tree.sync()
+
+    async def on_ready(self):
+        logging.info(15*'=' + " " + str(self.user) + ' is ready. ' + 15*"=")
 
 
 class MyTranslator(app_commands.Translator):
