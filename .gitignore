@@ -160,7 +160,7 @@ cython_debug/
 .idea/
 
 # MOJE
-token.yml
+assets/token.yml
 /logs/
 /output/
-/databases/guilds.db
+/assets/guilds.db

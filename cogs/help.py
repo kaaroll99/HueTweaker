@@ -5,9 +5,8 @@ import yaml
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, load_yml, langs
-
-config_file = load_yml('config.yml')
+from config import bot, langs
+from utils.data_loader import load_yml
 
 
 class HelpCog(commands.Cog):
@@ -17,7 +16,7 @@ class HelpCog(commands.Cog):
     @app_commands.command(name=app_commands.locale_str("help-name"), description=app_commands.locale_str("help"))
     async def help(self, interaction: discord.Interaction) -> None:
         lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
-        embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=4539717)
         select = discord.ui.Select(placeholder=lang['help_choose'], options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
             discord.SelectOption(label="/set", value="set", emoji="🌈"),
@@ -73,7 +72,7 @@ class HelpCog(commands.Cog):
                 data = yaml.safe_load(f)
             selected_option = interaction.data['values'][0]
             embed: Embed = discord.Embed(title=f"<:star:1269288950174978100> Command `{data[selected_option]['name']}`",
-                                  description=f"{data[selected_option]['desc']}", color=config_file['EMBED_COLOR'])
+                                  description=f"{data[selected_option]['desc']}", color=4539717)
 
             embed.add_field(name=lang['com_syntax'], value=f"> {data[selected_option]['usage']}", inline=False)
             embed.add_field(name=lang['com_syntax'], value=f"> {data[selected_option]['example']}", inline=False)

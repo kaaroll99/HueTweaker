@@ -1,4 +1,3 @@
-import json
 import logging
 import re
 from datetime import datetime, timedelta
@@ -7,12 +6,10 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from color_format import ColorUtils
-from config import bot, db, load_yml, langs
+from utils.color_format import ColorUtils
+from config import bot, db, langs
+from utils.data_loader import load_yml, load_json
 from database import model
-
-config_file = load_yml('config.yml')
-token_file = load_yml('token.yml')
 
 
 class SetupCog(commands.Cog):
@@ -27,7 +24,7 @@ class SetupCog(commands.Cog):
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction, color_1: str, color_2: str,
                      color_3: str = None, color_4: str = None, color_5: str = None) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
@@ -36,8 +33,7 @@ class SetupCog(commands.Cog):
             local_vars.pop('self')
             local_vars.pop('interaction')
 
-            with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
-                data = json.load(file)
+            data = load_json("assets/css-color-names.json")
 
             with db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
@@ -96,7 +92,7 @@ class SetupCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
@@ -167,7 +163,7 @@ class SetupCog(commands.Cog):
 
         elif isinstance(error, discord.app_commands.errors.MissingPermissions):
             embed: Embed = discord.Embed(title="", description=lang['no_permissions'],
-                                         color=config_file['EMBED_COLOR'], timestamp=datetime.now())
+                                         color=4539717, timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.response.send_message(embed=embed, ephemeral=True)

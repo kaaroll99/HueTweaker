@@ -6,16 +6,17 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from color_format import ColorUtils
-from config import bot, db, load_yml, langs
+from utils.color_format import ColorUtils
+from config import bot, db, langs
+from utils.data_loader import load_yml
 from database import model
 
-config_file = load_yml('config.yml')
+config_file = load_yml('assets/config.yml')
+
 
 class ForceCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.color = config_file['EMBED_COLOR']
 
     group = app_commands.Group(name=app_commands.locale_str("force-name"), description=app_commands.locale_str("force"))
 
@@ -25,7 +26,7 @@ class ForceCog(commands.Cog):
     @app_commands.describe(user_name="User name", color="Color to set")
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
@@ -86,7 +87,7 @@ class ForceCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def forceremove(self, interaction: discord.Interaction, user_name: discord.Member) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
@@ -115,7 +116,7 @@ class ForceCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def purge(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         view = discord.ui.View()
         try:
             lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
@@ -179,7 +180,7 @@ class ForceCog(commands.Cog):
                 await del_individual_roles()
                 await del_static_roles()
 
-            embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+            embed: Embed = discord.Embed(title="", description=f"", color=4539717)
             embed.description = lang['purge_ok']
 
         except Exception as e:
@@ -205,7 +206,7 @@ class ForceCog(commands.Cog):
 
         elif isinstance(error, discord.app_commands.errors.MissingPermissions):
             embed: Embed = discord.Embed(title="", description=lang['no_permissions'],
-                                         color=config_file['EMBED_COLOR'], timestamp=datetime.now())
+                                         color=4539717, timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.response.send_message(embed=embed, ephemeral=True)

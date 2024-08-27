@@ -5,10 +5,9 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, load_yml
+from config import bot
+from utils.data_loader import load_yml
 
-config_file = load_yml('config.yml')
-token_file = load_yml('token.yml')
 lang = load_yml('lang/en-US.yml')
 
 
@@ -23,7 +22,7 @@ class DevCog(commands.Cog):
         # print(interaction.guild.preferred_locale)
         # print(interaction.locale)
         embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"",
-                              color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+                              color=4539717, timestamp=datetime.datetime.now())
         file = None
         try:
             if interaction.guild_id == 1209531775412604968:
@@ -73,7 +72,7 @@ class DevCog(commands.Cog):
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         embed: Embed = discord.Embed(title="",
                                      description=f"This command is only available to the developers of this bot and is used for testing.",
-                                     color=config_file['EMBED_COLOR'])
+                                     color=4539717)
         embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
         embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
         await interaction.response.send_message(embed=embed, ephemeral=True)

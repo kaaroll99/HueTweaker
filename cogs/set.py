@@ -5,14 +5,12 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from color_format import ColorUtils
-from config import bot, db, load_yml, langs
+from utils.color_format import ColorUtils
+from config import bot, db, langs
+from utils.data_loader import load_yml
 from database import model
 
 import random
-
-config_file = load_yml('config.yml')
-token_file = load_yml('token.yml')
 
 
 class SetCog(commands.Cog):
@@ -24,7 +22,7 @@ class SetCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)

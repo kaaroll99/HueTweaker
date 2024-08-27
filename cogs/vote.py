@@ -5,10 +5,8 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, load_yml, langs
-
-config_file = load_yml('config.yml')
-token_file = load_yml('token.yml')
+from config import bot, langs
+from utils.data_loader import load_yml
 
 
 class VoteCog(commands.Cog):
@@ -20,7 +18,7 @@ class VoteCog(commands.Cog):
         try:
             lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             embed: Embed = discord.Embed(title=lang['vote_title'].format(bot.user.name), description=f"",
-                                         color=config_file['EMBED_COLOR'], timestamp=datetime.datetime.now())
+                                         color=4539717, timestamp=datetime.datetime.now())
             await interaction.response.defer(ephemeral=True)
             embed.description = lang['vote_desc']
             embed.add_field(name=f"", value=lang['vote_topgg'], inline=False)

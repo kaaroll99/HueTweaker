@@ -6,9 +6,8 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, load_yml
-
-config_file = load_yml('config.yml')
+from config import bot
+from utils.data_loader import load_yml
 
 
 class EmbedCog(commands.Cog):
@@ -24,7 +23,7 @@ class EmbedCog(commands.Cog):
         info_embed: Embed = discord.Embed(
             title="",
             description=f"",
-            color=config_file['EMBED_COLOR'],
+            color=4539717,
             timestamp=datetime.now()
         )
         try:
@@ -82,7 +81,7 @@ class EmbedCog(commands.Cog):
 
         elif isinstance(error, discord.app_commands.errors.MissingPermissions):
             embed: Embed = discord.Embed(title="", description=messages_file.get('no_permissions', ''),
-                                         color=config_file['EMBED_COLOR'], timestamp=datetime.now())
+                                         color=4539717, timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.response.send_message(embed=embed, ephemeral=True)

@@ -1,26 +1,12 @@
-import json
 import logging
 import os
 import re
 from logging.handlers import TimedRotatingFileHandler
 
 import discord
-import yaml
-from discord.ext import commands
 
 from database import database
-
-
-def load_yml(path):
-    with open(path, 'r', encoding='utf-8') as file:
-        output = yaml.safe_load(file)
-    return output
-
-
-def load_json(path):
-    with open(path, 'r', encoding='utf-8') as file:
-        output = json.load(file)
-    return output
+from utils.data_loader import load_yml
 
 
 def setup_logger():
@@ -74,9 +60,9 @@ activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
 bot = init_bot()
 bot.remove_command('help')
 
-token_file = load_yml('token.yml')
+token_file = load_yml('assets/token.yml')
 if token_file.get('system', None) == 'dev':
-    db = database.Database(url=f"sqlite:///databases/guilds.db")
+    db = database.Database(url=f"sqlite:///assets/guilds.db")
 else:
     db = database.Database(
         url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")

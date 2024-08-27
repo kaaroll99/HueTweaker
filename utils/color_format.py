@@ -1,4 +1,3 @@
-import json
 import re
 
 import numpy as np
@@ -6,42 +5,59 @@ from PIL import Image
 from colormath.color_conversions import convert_color
 from colormath.color_objects import sRGBColor, CMYKColor, HSLColor
 
-from config import hex_regex
+from config import hex_regex, rgb_regex, hsl_regex, cmyk_regex
+from utils.data_loader import load_json
 
 
 class ColorUtils:
-    __slots__ = ['color']
+    __slots__ = ['color', 'color_format']
     rgb_pattern = re.compile(r"rgb\((\d+),\s*(\d+),\s*(\d+)\)")
     hsl_pattern = re.compile(r"hsl\((\d+(\.\d+)?),\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$")
     cmyk_pattern = re.compile(r"cmyk\((\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$")
 
-    def __init__(self, color):
+    def __init__(self, color, color_format=None):
         self.color = color
+        self.color_format = color_format
 
-    def __enter__(self):
-        return self
+    def __determine_color_format(self):
+        data = load_json("assets/css-color-names.json")
+        self.color = re.sub(r"[^A-Za-z]", "", self.color.lower())
+        if self.color in map(lambda x: x.lower(), data.keys()):
+            self.color = data[self.color]
+            self.color_format = "hex"
+        elif hex_regex.match(self.color):
+            if len(self.color.strip("#")) == 3:
+                self.color = ''.join([x * 2 for x in self.color.strip("#")])
+            else:
+                self.color = self.color.strip("#")
+                self.color_format = "hex"
+        elif rgb_regex.match(self.color):
+            self.color_format = "rgb"
+        elif hsl_regex.match(self.color):
+            self.color_format = "hsl"
+        elif cmyk_regex.match(self.color):
+            self.color_format = "cmyk"
+        else:
+            self.color_format = None
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        # Tutaj możemy dodać kod czyszczący, jeśli jest potrzebny
-        del self.color  # Wyraźne usunięcie atrybutu, chociaż to niekonieczne w tym przypadku
-
-    def color_converter(self, color_format):
-        if color_format is None:
+    def color_converter(self):
+        self.__determine_color_format()
+        if self.color_format is None:
             return None
         try:
-            if color_format == "hex":
+            if self.color_format == "hex":
                 rgb_color = sRGBColor.new_from_rgb_hex(self.color)
-            elif color_format == "rgb":
+            elif self.color_format == "rgb":
                 rgb_values = self.__parse_rgb()
                 if rgb_values is None:
                     raise ValueError("Invalid RGB format")
                 rgb_color = sRGBColor(rgb_values[0] / 255.0, rgb_values[1] / 255.0, rgb_values[2] / 255.0)
-            elif color_format == "hsl":
+            elif self.color_format == "hsl":
                 hsl_values = self.__parse_hsl()
                 if hsl_values is None:
                     raise ValueError("Invalid HSL format")
                 rgb_color = convert_color(HSLColor(hsl_values[0], hsl_values[1] / 100.0, hsl_values[2] / 100.0), sRGBColor)
-            elif color_format == "cmyk":
+            elif self.color_format == "cmyk":
                 cmyk_values = self.__parse_cmyk()
                 if cmyk_values is None:
                     raise ValueError("Invalid CMYK format")
@@ -61,23 +77,22 @@ class ColorUtils:
                 "CMYK": cmyk_color,
                 "Similars": similar_colors
             }
-
             return result
 
-        except ValueError as e:
+        except ValueError:
             self.color = "ffffff"
-            return self.color_converter("hex")
+            self.color_format = "hex"
+            return self.color_converter()
 
     @staticmethod
-    def generate_image_from_rgb_float(color):
+    def generate_image(color):
         rgb_float_color = np.array([float(val) for val in color])
         image_array = np.tile(rgb_float_color, (100, 300, 1)) * 255
         return Image.fromarray(image_array.astype('uint8'), 'RGB')
 
     def color_parser(self):
-        with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
-            data = json.load(file)
-        color_match = self.color.lower().replace(" ", "")
+        data = load_json("assets/css-color-names.json")
+        color_match = re.sub(r"[^A-Za-z]", "", self.color.lower())
         if color_match in map(lambda x: x.lower(), data.keys()):
             return data[color_match]
         elif hex_regex.match(color_match):
@@ -112,8 +127,7 @@ class ColorUtils:
         return sum((x[0] - x[1]) ** 2 for x in zip(hsl1, hsl2))
 
     def __find_similar_colors(self, hsl_color, threshold=20):
-        with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
-            color_dict = json.load(file)
+        color_dict = load_json("assets/css-color-names.json")
         similar_colors = []
 
         for color_name, color_hex in color_dict.items():
