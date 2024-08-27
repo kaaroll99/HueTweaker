@@ -1,13 +1,14 @@
 import logging
+import re
 from datetime import datetime, timedelta
 
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
+from config import bot, langs
 from utils.color_format import ColorUtils
-from config import bot, hex_regex, rgb_regex, hsl_regex, cmyk_regex, langs
-from utils.data_loader import load_yml, load_json
+from utils.data_loader import load_yml
 
 
 class CheckCog(commands.Cog):
@@ -16,14 +17,14 @@ class CheckCog(commands.Cog):
 
     @app_commands.command(name=app_commands.locale_str("check-name"), description=app_commands.locale_str("check"))
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
-    @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
+    @app_commands.describe(color=app_commands.locale_str("f-color"))
     async def check(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
         try:
             await interaction.response.defer(ephemeral=True)
             if color.startswith("<@") and color.endswith(">"):
-                cleaned_color = color.replace("<", "").replace(">", "").replace("@", "")
+                cleaned_color = re.sub(r"[<>@]", "", color)
                 copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{cleaned_color}")
                 if copy_role is None:
                     raise ValueError

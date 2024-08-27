@@ -21,8 +21,12 @@
     "select-name": "select",
     "set-name": "set",
     "setuptoprole-name": "toprole",
+    "setupselect-name": "select",
     "vote-name": "vote",
-    "force-name": "force"
+    "force-name": "force",
+    "f-color": "Color code (e.g. #9932f0) or CSS color name (e.g royalblue)",
+    "f-user": "User name",
+    "f-trole": "Role name"
   },
   "pl": {
     "check": "Wyświetl informacje o kolorze (HEX, RGB, HSL, CMYK)",
@@ -46,7 +50,11 @@
     "select-name": "select",
     "set-name": "set",
     "setuptoprole-name": "toprole",
+    "setupselect-name": "select",
     "vote-name": "vote",
-    "force-name": "force"
+    "force-name": "force",
+    "f-color": "Kod koloru (np. #9932f0) lub nazwa koloru CSS (np. royalblue)",
+    "f-user": "Nazwa użytkownika",
+    "f-trole": "Nazwa roli"
   }
 }
