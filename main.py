@@ -31,14 +31,13 @@ async def on_ready():
                 'Member Count': guild.member_count,
                 'Preferred Locale': guild.preferred_locale
             })
-    channel = bot.get_channel(config_file['io_channel'])
-    if channel and guild.member_count is not None:
-        embed = discord.Embed(title=f"", description=f"Bot is ready.",
-                              color=0x4169E1, timestamp=datetime.now())
-        await channel.send(embed=embed)
-    else:
-        logging.warning(f"Log channel not found or member_count is None.")
     logging.info(15 * '=' + " Bot is ready. " + 15 * "=")
+
+
+@bot.event
+async def on_shard_disconnect(shard_id):
+    print(f'Shard {shard_id} disconnected. Attempting to reconnect...')
+    await bot.shards[shard_id].connect()
 
 
 async def main():
