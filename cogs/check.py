@@ -1,4 +1,3 @@
-import json
 import logging
 from datetime import datetime, timedelta
 
@@ -6,11 +5,10 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from color_format import ColorUtils
-from config import bot, hex_regex, rgb_regex, hsl_regex, cmyk_regex, load_yml, langs
+from utils.color_format import ColorUtils
+from config import bot, hex_regex, rgb_regex, hsl_regex, cmyk_regex, langs
+from utils.data_loader import load_yml, load_json
 
-config_file = load_yml('config.yml')
-token_file = load_yml('token.yml')
 
 class CheckCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -20,9 +18,9 @@ class CheckCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
         try:
-            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
             if color.startswith("<@") and color.endswith(">"):
                 cleaned_color = color.replace("<", "").replace(">", "").replace("@", "")
@@ -33,31 +31,12 @@ class CheckCog(commands.Cog):
                     color = str(copy_role.color)
             elif color == "random":
                 color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
-            color_match = color
-            with open("assets/css-color-names.json", "r", encoding="utf-8") as file:
-                data = json.load(file)
-            color_match = color_match.lower().replace(" ", "")
-            if color_match in map(lambda x: x.lower(), data.keys()):
-                color_match = data[color_match]
-                color_type = "hex"
-            elif hex_regex.match(color_match):
-                if len(color_match.strip("#")) == 3:
-                    color_match = ''.join([x * 2 for x in color_match.strip("#")])
-                else:
-                    color_match = color_match.strip("#")
-                color_type = "hex"
-            elif rgb_regex.match(color_match):
-                color_type = "rgb"
-            elif hsl_regex.match(color_match):
-                color_type = "hsl"
-            elif cmyk_regex.match(color_match):
-                color_type = "cmyk"
-            else:
-                raise ValueError
 
-            color_utils = ColorUtils(color_match)
-            output_color = color_utils.color_converter(color_type)
-            image = color_utils.generate_image_from_rgb_float(output_color['RGB'])
+            color_utils = ColorUtils(color)
+            output_color = color_utils.color_converter()
+            if output_color is None:
+                raise ValueError
+            image = color_utils.generate_image(output_color['RGB'])
 
             embed.title = lang['check_title'].format(output_color['Input'])
 

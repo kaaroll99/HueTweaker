@@ -1,12 +1,44 @@
 import asyncio
+import csv
 import logging
+from datetime import datetime
 
-import config
+import discord
+
 import tasks_defs
 from config import db, bot
+from utils.data_loader import load_yml
 
-config_file = config.load_yml('config.yml')
-token_file = config.load_yml('token.yml')
+token_file = load_yml('assets/token.yml')
+config_file = load_yml('assets/config.yml')
+
+
+@bot.event
+async def on_ready():
+    csv_file = 'guilds_info.csv'
+    fields = ['Guild Name', 'Guild ID', 'Owner Name', 'Member Count', 'Preferred Locale']
+
+    with open(csv_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+
+        for guild in bot.guilds:
+            owner_name = guild.owner.name if guild.owner else "-"
+            writer.writerow({
+                'Guild Name': guild.name,
+                'Guild ID': guild.id,
+                'Owner Name': owner_name,
+                'Member Count': guild.member_count,
+                'Preferred Locale': guild.preferred_locale
+            })
+    channel = bot.get_channel(config_file['io_channel'])
+    if channel and guild.member_count is not None:
+        embed = discord.Embed(title=f"", description=f"Bot is ready.",
+                              color=0x4169E1, timestamp=datetime.now())
+        await channel.send(embed=embed)
+    else:
+        logging.warning(f"Log channel not found or member_count is None.")
+    logging.info(15 * '=' + " Bot is ready. " + 15 * "=")
 
 
 async def main():

@@ -5,11 +5,8 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, load_yml, langs
-
-config_file = load_yml('config.yml')
-token_file = load_yml('token.yml')
-lang = load_yml('lang/en-US.yml')
+from config import bot, langs
+from utils.data_loader import load_yml
 
 
 class RemoveCog(commands.Cog):
@@ -20,7 +17,7 @@ class RemoveCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def remove(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)

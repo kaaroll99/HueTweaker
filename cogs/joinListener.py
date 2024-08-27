@@ -4,10 +4,11 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-from config import bot, db, load_yml
+from config import bot, db
+from utils.data_loader import load_yml
 from database import model
 
-config_file = load_yml('config.yml')
+config_file = load_yml('assets/config.yml')
 
 
 class JoinListenerCog(commands.Cog):
@@ -39,7 +40,7 @@ class JoinListenerCog(commands.Cog):
             else:
                 logging.warning(f"I/O channel not found or member_count is None.")
         except Exception as e:
-            logging.warning(f"I/O channel error - {e.__class__.__name__}: {e}")
+            logging.warning(f"Log channel error - {e.__class__.__name__}: {e}")
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
@@ -57,9 +58,9 @@ class JoinListenerCog(commands.Cog):
                                       color=0xF23F42, timestamp=datetime.now())
                 await channel.send(embed=embed)
             else:
-                logging.warning(f"I/O channel not found or member_count is None.")
+                logging.warning(f"Log channel not found or member_count is None.")
         except Exception as e:
-            logging.warning(f"I/O channel error - {e.__class__.__name__}: {e}")
+            logging.warning(f"Log channel error - {e.__class__.__name__}: {e}")
 
 
 async def setup(bot: commands.Bot) -> None:

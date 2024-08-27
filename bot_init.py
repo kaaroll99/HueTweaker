@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands, Locale
-from config import load_json
+from utils.data_loader import load_json
 import logging
 
 translations = load_json('lang/translations.json')
@@ -20,14 +20,13 @@ class MyBot(commands.AutoShardedBot):
 
     async def setup_hook(self):
         cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
+        logging.info("Loading extensions: " + ", ".join(cogs))
         for cog in cogs:
             await self.load_extension(f"cogs.{cog}")
 
         await self.tree.set_translator(MyTranslator(self))
         await self.tree.sync()
-
-    async def on_ready(self):
-        logging.info(15*'=' + " " + str(self.user) + ' is ready. ' + 15*"=")
+        logging.info("Loading of extensions completed")
 
 
 class MyTranslator(app_commands.Translator):

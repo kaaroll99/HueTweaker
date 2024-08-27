@@ -5,10 +5,8 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, load_yml, langs
-
-config_file = load_yml('config.yml')
-token_file = load_yml('token.yml')
+from config import bot, langs
+from utils.data_loader import load_yml
 
 
 class SelectCog(commands.Cog):
@@ -19,7 +17,7 @@ class SelectCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=config_file['EMBED_COLOR'])
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
@@ -102,11 +100,11 @@ class SelectCog(commands.Cog):
                 role = discord.utils.get(interaction.guild.roles, name=f"color-static-{number}")
                 if role:
                     await interaction.user.remove_roles(role)
-                embed: Embed = discord.Embed(title=f"", description=lang['select_remove'], color=config_file['EMBED_COLOR'])
+                embed: Embed = discord.Embed(title=f"", description=lang['select_remove'], color=4539717)
             if interaction.data['custom_id'] != "delete":
                 role = discord.utils.get(interaction.guild.roles, name=f"color-static-{interaction.data['custom_id']}")
                 embed: Embed = discord.Embed(title=f"", description=lang['select_set'].format(role.mention),
-                                             color=config_file['EMBED_COLOR'])
+                                             color=4539717)
                 if role:
                     await interaction.user.add_roles(role)
 
