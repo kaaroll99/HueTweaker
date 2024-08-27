@@ -1,0 +1,96 @@
+#set
+color_set: "<:ok:1269288913147658371> **La couleur a été définie sur __#{}__**"
+
+#revove
+color_remove: "<:ok:1269288913147658371> **La couleur a été supprimée**"
+
+#select
+select_set: "<:ok:1269288913147658371> **La couleur statique a été définie sur {}**"
+select_remove: "<:ok:1269288913147658371> **La couleur statique a été supprimée**"
+select_no_colors: "<:warn:1269288966754926623> **Il n'y a pas de couleurs statiques configurées sur ce serveur.**"
+available_colors: "Couleurs disponibles :"
+
+#vote
+vote_title: "Votez pour {}"
+vote_desc: "Toutes les 12 heures, vous pouvez soutenir le bot en votant sur les pages suivantes."
+vote_topgg: "<:star:1269288950174978100> [Cliquez ici pour voter sur top.gg](https://top.gg/bot/1209187999934578738/vote)"
+vote_dbl: "<:star:1269288950174978100> [Cliquez ici pour voter sur discordbotlist.com](https://discordbotlist.com/bots/huetweaker/upvote)"
+
+#check
+check_title: "Détails de la couleur : **{}**"
+check_css: "<:star:1269288950174978100> Les couleurs CSS les plus similaires :"
+
+#force set
+force_set_set: "<:ok:1269288913147658371> **La couleur a été définie pour {} sur __#{}__**"
+
+#force remove
+force_remove_remove: "<:ok:1269288913147658371> **La couleur a été supprimée pour {}**"
+force_remove_no_color: "<:warn:1269288966754926623> **L'utilisateur avec le nom donné n'avait pas de couleur définie**"
+
+#force purge
+purge_confirm: |
+  **Êtes-vous sûr de vouloir supprimer tous les rôles avec des couleurs d'utilisateur ?**
+  
+  Choisissez le type de rôles que vous voulez supprimer.
+  <:warn:1269288966754926623> **Les changements seront irréversibles.**
+bttn_ind: "RÔLES INDIVIDUELS"
+bttn_stat: "RÔLES STATIQUES"
+bttn_both: "RÔLES INDIVIDUELS ET STATIQUES"
+purge_ok: "**Tous les rôles avec des couleurs ont été supprimés avec succès**"
+
+#setup select
+
+#setup toprole
+toprole_reset: |
+  <:ok:1269288913147658371> **Les paramètres du rôle supérieur ont été réinitialisés**
+  
+  <:bubble:1269288932340662333> Veuillez vous rappeler que le rôle sélectionné doit être positionné en dessous du rôle le plus élevé du bot.
+  Sinon, cela causera des erreurs lors de la définition de la couleur du nom d'utilisateur.
+toprole_set: |
+  <:ok:1269288913147658371> **Le rôle supérieur a été défini pour __{}__**
+  
+  <:bubble:1269288932340662333> N'oubliez pas que le rôle sélectionné doit être sous le rôle le plus élevé que le bot possède.
+  Sinon, cela causera des erreurs lors de la définition de la couleur du nom d'utilisateur.
+
+#help
+help_choose: "Choisissez une commande dans la liste..."
+help_desc: |
+  <:star:1269288950174978100> En ligne sur `{}` serveurs.
+  <:star:1269288950174978100> Utilisé par `{}` personnes.
+  <:star:1269288950174978100> Créé par `@kaaroll99`
+  
+  **<:bubble:1269288932340662333> Sélectionnez l'une des commandes disponibles dans la liste pour en savoir plus.**
+com_syntax: "<:star:1269288950174978100> Syntaxe de la commande :"
+com_example: "<:star:1269288950174978100> Exemple de commande :"
+com_docs: "[Voir les détails de la commande dans la documentation](https://huetweaker.gitbook.io/docs/commands/{})"
+
+#exceptions
+exception: "<:warn:1269288966754926623> **Le bot a rencontré une erreur inattendue.**"
+color_format: |
+  <:warn:1269288966754926623> **Format de couleur incorrect ou l'utilisateur sélectionné n'a pas de couleur définie**
+  
+  Veuillez utiliser le format hexadécimal, par exemple __F5DF4D__
+  ou le nom d'une [couleur CSS](https://huetweaker.gitbook.io/docs/main/colors), par exemple __royalblue__
+err_50013: |
+  <:warn:1269288966754926623> **Le bot n'a pas les permissions nécessaires pour effectuer cette opération.**
+  
+  L'erreur peut avoir été causée par une mauvaise configuration du rôle supérieur du bot (`/setup toprole`).
+  Informez l'administrateur du serveur de l'apparition de cette erreur.
+  
+  <:bubble:1269288932340662333> Utilisez la commande `/help` pour apprendre à configurer correctement le rôle supérieur.
+err_http: |
+  <:warn:1269288966754926623> Le bot n'a pas pu effectuer cette opération en raison d'une erreur HTTP de Discord.**
+  
+  {} - {}
+check_color_format: |
+  <:warn:1269288966754926623> **Format de couleur incorrect**
+  
+  **Formats corrects :**
+  * 9932f0
+  * rgb(153, 50, 240)
+  * hsl(272.53, 86.36%, 56.86%)
+  * cmyk(36.25%, 79.17%, 0.00%, 5.88%)
+  * [Couleur CSS](https://huetweaker.gitbook.io/docs/main/colors)
+cool_down: "<:warn:1269288966754926623> Veuillez patienter. Réessayez <t:{}:R>"
+no_permissions: "<:warn:1269288966754926623> Vous n'avez pas la permission d'exécuter cette commande."
+footer_message: "Soutenez le bot en votant avec la commande /vote"
