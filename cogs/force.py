@@ -23,7 +23,7 @@ class ForceCog(commands.Cog):
     @group.command(name=app_commands.locale_str("forceset-name"), description=app_commands.locale_str("forceset"))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
-    @app_commands.describe(user_name="User name", color="Color to set")
+    @app_commands.describe(user_name=app_commands.locale_str("f-user"), color=app_commands.locale_str("f-color"))
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
@@ -31,7 +31,7 @@ class ForceCog(commands.Cog):
             lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
             if color.startswith("<@") and color.endswith(">"):
-                cleaned_color = color.replace("<", "").replace(">", "").replace("@", "")
+                cleaned_color = re.sub(r"[<>@]", "", color)
                 copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{cleaned_color}")
                 if copy_role is None:
                     raise ValueError
@@ -46,14 +46,17 @@ class ForceCog(commands.Cog):
 
             with db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
-            role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
+
+            role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}", colour=discord.Colour(int(color_match, 16)))
             if role is None:
                 role = await interaction.guild.create_role(name=f"color-{user_name.id}")
+
             if query:
                 top_role = discord.utils.get(interaction.guild.roles, id=query[0].get("role", None))
-                if top_role and top_role.position < 1:
-                    await role.edit(position=top_role.position - 1)
-            await role.edit(colour=discord.Colour(int(color_match, 16)))
+                if top_role:
+                    new_position = max(1, top_role.position - 1)
+                    await role.edit(position=new_position, colour=discord.Colour(int(color_match, 16)))
+
             await user_name.add_roles(role)
             embed.description = lang['force_set_set'].format(user_name.name, color)
             embed.color = discord.Colour(int(color_match, 16))
@@ -82,7 +85,7 @@ class ForceCog(commands.Cog):
                 f"{interaction.user.name}[{interaction.user.id}] issued bot command: /force set {user_name.name} {color}")
 
     @group.command(name=app_commands.locale_str("forceremove-name"), description=app_commands.locale_str("forceremove"))
-    @app_commands.describe(user_name="User name")
+    @app_commands.describe(user_name=app_commands.locale_str("f-user"))
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()

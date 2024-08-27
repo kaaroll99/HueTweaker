@@ -88,7 +88,7 @@ class SetupCog(commands.Cog):
 
     @group.command(name=app_commands.locale_str("setuptoprole-name"),
                    description=app_commands.locale_str("setuptoprole"))
-    @app_commands.describe(role_name="Role name")
+    @app_commands.describe(role_name=app_commands.locale_str("f-trole"))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:
@@ -119,10 +119,8 @@ class SetupCog(commands.Cog):
                 for role in interaction.guild.roles:
                     if pattern.match(role.name):
                         role = discord.utils.get(interaction.guild.roles, id=role.id)
-                        if top_role.position <= 1:
-                            await role.edit(position=top_role.position)
-                        else:
-                            await role.edit(position=top_role.position - 1)
+                        new_position = max(1, top_role.position - 1)
+                        await role.edit(position=new_position)
 
                 for i, static_role in enumerate(interaction.guild.roles, start=1):
                     if i > 5:
