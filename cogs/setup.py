@@ -84,7 +84,7 @@ class SetupCog(commands.Cog):
             embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] issued bot command: /setup select")
+            logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /setup select")
 
     @group.command(name=app_commands.locale_str("setuptoprole-name"),
                    description=app_commands.locale_str("setuptoprole"))
@@ -147,7 +147,7 @@ class SetupCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] issued bot command: /setup toprole")
+                f"{interaction.user.name}[{interaction.locale}] issued bot command: /setup toprole")
 
     @toprole.error
     @select.error

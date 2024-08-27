@@ -79,7 +79,7 @@ class SetCog(commands.Cog):
             embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] issued bot command: /set {color}")
+            logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /set {color}")
 
     @set.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

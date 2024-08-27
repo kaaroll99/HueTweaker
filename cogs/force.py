@@ -82,7 +82,7 @@ class ForceCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] issued bot command: /force set {user_name.name} {color}")
+                f"{interaction.user.name}[{interaction.locale}] issued bot command: /force set {user_name.name} {color}")
 
     @group.command(name=app_commands.locale_str("forceremove-name"), description=app_commands.locale_str("forceremove"))
     @app_commands.describe(user_name=app_commands.locale_str("f-user"))
@@ -112,7 +112,7 @@ class ForceCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] issued bot command: /force remove {user_name.name}")
+                f"{interaction.user.name}[{interaction.locale}] issued bot command: /force remove {user_name.name}")
 
     @group.command(name=app_commands.locale_str("forcepurge-name"), description=app_commands.locale_str("forcepurge"))
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
@@ -151,7 +151,7 @@ class ForceCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] issued bot command: /force purge")
+                f"{interaction.user.name}[{interaction.locale}] issued bot command: /force purge")
 
     @staticmethod
     async def __confirm_callback(interaction: discord.Interaction):

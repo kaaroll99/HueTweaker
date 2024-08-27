@@ -52,7 +52,7 @@ def init_bot():
     return bot
 
 
-langs = ["en-US", "pl"]
+langs = ["en-US", "pl", "fr"]
 intents = discord.Intents.none()
 intents.guilds = True
 intents.members = True

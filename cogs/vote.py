@@ -27,7 +27,7 @@ class VoteCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = lang['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logging.critical(f"{interaction.user.name}[{interaction.locale}] raise critical exception - {repr(e)}")
         finally:
             embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")

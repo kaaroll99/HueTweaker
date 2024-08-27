@@ -30,7 +30,7 @@
   },
   "pl": {
     "check": "Wyświetl informacje o kolorze (HEX, RGB, HSL, CMYK)",
-    "forceset": "Usuń kolor wygranemu użytkownikowi",
+    "forceset": "Ustaw kolor wygranemu użytkownikowi",
     "forceremove": "Usuń kolor wygranemu użytkownikowi",
     "forcepurge": "Usuń wszystkie role z kolorami (nieodwracalne)",
     "help": "Wyświetl informacje o bocie oraz lista dostępnych poleceń",
@@ -56,5 +56,34 @@
     "f-color": "Kod koloru (np. #9932f0) lub nazwa koloru CSS (np. royalblue)",
     "f-user": "Nazwa użytkownika",
     "f-trole": "Nazwa roli"
+  },
+  "fr": {
+    "check": "Afficher les informations sur la couleur (HEX, RGB, HSL, CMYK)",
+    "forceset": "Définir la couleur d'un utilisateur spécifique",
+    "forceremove": "Supprimer la couleur d'un utilisateur spécifique",
+    "forcepurge": "Supprimer tous les rôles de couleur (irréversible)",
+    "help": "Afficher les informations sur le bot et la liste des commandes disponibles",
+    "remove": "Supprimer la couleur",
+    "select": "Choisir l'une des couleurs statiques disponibles sur le serveur",
+    "set": "Définir la couleur en utilisant le code HEX ou le nom de couleur CSS",
+    "setuptoprole": "Configurer le rôle supérieur pour les rôles de couleur",
+    "setupselect": "Configurer les couleurs statiques sur le serveur",
+    "vote": "Afficher les liens pour voter",
+    "force": "Modifier la couleur d'un utilisateur spécifique",
+    "check-name": "check",
+    "forceset-name": "set",
+    "forceremove-name": "remove",
+    "forcepurge-name": "purge",
+    "help-name": "help",
+    "remove-name": "remove",
+    "select-name": "select",
+    "set-name": "set",
+    "setuptoprole-name": "toprole",
+    "setupselect-name": "select",
+    "vote-name": "vote",
+    "force-name": "force",
+    "f-color": "Code couleur (ex. #9932f0) ou nom de couleur CSS (ex. royalblue)",
+    "f-user": "Nom d'utilisateur",
+    "f-trole": "Nom du rôle"
   }
 }

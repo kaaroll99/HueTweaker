@@ -81,7 +81,7 @@ class CheckCog(commands.Cog):
             await interaction.followup.send(embed=embed)
         finally:
             logging.info(
-                f"{interaction.user.name}[{interaction.user.id}] issued bot command: /check {color}")
+                f"{interaction.user.name}[{interaction.locale}] issued bot command: /check {color}")
 
     @check.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
