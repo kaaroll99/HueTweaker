@@ -90,12 +90,12 @@ class ColorUtils:
     def color_parser(self):
         data = load_json("assets/css-color-names.json")
         if re.sub(r"[^A-Za-z]", "", self.color.lower()) in map(lambda x: x.lower(), data.keys()):
-            return data[color_match]
-        elif hex_regex.match(color_match):
-            if len(color_match.strip("#")) == 3:
+            return data[self.color]
+        elif hex_regex.match(self.color):
+            self.color = self.color.lstrip("#")
+            if len(self.color) == 3:
                 return ''.join([x * 2 for x in color_match.strip("#")])
-            else:
-                return color_match.strip("#")
+            return self.color.strip("#")
         else:
             return -1
 
