@@ -19,16 +19,14 @@ class ColorUtils:
 
     def __determine_color_format(self):
         data = load_json("assets/css-color-names.json")
-        self.color = re.sub(r"[^A-Za-z]", "", self.color.lower())
-        if self.color in map(lambda x: x.lower(), data.keys()):
+        if re.sub(r"[^A-Za-z]", "", self.color.lower()) in map(lambda x: x.lower(), data.keys()):
             self.color = data[self.color]
             self.color_format = "hex"
         elif hex_regex.match(self.color):
-            if len(self.color.strip("#")) == 3:
-                self.color = ''.join([x * 2 for x in self.color.strip("#")])
-            else:
-                self.color = self.color.strip("#")
-                self.color_format = "hex"
+            self.color = self.color.lstrip("#")
+            if len(self.color) == 3:
+                self.color = ''.join([x * 2 for x in self.color])
+            self.color_format = "hex"
         elif rgb_regex.match(self.color):
             self.color_format = "rgb"
         elif hsl_regex.match(self.color):
