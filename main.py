@@ -34,12 +34,6 @@ async def on_ready():
     logging.info(15 * '=' + " Bot is ready. " + 15 * "=")
 
 
-@bot.event
-async def on_shard_disconnect(shard_id):
-    print(f'Shard {shard_id} disconnected. Attempting to reconnect...')
-    await bot.shards[shard_id].connect()
-
-
 async def main():
     with db as db_session:
         db_session.database_init()
