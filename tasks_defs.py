@@ -26,9 +26,9 @@ top_gg_times = [
 @tasks.loop(time=top_gg_times)
 async def update_stats_topgg():
     topgg_token = token_file['TOP_GG_TOKEN']
-    bot.topggpy = topgg.DBLClient(topgg_token)
+    bot.topggpy = topgg.DBLClient(bot, topgg_token)
     try:
-        await bot.topggpy.post_guild_count(int(len(bot.guilds)))
+        await bot.topggpy.post_guild_count()
         # await bot.topggpy.post_shard_count
         logging.info(f"Posted server info to topgg ({bot.topggpy.guild_count})")
     except Exception as e:
