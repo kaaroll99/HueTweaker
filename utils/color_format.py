@@ -19,8 +19,9 @@ class ColorUtils:
 
     def __determine_color_format(self):
         data = load_json("assets/css-color-names.json")
-        if re.sub(r"[^A-Za-z]", "", self.color.lower()) in map(lambda x: x.lower(), data.keys()):
-            self.color = data[self.color]
+        css_name = re.sub(r"[^A-Za-z]", "", self.color.lower())
+        if css_name in map(lambda x: x.lower(), data.keys()):
+            self.color = data[css_name]
             self.color_format = "hex"
         elif hex_regex.match(self.color):
             self.color = self.color.lstrip("#")
