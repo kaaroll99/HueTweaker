@@ -4,7 +4,8 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-from config import bot, db
+from config import db
+from bot_init import bot
 from utils.data_loader import load_yml
 from database import model
 

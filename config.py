@@ -1,64 +1,10 @@
-import logging
-import os
 import re
-from logging.handlers import TimedRotatingFileHandler
 
 import discord
-
 from database import database
+from utils.console_logger import setup_logger
 from utils.data_loader import load_yml
 
-
-def setup_logger():
-    os.makedirs('logs', exist_ok=True)
-
-    logger_setup = logging.getLogger()
-    logger_setup.setLevel(logging.INFO)
-
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    logger_setup.addHandler(console_handler)
-
-    latest_handler = logging.FileHandler('logs/latest.log', mode='w', encoding='utf-8')
-    latest_handler.setFormatter(formatter)
-    logger_setup.addHandler(latest_handler)
-
-    daily_handler = TimedRotatingFileHandler(
-        'logs/daily.log',
-        when="midnight",
-        backupCount=7,
-        encoding='utf-8'
-    )
-    daily_handler.setFormatter(formatter)
-    daily_handler.namer = lambda name: name.replace("daily.log.", "") + ".log"
-    logger_setup.addHandler(daily_handler)
-
-    return logger_setup
-
-
-def init_bot():
-    from bot_init import MyBot
-
-    bot_setup = MyBot(
-        command_prefix="!$%ht",
-        intents=intents,
-        activity=activity,
-        status=discord.Status.online,
-        shard_count=2
-    )
-    bot_setup.remove_command('help')
-    return bot_setup
-
-
-langs = ["en-US", "pl", "fr", "pt-BR"]
-intents = discord.Intents.none()
-intents.guilds = True
-intents.members = True
-activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
-bot = init_bot()
-bot.remove_command('help')
 
 token_file = load_yml('assets/token.yml')
 if token_file.get('system', None) == 'dev':

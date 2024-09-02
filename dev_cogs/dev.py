@@ -5,7 +5,7 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot
+from bot_init import bot
 from utils.data_loader import load_yml
 
 lang = load_yml('lang/en-US.yml')
