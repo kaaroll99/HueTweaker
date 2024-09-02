@@ -16,6 +16,7 @@ config_file = load_yml('assets/config.yml')
 
 @bot.event
 async def on_ready():
+    bot.remove_command('help')
     csv_file = 'logs/guilds_info.csv'
     fields = ['Guild Name', 'Guild ID', 'Owner Name', 'Member Count', 'Preferred Locale']
 
@@ -35,17 +36,13 @@ async def on_ready():
     logging.info(20 * '=' + " Bot is ready. " + 20 * "=")
 
 @bot.event
-async def on_disconnect():
-    logging.info('Bot disconnected, attempting to reconnect...')
-
-@bot.event
 async def on_socket_response(msg):
     if msg.get('t') == 'RESUMED':
         logging.info('Shard connection resumed.')
 
 @bot.event
 async def on_shard_disconnect(shard_id):
-    logging.info(f'Shard ID {shard_id} has disconnected from Gateway.')
+    logging.info(f'Shard ID {shard_id} has disconnected from Gateway, attempting to reconnect...')
 
 
 async def main():
@@ -59,6 +56,7 @@ async def main():
         await bot.start(token_file['TOKEN'])
 
 try:
+    logging.info(20 * '=' + " Starting the bot. " + 20 * "=")
     asyncio.run(main())
 except KeyboardInterrupt:
     logging.warning(f"Bot has been terminated from console line")

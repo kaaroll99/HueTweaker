@@ -25,10 +25,13 @@ class MyBot(commands.AutoShardedBot):
         logging.info("Loading extensions: " + ", ".join(cogs))
         for cog in cogs:
             await self.load_extension(f"cogs.{cog}")
-
-        await self.tree.set_translator(MyTranslator(self))
-        await self.tree.sync()
         logging.info("Loading of extensions completed")
+        logging.info("Loading translator ...")
+        await self.tree.set_translator(MyTranslator(self))
+        logging.info("Loading translator completed")
+        logging.info("Command tree synchronization ...")
+        await self.tree.sync()
+        logging.info("Command tree synchronization completed")
 
 
 class MyTranslator(app_commands.Translator):
@@ -52,6 +55,3 @@ bot = MyBot(
         status=discord.Status.online,
         shard_count=2
     )
-
-bot.remove_command('help')
-langs = ["en-US", "pl", "fr", "pt-BR"]

@@ -7,8 +7,8 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from utils.color_format import ColorUtils
-from config import db
-from bot_init import langs, bot
+from config import db, langs
+from bot_init import bot
 from utils.data_loader import load_yml
 from database import model
 
@@ -40,8 +40,7 @@ class ForceCog(commands.Cog):
                     color = str(copy_role.color)
             elif color == "random":
                 color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
-            color_utils = ColorUtils(color)
-            color_match = color_utils.color_parser()
+            color_match = ColorUtils.color_parser(color)
             if color_match == -1:
                 raise ValueError
 

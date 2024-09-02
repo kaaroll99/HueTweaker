@@ -5,7 +5,8 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import langs, bot
+from bot_init import bot
+from config import langs
 from utils.data_loader import load_yml
 
 
