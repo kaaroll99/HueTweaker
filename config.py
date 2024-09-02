@@ -12,18 +12,18 @@ from utils.data_loader import load_yml
 def setup_logger():
     os.makedirs('logs', exist_ok=True)
 
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger_setup = logging.getLogger()
+    logger_setup.setLevel(logging.INFO)
 
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+    logger_setup.addHandler(console_handler)
 
     latest_handler = logging.FileHandler('logs/latest.log', mode='w', encoding='utf-8')
     latest_handler.setFormatter(formatter)
-    logger.addHandler(latest_handler)
+    logger_setup.addHandler(latest_handler)
 
     daily_handler = TimedRotatingFileHandler(
         'logs/daily.log',
@@ -33,23 +33,23 @@ def setup_logger():
     )
     daily_handler.setFormatter(formatter)
     daily_handler.namer = lambda name: name.replace("daily.log.", "") + ".log"
-    logger.addHandler(daily_handler)
+    logger_setup.addHandler(daily_handler)
 
-    return logger
+    return logger_setup
 
 
 def init_bot():
     from bot_init import MyBot
 
-    bot = MyBot(
+    bot_setup = MyBot(
         command_prefix="!$%ht",
         intents=intents,
         activity=activity,
         status=discord.Status.online,
         shard_count=2
     )
-    bot.remove_command('help')
-    return bot
+    bot_setup.remove_command('help')
+    return bot_setup
 
 
 langs = ["en-US", "pl", "fr", "pt-BR"]
