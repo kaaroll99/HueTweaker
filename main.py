@@ -33,6 +33,23 @@ async def on_ready():
             })
     logging.info(15 * '=' + " Bot is ready. " + 15 * "=")
 
+@bot.event
+async def on_disconnect():
+    logging.info('Bot disconnected, attempting to reconnect...')
+
+@bot.event
+async def on_socket_response(msg):
+    if msg.get('t') == 'RESUMED':
+        logging.info('Shard connection resumed.')
+
+@bot.event
+async def on_shard_disconnect(shard_id):
+    logging.info(f'Shard ID {shard_id} has disconnected from Gateway.')
+
+# @bot.event
+# async def on_shard_connect(shard_id):
+#     print(f'Shard ID {shard_id} has connected.')
+
 
 async def main():
     with db as db_session:
