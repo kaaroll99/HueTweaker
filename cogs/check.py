@@ -6,9 +6,11 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, langs
+from bot_init import langs, bot
 from utils.color_format import ColorUtils
 from utils.data_loader import load_yml
+
+from io import BytesIO
 
 
 class CheckCog(commands.Cog):
@@ -60,9 +62,12 @@ class CheckCog(commands.Cog):
                             value=f"{', '.join(str(x) for x in output_color['Similars'][:5]) if output_color['Similars'] else '-'}",
                             inline=False)
 
-            image.save("output/color_fill.png")
+            image_bytes = BytesIO()
+            image.save(image_bytes, format='PNG')
+            image_bytes.seek(0)
+            file = discord.File(fp=image_bytes, filename="color_fill.png")
+
             embed.color = int(output_color['Hex'].strip("#"), 16)
-            file = discord.File("output/color_fill.png")
             embed.set_image(url="attachment://" + file.filename)
             embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed, file=file)

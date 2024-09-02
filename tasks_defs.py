@@ -1,17 +1,14 @@
-import csv
 import datetime
-from utils.data_loader import load_json
 import logging
 
-import discord
 import requests
 import topgg
 from discord.ext import tasks
-
-import config
-import utils.data_loader
-from config import bot
 from msgspec import json
+
+import utils.data_loader
+from bot_init import bot
+from utils.data_loader import load_json
 
 config_file = utils.data_loader.load_yml('assets/config.yml')
 token_file = utils.data_loader.load_yml('assets/token.yml')

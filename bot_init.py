@@ -1,8 +1,10 @@
-import discord
-from discord.ext import commands
-from discord import app_commands, Locale
-from utils.data_loader import load_json
 import logging
+
+import discord
+from discord import app_commands, Locale
+from discord.ext import commands
+
+from utils.data_loader import load_json
 
 translations = load_json('lang/translations.json')
 
@@ -37,3 +39,19 @@ class MyTranslator(app_commands.Translator):
         if locale.value in translations:
             return translations[locale.value].get(string.message, string.message)
         return translations[self.bot.default_locale.value].get(string.message, string.message)
+
+intents = discord.Intents.none()
+intents.guilds = True
+intents.members = True
+activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
+
+bot = MyBot(
+        command_prefix="!$%ht",
+        intents=intents,
+        activity=activity,
+        status=discord.Status.online,
+        shard_count=2
+    )
+
+bot.remove_command('help')
+langs = ["en-US", "pl", "fr", "pt-BR"]

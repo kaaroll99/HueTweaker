@@ -7,7 +7,8 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from config import bot, db, langs
+from config import db
+from bot_init import langs, bot
 from database import model
 from utils.color_format import ColorUtils
 from utils.data_loader import load_yml

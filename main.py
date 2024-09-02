@@ -6,7 +6,8 @@ from datetime import datetime
 import discord
 
 import tasks_defs
-from config import db, bot
+from config import db
+from bot_init import bot
 from utils.data_loader import load_yml
 
 token_file = load_yml('assets/token.yml')
@@ -15,7 +16,7 @@ config_file = load_yml('assets/config.yml')
 
 @bot.event
 async def on_ready():
-    csv_file = 'guilds_info.csv'
+    csv_file = 'logs/guilds_info.csv'
     fields = ['Guild Name', 'Guild ID', 'Owner Name', 'Member Count', 'Preferred Locale']
 
     with open(csv_file, 'w', newline='', encoding='utf-8') as f:
@@ -31,7 +32,7 @@ async def on_ready():
                 'Member Count': guild.member_count,
                 'Preferred Locale': guild.preferred_locale
             })
-    logging.info(15 * '=' + " Bot is ready. " + 15 * "=")
+    logging.info(20 * '=' + " Bot is ready. " + 20 * "=")
 
 @bot.event
 async def on_disconnect():
@@ -46,10 +47,6 @@ async def on_socket_response(msg):
 async def on_shard_disconnect(shard_id):
     logging.info(f'Shard ID {shard_id} has disconnected from Gateway.')
 
-# @bot.event
-# async def on_shard_connect(shard_id):
-#     print(f'Shard ID {shard_id} has connected.')
-
 
 async def main():
     with db as db_session:
@@ -58,7 +55,7 @@ async def main():
         tasks_defs.update_stats_topgg.start()
         tasks_defs.update_stats_taks.start()
 
-        logging.info('Bot is running.')
+        logging.info(20 * '=' + " Bot is running. " + 20 * "=")
         await bot.start(token_file['TOKEN'])
 
 try:
