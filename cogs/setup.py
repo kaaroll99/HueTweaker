@@ -7,8 +7,8 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from utils.color_format import ColorUtils
-from config import db
-from bot_init import langs, bot
+from config import db, langs
+from bot_init import bot
 from utils.data_loader import load_yml, load_json
 from database import model
 
@@ -43,8 +43,7 @@ class SetupCog(commands.Cog):
                 if i > 5:
                     break
                 if color:
-                    color_utils = ColorUtils(color)
-                    color_match = color_utils.color_parser()
+                    color_match = ColorUtils.color_parser(color)
                     if color_match == -1:
                         raise ValueError
 
