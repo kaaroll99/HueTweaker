@@ -38,9 +38,6 @@ class SetCog(commands.Cog):
                 color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
             color_match = ColorUtils.color_parser(color)
 
-            if color_match == -1:
-                raise ValueError
-
             with db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
 

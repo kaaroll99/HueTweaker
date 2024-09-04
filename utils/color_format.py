@@ -53,18 +53,12 @@ class ColorUtils:
                 rgb_color = sRGBColor.new_from_rgb_hex(self.color)
             elif self.color_format == "rgb":
                 rgb_values = self.__parse_rgb()
-                if rgb_values is None:
-                    raise ValueError("Invalid RGB format")
                 rgb_color = sRGBColor(*np.array(rgb_values) / 255.0)
             elif self.color_format == "hsl":
                 hsl_values = self.__parse_hsl()
-                if hsl_values is None:
-                    raise ValueError("Invalid HSL format")
                 rgb_color = convert_color(HSLColor(hsl_values[0], hsl_values[1] / 100.0, hsl_values[2] / 100.0), sRGBColor)
             elif self.color_format == "cmyk":
                 cmyk_values = self.__parse_cmyk()
-                if cmyk_values is None:
-                    raise ValueError("Invalid CMYK format")
                 rgb_color = convert_color(CMYKColor(*cmyk_values), sRGBColor)
 
             hex_color = rgb_color.get_rgb_hex()
@@ -92,19 +86,19 @@ class ColorUtils:
         match = rgb_pattern.match(self.color)
         if match:
             return np.array([int(match.group(1)), int(match.group(2)), int(match.group(3))])
-        return None
+        raise ValueError
 
     def __parse_hsl(self):
         match = hsl_pattern.match(self.color)
         if match:
             return np.array([float(match.group(1)), float(match.group(3)), float(match.group(5))])
-        return None
+        raise ValueError
 
     def __parse_cmyk(self):
         match = cmyk_pattern.match(self.color)
         if match:
             return np.array([float(match.group(i)) / 100.0 for i in (1, 3, 5, 7)])
-        return None
+        raise ValueError
 
     @staticmethod
     def generate_image(color):
@@ -125,7 +119,7 @@ class ColorUtils:
                 return ''.join([x * 2 for x in color_match.strip("#")])
             return color.strip("#")
         else:
-            return -1
+            raise ValueError
 
     @staticmethod
     def __find_similar_colors(hsl_color, threshold=20):
