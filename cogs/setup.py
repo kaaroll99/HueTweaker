@@ -44,8 +44,6 @@ class SetupCog(commands.Cog):
                     break
                 if color:
                     color_match = ColorUtils.color_parser(color)
-                    if color_match == -1:
-                        raise ValueError
 
                     role = discord.utils.get(interaction.guild.roles, name=f"color-static-{i}")
                     if role is None:
