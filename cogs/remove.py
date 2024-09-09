@@ -6,8 +6,8 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from bot_init import bot
-from config import langs
 from utils.data_loader import load_yml
+from utils.lang_loader import load_lang
 
 
 class RemoveCog(commands.Cog):
@@ -19,8 +19,8 @@ class RemoveCog(commands.Cog):
     @app_commands.guild_only()
     async def remove(self, interaction: discord.Interaction) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        lang = load_lang(str(interaction.locale))
         try:
-            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
             if role is not None:
@@ -41,8 +41,7 @@ class RemoveCog(commands.Cog):
 
     @remove.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
-            'lang/en-US.yml')
+        lang = load_lang(str(interaction.locale))
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = lang["cool_down"].format(int(retry_time.timestamp()))

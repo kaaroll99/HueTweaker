@@ -6,11 +6,13 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from utils.color_format import ColorUtils
-from config import db, langs
 from bot_init import bot
-from utils.data_loader import load_yml
+from config import db
 from database import model
+from utils.color_format import ColorUtils
+from utils.data_loader import load_yml
+from utils.lang_loader import load_lang
+from utils.color_imput_type import color_type
 
 config_file = load_yml('assets/config.yml')
 
@@ -28,18 +30,10 @@ class ForceCog(commands.Cog):
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        lang = load_lang(str(interaction.locale))
         try:
-            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
-            if color.startswith("<@") and color.endswith(">"):
-                cleaned_color = re.sub(r"[<>@]", "", color)
-                copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{cleaned_color}")
-                if copy_role is None:
-                    raise ValueError
-                else:
-                    color = str(copy_role.color)
-            elif color == "random":
-                color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
+            color = color_type(interaction, color)
             color_match = ColorUtils.color_parser(color)
 
             with db as db_session:
@@ -89,8 +83,8 @@ class ForceCog(commands.Cog):
     @app_commands.guild_only()
     async def forceremove(self, interaction: discord.Interaction, user_name: discord.Member) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        lang = load_lang(str(interaction.locale))
         try:
-            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
             role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
             if role is not None:
@@ -120,7 +114,7 @@ class ForceCog(commands.Cog):
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         view = discord.ui.View()
         try:
-            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
+            lang = load_lang(str(interaction.locale))
             await interaction.response.defer(ephemeral=True)
 
             embed.description = lang['purge_confirm']
@@ -153,9 +147,9 @@ class ForceCog(commands.Cog):
 
     @staticmethod
     async def __confirm_callback(interaction: discord.Interaction):
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         view = discord.ui.View()
-        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
-            'lang/en-US.yml')
+        lang = load_lang(str(interaction.locale))
 
         async def del_static_roles():
             for i, static_role in enumerate(interaction.guild.roles, start=1):
@@ -181,7 +175,6 @@ class ForceCog(commands.Cog):
                 await del_individual_roles()
                 await del_static_roles()
 
-            embed: Embed = discord.Embed(title="", description=f"", color=4539717)
             embed.description = lang['purge_ok']
 
         except Exception as e:
@@ -198,8 +191,7 @@ class ForceCog(commands.Cog):
     @forceremove.error
     @purge.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
-            'lang/en-US.yml')
+        lang = load_lang(str(interaction.locale))
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = lang["cool_down"].format(int(retry_time.timestamp()))

@@ -6,11 +6,12 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from utils.color_format import ColorUtils
-from config import db, langs
 from bot_init import bot
-from utils.data_loader import load_yml, load_json
+from config import db
 from database import model
+from utils.color_format import ColorUtils
+from utils.data_loader import load_yml, load_json
+from utils.lang_loader import load_lang
 
 
 class SetupCog(commands.Cog):
@@ -26,8 +27,8 @@ class SetupCog(commands.Cog):
     async def select(self, interaction: discord.Interaction, color_1: str, color_2: str,
                      color_3: str = None, color_4: str = None, color_5: str = None) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        lang = load_lang(str(interaction.locale))
         try:
-            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
 
             local_vars = locals()
@@ -91,8 +92,8 @@ class SetupCog(commands.Cog):
     @app_commands.guild_only()
     async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        lang = load_lang(str(interaction.locale))
         try:
-            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
 
             pattern = re.compile(f"color-\\d{{18,19}}")
@@ -150,8 +151,7 @@ class SetupCog(commands.Cog):
     @toprole.error
     @select.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
-            'lang/en-US.yml')
+        lang = load_lang(str(interaction.locale))
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = lang["cool_down"].format(int(retry_time.timestamp()))
