@@ -6,8 +6,8 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from bot_init import bot
-from config import langs
 from utils.data_loader import load_yml
+from utils.lang_loader import load_lang
 
 
 class SelectCog(commands.Cog):
@@ -19,10 +19,10 @@ class SelectCog(commands.Cog):
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        lang = load_lang(str(interaction.locale))
+        view = discord.ui.View()
         try:
-            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             await interaction.response.defer(ephemeral=True)
-            view = discord.ui.View()
 
             role_count = 0
             embed.add_field(name=lang['available_colors'], value=f"", inline=False)
@@ -94,8 +94,8 @@ class SelectCog(commands.Cog):
     @staticmethod
     async def __select_callback(interaction: discord.Interaction):
         edited_view = discord.ui.View()
-        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
-            'lang/en-US.yml')
+        embed: Embed = discord.Embed(title=f"", description="", color=4539717)
+        lang = load_lang(str(interaction.locale))
         try:
             for number in range(1, 10):
                 role = discord.utils.get(interaction.guild.roles, name=f"color-static-{number}")
@@ -121,8 +121,7 @@ class SelectCog(commands.Cog):
 
     @select.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
-            'lang/en-US.yml')
+        lang = load_lang(str(interaction.locale))
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = lang["cool_down"].format(int(retry_time.timestamp()))

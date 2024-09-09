@@ -6,8 +6,7 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from bot_init import bot
-from config import langs
-from utils.data_loader import load_yml
+from utils.lang_loader import load_lang
 
 
 class VoteCog(commands.Cog):
@@ -16,8 +15,9 @@ class VoteCog(commands.Cog):
 
     @app_commands.command(name=app_commands.locale_str("vote-name"), description=app_commands.locale_str("vote"))
     async def vote(self, interaction: discord.Interaction) -> None:
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        lang = load_lang(str(interaction.locale))
         try:
-            lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
             embed: Embed = discord.Embed(title=lang['vote_title'].format(bot.user.name), description=f"",
                                          color=4539717, timestamp=datetime.datetime.now())
             await interaction.response.defer(ephemeral=True)

@@ -1,18 +1,17 @@
 import logging
 import re
 from datetime import datetime, timedelta
+from io import BytesIO
 
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
 from bot_init import bot
-from config import langs
 from utils.color_format import ColorUtils
 from utils.data_loader import load_yml
-
-from io import BytesIO
-
+from utils.lang_loader import load_lang
+from utils.color_imput_type import color_type
 
 class CheckCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -23,19 +22,10 @@ class CheckCog(commands.Cog):
     @app_commands.describe(color=app_commands.locale_str("f-color"))
     async def check(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
-        lang = load_yml('lang/'+str(interaction.locale)+'.yml') if str(interaction.locale) in langs else load_yml('lang/en-US.yml')
+        lang = load_lang(str(interaction.locale))
         try:
             await interaction.response.defer(ephemeral=True)
-            if color.startswith("<@") and color.endswith(">"):
-                cleaned_color = re.sub(r"[<>@]", "", color)
-                copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{cleaned_color}")
-                if copy_role is None:
-                    raise ValueError
-                else:
-                    color = str(copy_role.color)
-            elif color == "random":
-                color = "#{:06x}".format(random.randint(0, 0xFFFFFF))
-
+            color = color_type(interaction, color)
             color_utils = ColorUtils(color)
             output_color = color_utils.color_converter()
             if output_color is None:
@@ -91,8 +81,7 @@ class CheckCog(commands.Cog):
 
     @check.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        lang = load_yml('lang/' + str(interaction.locale) + '.yml') if str(interaction.locale) in langs else load_yml(
-            'lang/en-US.yml')
+        lang = load_lang(str(interaction.locale))
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = lang["cool_down"].format(int(retry_time.timestamp()))
