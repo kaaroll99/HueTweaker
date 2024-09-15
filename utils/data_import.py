@@ -1,6 +1,6 @@
 import csv
-from database import database, model
-from config import db
+
+from database import model
 
 
 def export_database(db, filename='guilds_export.csv'):
