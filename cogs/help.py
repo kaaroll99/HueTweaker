@@ -31,9 +31,9 @@ class HelpCog(commands.Cog):
             discord.SelectOption(label="/vote", value="vote", emoji="🗳️")
         ])
         invite_button = discord.ui.Button(label="Invite bot", style=discord.ButtonStyle.url,
-                                    url="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot")
+                                          url="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot")
         support_button = discord.ui.Button(label="Join support server", style=discord.ButtonStyle.url,
-                                    url="https://discord.gg/tYdK4pD6ks")
+                                           url="https://discord.gg/tYdK4pD6ks")
         privacy_button = discord.ui.Button(label="Privacy Policy", style=discord.ButtonStyle.url,
                                            url="https://huetweaker.gitbook.io/docs/main/privacy-policy")
         terms_button = discord.ui.Button(label="Terms of Service", style=discord.ButtonStyle.url,
@@ -72,11 +72,12 @@ class HelpCog(commands.Cog):
                 data = yaml.safe_load(f)
             selected_option = interaction.data['values'][0]
             embed: Embed = discord.Embed(title=f"<:star:1269288950174978100> Command `{data[selected_option]['name']}`",
-                                  description=f"{data[selected_option]['desc']}", color=4539717)
+                                         description=f"{data[selected_option]['desc']}", color=4539717)
 
             embed.add_field(name=lang['com_syntax'], value=f"> {data[selected_option]['usage']}", inline=False)
             embed.add_field(name=lang['com_syntax'], value=f"> {data[selected_option]['example']}", inline=False)
-            embed.add_field(name=f"<:star:1269288950174978100> Docs:", value="> "+lang['com_docs'].format(data[selected_option]['docs']), inline=False)
+            embed.add_field(name=f"<:star:1269288950174978100> Docs:",
+                            value="> " + lang['com_docs'].format(data[selected_option]['docs']), inline=False)
         except Exception as e:
             embed.clear_fields()
             embed.description = f""

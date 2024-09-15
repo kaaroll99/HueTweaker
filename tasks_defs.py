@@ -13,7 +13,6 @@ from utils.data_loader import load_json
 config_file = utils.data_loader.load_yml('assets/config.yml')
 token_file = utils.data_loader.load_yml('assets/token.yml')
 
-
 top_gg_times = [
     datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')),
     datetime.time(hour=12, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET'))
