@@ -39,7 +39,8 @@ class ForceCog(commands.Cog):
             with db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
-            role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}", colour=discord.Colour(int(color_match, 16)))
+            role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}",
+                                     colour=discord.Colour(int(color_match, 16)))
             if role is None:
                 role = await interaction.guild.create_role(name=f"color-{user_name.id}")
 
@@ -120,7 +121,7 @@ class ForceCog(commands.Cog):
             embed.description = lang['purge_confirm']
 
             individual_button = discord.ui.Button(label=lang['bttn_ind'], style=discord.ButtonStyle.green,
-                                           custom_id="individual_roles")
+                                                  custom_id="individual_roles")
             statinc_button = discord.ui.Button(label=lang['bttn_stat'], style=discord.ButtonStyle.green,
                                                custom_id="static_roles")
             both_button = discord.ui.Button(label=lang['bttn_both'], style=discord.ButtonStyle.green,

@@ -1,5 +1,6 @@
 import discord
 
+
 def color_type(interaction, color):
     if color.startswith("<@") and color.endswith(">"):
         cleaned_color = re.sub(r"[<>@]", "", color)

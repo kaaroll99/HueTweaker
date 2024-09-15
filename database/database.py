@@ -41,7 +41,8 @@ class Database:
                 query = select(table).where(where_clause)
 
             result = self.__session.execute(query)
-            rows = [{column.key: getattr(row, column.key) for column in row.__table__.columns} for row in result.scalars()]
+            rows = [{column.key: getattr(row, column.key) for column in row.__table__.columns} for row in
+                    result.scalars()]
             return rows
 
         except OperationalError as e:

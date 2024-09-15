@@ -38,10 +38,12 @@ class MyTranslator(app_commands.Translator):
     def __init__(self, bot):
         self.bot = bot
 
-    async def translate(self, string: app_commands.locale_str, locale: discord.Locale, context: app_commands.TranslationContext) -> str | None:
+    async def translate(self, string: app_commands.locale_str, locale: discord.Locale,
+                        context: app_commands.TranslationContext) -> str | None:
         if locale.value in translations:
             return translations[locale.value].get(string.message, string.message)
         return translations[self.bot.default_locale.value].get(string.message, string.message)
+
 
 intents = discord.Intents.none()
 intents.guilds = True
@@ -49,9 +51,9 @@ intents.members = True
 activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
 
 bot = MyBot(
-        command_prefix="!$%ht",
-        intents=intents,
-        activity=activity,
-        status=discord.Status.online,
-        shard_count=2
-    )
+    command_prefix="!$%ht",
+    intents=intents,
+    activity=activity,
+    status=discord.Status.online,
+    shard_count=2
+)

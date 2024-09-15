@@ -56,7 +56,8 @@ class ColorUtils:
                 rgb_color = sRGBColor(*np.array(rgb_values) / 255.0)
             elif self.color_format == "hsl":
                 hsl_values = self.__parse_hsl()
-                rgb_color = convert_color(HSLColor(hsl_values[0], hsl_values[1] / 100.0, hsl_values[2] / 100.0), sRGBColor)
+                rgb_color = convert_color(HSLColor(hsl_values[0], hsl_values[1] / 100.0, hsl_values[2] / 100.0),
+                                          sRGBColor)
             elif self.color_format == "cmyk":
                 cmyk_values = self.__parse_cmyk()
                 rgb_color = convert_color(CMYKColor(*cmyk_values), sRGBColor)

@@ -32,10 +32,12 @@ async def on_ready():
             })
     logging.info(20 * '=' + " Bot is ready. " + 20 * "=")
 
+
 @bot.event
 async def on_socket_response(msg):
     if msg.get('t') == 'RESUMED':
         logging.info('Shard connection resumed.')
+
 
 @bot.event
 async def on_shard_disconnect(shard_id):
@@ -51,6 +53,7 @@ async def main():
 
         logging.info(20 * '=' + " Bot is running. " + 20 * "=")
         await bot.start(token_file['TOKEN'])
+
 
 try:
     logging.info(20 * '=' + " Starting the bot. " + 20 * "=")

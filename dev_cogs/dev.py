@@ -22,7 +22,7 @@ class DevCog(commands.Cog):
         # print(interaction.guild.preferred_locale)
         # print(interaction.locale)
         embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"",
-                              color=4539717, timestamp=datetime.datetime.now())
+                                     color=4539717, timestamp=datetime.datetime.now())
         file = None
         try:
             if interaction.guild_id == 1209531775412604968:

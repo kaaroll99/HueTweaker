@@ -2,7 +2,6 @@ from database import database
 from utils.console_logger import setup_logger
 from utils.data_loader import load_yml
 
-
 token_file = load_yml('assets/token.yml')
 config_file = load_yml('assets/config.yml')
 if token_file.get('system', None) == 'dev':
