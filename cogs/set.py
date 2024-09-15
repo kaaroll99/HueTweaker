@@ -1,6 +1,4 @@
 import logging
-import random
-import re
 from datetime import datetime, timedelta
 
 import discord
@@ -11,9 +9,8 @@ from bot_init import bot
 from config import db
 from database import model
 from utils.color_format import ColorUtils
-from utils.data_loader import load_yml
-from utils.lang_loader import load_lang
 from utils.color_imput_type import color_type
+from utils.lang_loader import load_lang
 
 
 class SetCog(commands.Cog):

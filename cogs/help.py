@@ -6,7 +6,6 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from bot_init import bot
-from utils.data_loader import load_yml
 from utils.lang_loader import load_lang
 
 

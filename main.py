@@ -1,13 +1,10 @@
 import asyncio
 import csv
 import logging
-from datetime import datetime
-
-import discord
 
 import tasks_defs
-from config import db
 from bot_init import bot
+from config import db
 from utils.data_loader import load_yml
 
 token_file = load_yml('assets/token.yml')

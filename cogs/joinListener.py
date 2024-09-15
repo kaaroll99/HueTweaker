@@ -4,10 +4,10 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-from config import db
 from bot_init import bot
-from utils.data_loader import load_yml
+from config import db
 from database import model
+from utils.data_loader import load_yml
 
 config_file = load_yml('assets/config.yml')
 
