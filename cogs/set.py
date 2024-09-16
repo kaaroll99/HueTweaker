@@ -39,7 +39,9 @@ class SetCog(commands.Cog):
                                                            colour=discord.Colour(int(color_match, 16)))
 
             if query:
+                print(query)
                 top_role = discord.utils.get(interaction.guild.roles, id=query[0].get("role", None))
+                print(top_role.position)
                 if top_role:
                     await role.edit(position=max(1, top_role.position - 1), colour=discord.Colour(int(color_match, 16)))
 
