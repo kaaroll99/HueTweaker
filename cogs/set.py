@@ -34,18 +34,14 @@ class SetCog(commands.Cog):
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
+            role_position = 1
             if role is None:
-                role = await interaction.guild.create_role(name=f"color-{interaction.user.id}",
-                                                           colour=discord.Colour(int(color_match, 16)))
-            else:
-                if query:
-                    top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
-                    if top_role:
-                        await role.edit(position=max(1, top_role.position - 1),
-                                        colour=discord.Colour(int(color_match, 16)))
-                else:
-                    await role.edit(colour=discord.Colour(int(color_match, 16)))
-
+                role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
+            if query:
+                top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
+                if top_role:
+                    role_position = max(1, top_role.position - 1)
+            await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
 
             await interaction.user.add_roles(role)
             embed.description = lang['color_set'].format(color_match)
