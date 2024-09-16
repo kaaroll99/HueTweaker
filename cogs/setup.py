@@ -53,7 +53,7 @@ class SetupCog(commands.Cog):
                     else:
                         await role.edit(colour=discord.Colour(int(color_match, 16)))
                     if query:
-                        top_role = discord.utils.get(interaction.guild.roles, id=query[0].get("role", None))
+                        top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
                         if top_role:
                             await role.edit(position=top_role.position + 1)
 
@@ -101,6 +101,7 @@ class SetupCog(commands.Cog):
 
             with db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+                print(query)
 
             if top_role.position == 0:
                 if query:
