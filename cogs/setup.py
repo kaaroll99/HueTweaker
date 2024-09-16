@@ -118,8 +118,7 @@ class SetupCog(commands.Cog):
                 for role in interaction.guild.roles:
                     if pattern.match(role.name):
                         role = discord.utils.get(interaction.guild.roles, id=role.id)
-                        new_position = max(1, top_role.position - 1)
-                        await role.edit(position=new_position)
+                        await role.edit(position=max(1, top_role.position - 1))
 
                 for i, static_role in enumerate(interaction.guild.roles, start=1):
                     if i > 5:
