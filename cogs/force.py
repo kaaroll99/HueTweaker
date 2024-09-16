@@ -47,8 +47,7 @@ class ForceCog(commands.Cog):
             if query:
                 top_role = discord.utils.get(interaction.guild.roles, id=query[0].get("role", None))
                 if top_role:
-                    new_position = max(1, top_role.position - 1)
-                    await role.edit(position=new_position, colour=discord.Colour(int(color_match, 16)))
+                    await role.edit(position=max(1, top_role.position - 1), colour=discord.Colour(int(color_match, 16)))
 
             await user_name.add_roles(role)
             embed.description = lang['force_set_set'].format(user_name.name, color)
