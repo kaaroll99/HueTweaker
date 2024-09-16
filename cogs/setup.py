@@ -101,7 +101,6 @@ class SetupCog(commands.Cog):
 
             with db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
-                print(query)
 
             if top_role.position == 0:
                 if query:
