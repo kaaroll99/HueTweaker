@@ -19,8 +19,13 @@ class MyBot(commands.AutoShardedBot):
     async def setup_hook(self):
         cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
         logging.info("Loading extensions: " + ", ".join(cogs))
-        for cog in cogs:
-            await self.load_extension(f"cogs.{cog}")
+        for i, cog in enumerate(cogs, start=1):
+            try:
+                await self.load_extension(f"cogs.{cog}")
+                print(f"{round((i / len(cogs)) * 100, 2)}%")
+                await asyncio.sleep(1)
+            except Exception as e:
+                logging.error(f"Failed to load extension {cog}: {e}")
         logging.info("Loading of extensions completed")
         logging.info("Loading translator ...")
         await self.tree.set_translator(MyTranslator(self))
@@ -76,5 +81,5 @@ bot = MyBot(
     intents=intents,
     activity=activity,
     status=discord.Status.online,
-    shard_count=2
+    shard_count=3
 )
