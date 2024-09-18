@@ -9,14 +9,14 @@ from utils.data_loader import load_json
 translations = load_json('lang/translations.json')
 
 
-class MyBot(commands.AutoShardedBot):
-    def __init__(self, command_prefix, intents, activity, status, shard_count):
+class MyBot(commands.Bot):
+    def __init__(self, command_prefix, intents, activity, status):
         super().__init__(
             command_prefix=command_prefix,
             intents=intents,
             activity=activity,
-            status=status,
-            shard_count=shard_count
+            status=status
+            # shard_count=shard_count
         )
         self.default_locale = Locale.american_english
 
@@ -54,6 +54,6 @@ bot = MyBot(
     command_prefix="!$%ht",
     intents=intents,
     activity=activity,
-    status=discord.Status.online,
-    shard_count=2
+    status=discord.Status.online
+    # shard_count=2
 )
