@@ -12,8 +12,8 @@ translations = load_json('lang/translations.json')
 class MyBot(commands.AutoShardedBot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.command_queue = asyncio.Queue()
-        self.background_tasks = []
+        # self.command_queue = asyncio.Queue()
+        # self.background_tasks = []
         self.default_locale = Locale.american_english
 
     async def setup_hook(self):
@@ -31,25 +31,25 @@ class MyBot(commands.AutoShardedBot):
         await self.tree.set_translator(MyTranslator(self))
         logging.info("Loading translator completed")
         logging.info("Command tree synchronization ...")
-        # await self.tree.sync()
+        await self.tree.sync()
         logging.info("Command tree synchronization completed")
-        self.background_tasks.append(self.loop.create_task(self.process_command_queue()))
+        # self.background_tasks.append(self.loop.create_task(self.process_command_queue()))
 
-    async def process_command_queue(self):
-        while True:
-            command, interaction = await self.command_queue.get()
-            try:
-                await command(interaction)
-            except discord.errors.HTTPException as e:
-                if e.status == 429:
-                    retry_after = e.retry_after
-                    logging.warning(f"Rate limited. Retrying after {retry_after} seconds.")
-                    await asyncio.sleep(retry_after)
-                    await self.command_queue.put((command, interaction))
-                else:
-                    logging.error(f"HTTP Exception: {e}")
-            finally:
-                self.command_queue.task_done()
+    # async def process_command_queue(self):
+    #     while True:
+    #         command, interaction = await self.command_queue.get()
+    #         try:
+    #             await command(interaction)
+    #         except discord.errors.HTTPException as e:
+    #             if e.status == 429:
+    #                 retry_after = e.retry_after
+    #                 logging.warning(f"Rate limited. Retrying after {retry_after} seconds.")
+    #                 await asyncio.sleep(retry_after)
+    #                 await self.command_queue.put((command, interaction))
+    #             else:
+    #                 logging.error(f"HTTP Exception: {e}")
+    #         finally:
+    #             self.command_queue.task_done()
 
     async def on_interaction(self, interaction):
         if interaction.type == discord.InteractionType.application_command:
@@ -81,5 +81,5 @@ bot = MyBot(
     intents=intents,
     activity=activity,
     status=discord.Status.online,
-    shard_count=3
+    shard_count=2
 )

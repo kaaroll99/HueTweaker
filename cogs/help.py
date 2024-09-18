@@ -49,7 +49,8 @@ class HelpCog(commands.Cog):
 
         try:
             await interaction.response.defer(ephemeral=True)
-            total_users = sum(guild.member_count for guild in bot.guilds)
+            # total_users = sum(guild.member_count for guild in bot.guilds)
+            total_users = "-"
             embed.description = lang['help_desc'].format(len(bot.guilds), total_users)
 
         except Exception as e:

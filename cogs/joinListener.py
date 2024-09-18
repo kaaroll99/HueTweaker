@@ -32,7 +32,7 @@ class JoinListenerCog(commands.Cog):
             if channel and guild.member_count is not None:
                 logging.info(f"Bot has been added to guild: {guild.id} (mem: {guild.member_count})")
                 owner_name = guild.owner.name if guild.owner else "-"
-                embed = discord.Embed(title=f"", description=f"Bot has been added to guild (**{len(bot.guilds)}**)\n"
+                embed = discord.Embed(title=f"", description=f"Bot has been added to guild (****)\n"
                                                              f"> **Guild:** {guild.name}\n"
                                                              f"> **ID:** `{guild.id}`\n"
                                                              f"> **Members:** `{guild.member_count}` `[{owner_name}]`",
@@ -53,7 +53,7 @@ class JoinListenerCog(commands.Cog):
                 logging.info(f"Bot has been removed from guild: {guild.id} (mem: {guild.member_count})")
                 owner_name = guild.owner.name if guild.owner else "-"
                 embed = discord.Embed(title=f"",
-                                      description=f"Bot has been removed from guild (**{len(bot.guilds)}**)\n"
+                                      description=f"Bot has been removed from guild (****)\n"
                                                   f"> **Guild:** {guild.name}\n"
                                                   f"> **ID:** `{guild.id}`\n"
                                                   f"> **Members:** `{guild.member_count}` `[{owner_name}]`",
