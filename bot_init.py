@@ -20,7 +20,6 @@ class MyBot(commands.AutoShardedBot):
         for i, cog in enumerate(cogs, start=1):
             try:
                 await self.load_extension(f"cogs.{cog}")
-                await asyncio.sleep(1)
             except Exception as e:
                 logging.error(f"Failed to load extension {cog}: {e}")
         logging.info("Loading of extensions completed")
@@ -52,5 +51,5 @@ bot = MyBot(
     intents=intents,
     activity=activity,
     status=discord.Status.online,
-    shard_count=2
+    shard_count=4
 )
