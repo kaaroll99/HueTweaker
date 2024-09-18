@@ -52,6 +52,7 @@ async def main():
         tasks_defs.update_stats_taks.start()
 
         logging.info(20 * '=' + " Bot is running. " + 20 * "=")
+        await asyncio.sleep(3)
         await bot.start(token_file['TOKEN'])
 
 
