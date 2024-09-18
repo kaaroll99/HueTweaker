@@ -31,7 +31,7 @@ class MyBot(commands.AutoShardedBot):
         await self.tree.set_translator(MyTranslator(self))
         logging.info("Loading translator completed")
         logging.info("Command tree synchronization ...")
-        await self.tree.sync()
+        # await self.tree.sync()
         logging.info("Command tree synchronization completed")
         self.background_tasks.append(self.loop.create_task(self.process_command_queue()))
 
