@@ -14,22 +14,22 @@ config_file = load_yml('assets/config.yml')
 @bot.event
 async def on_ready():
     bot.remove_command('help')
-    csv_file = 'logs/guilds_info.csv'
-    fields = ['Guild Name', 'Guild ID', 'Owner Name', 'Member Count', 'Preferred Locale']
-
-    with open(csv_file, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fields)
-        writer.writeheader()
-
-        for guild in bot.guilds:
-            owner_name = guild.owner.name if guild.owner else "-"
-            writer.writerow({
-                'Guild Name': guild.name,
-                'Guild ID': guild.id,
-                'Owner Name': owner_name,
-                'Member Count': guild.member_count,
-                'Preferred Locale': guild.preferred_locale
-            })
+    # csv_file = 'logs/guilds_info.csv'
+    # fields = ['Guild Name', 'Guild ID', 'Owner Name', 'Member Count', 'Preferred Locale']
+    #
+    # with open(csv_file, 'w', newline='', encoding='utf-8') as f:
+    #     writer = csv.DictWriter(f, fieldnames=fields)
+    #     writer.writeheader()
+    #
+    #     for guild in bot.guilds:
+    #         owner_name = guild.owner.name if guild.owner else "-"
+    #         writer.writerow({
+    #             'Guild Name': guild.name,
+    #             'Guild ID': guild.id,
+    #             'Owner Name': owner_name,
+    #             'Member Count': guild.member_count,
+    #             'Preferred Locale': guild.preferred_locale
+    #         })
     logging.info(20 * '=' + " Bot is ready. " + 20 * "=")
 
 
