@@ -57,5 +57,5 @@ bot = MyBot(
     intents=intents,
     activity=activity,
     status=discord.Status.online,
-    shard_count=4
+    shard_count=2
 )
