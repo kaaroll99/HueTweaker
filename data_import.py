@@ -25,12 +25,14 @@ def import_database(db, filename='guilds_export.csv'):
 
         next(csv_reader, None)
         for row in csv_reader:
-            db.create(model.guilds_class(f"guilds"), {"server": row[0], "role": row[1]})
-            print(f"Zaimportowano: {row}")
+            with db as db_session:
+                db_session.create(model.guilds_class(f"guilds"), {"server": row[0], "role": row[1]})
+                print(f"Zaimportowano: {row}")
 
     print(f"Import zakończony. Dane wczytano z pliku {filename}")
 
-db = database.Database(url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
+# db = database.Database(url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
+db = database.Database(url=f"sqlite:///assets/guilds.db")
 
-export_database(db)
+# export_database(db)
 # import_database(db)
