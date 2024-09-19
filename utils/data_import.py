@@ -1,6 +1,5 @@
 import csv
-
-from database import model
+from database import model, database
 
 
 def export_database(db, filename='guilds_export.csv'):
@@ -27,5 +26,7 @@ def import_database(db, filename='guilds_export.csv'):
 
     print(f"Import zakończony. Dane wczytano z pliku {filename}")
 
-# export_database(db)
+db = database.Database(url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
+
+export_database(db)
 # import_database(db)
