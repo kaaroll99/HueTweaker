@@ -1,6 +1,10 @@
 import csv
 from database import model, database
 
+from utils.data_loader import load_yml
+
+token_file = load_yml('assets/token.yml')
+
 
 def export_database(db, filename='guilds_export.csv'):
     with open(filename, 'w', newline='') as csv_file:
