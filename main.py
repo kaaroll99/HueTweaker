@@ -6,8 +6,9 @@ import tasks_defs
 from bot_init import bot
 from config import db
 from utils.data_loader import load_yml
-import os
 import discord
+import os
+
 
 token_file = load_yml('assets/token.yml')
 config_file = load_yml('assets/config.yml')
