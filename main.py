@@ -6,6 +6,7 @@ import tasks_defs
 from bot_init import bot
 from config import db
 from utils.data_loader import load_yml
+import os
 
 token_file = load_yml('assets/token.yml')
 config_file = load_yml('assets/config.yml')
@@ -60,3 +61,6 @@ try:
     asyncio.run(main())
 except KeyboardInterrupt:
     logging.warning(f"Bot has been terminated from console line")
+except discord.errors.HTTPException as e:
+    print(e)
+    os.system('kill 1')
