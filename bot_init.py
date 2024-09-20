@@ -55,7 +55,7 @@ activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
 bot = MyBot(
     command_prefix="!$%ht",
     intents=intents,
-    api_root="https://discordapp.com/api/v9",
+    api_root="https://discordapp.com/api/v8",
     activity=activity,
     status=discord.Status.online,
     shard_count=2
