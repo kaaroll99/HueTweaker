@@ -21,12 +21,12 @@ class ForceCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    group = app_commands.Group(name=app_commands.locale_str("force-name"), description=app_commands.locale_str("force"))
+    group = app_commands.Group(name="force", description="Modify the color of specific user")
 
-    @group.command(name=app_commands.locale_str("forceset-name"), description=app_commands.locale_str("forceset"))
+    @group.command(name="set", description="Setting the color of the user")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
-    @app_commands.describe(user_name=app_commands.locale_str("f-user"), color=app_commands.locale_str("f-color"))
+    @app_commands.describe(user_name="Username", color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
@@ -76,8 +76,8 @@ class ForceCog(commands.Cog):
             logging.info(
                 f"{interaction.user.name}[{interaction.locale}] issued bot command: /force set {user_name.name} {color}")
 
-    @group.command(name=app_commands.locale_str("forceremove-name"), description=app_commands.locale_str("forceremove"))
-    @app_commands.describe(user_name=app_commands.locale_str("f-user"))
+    @group.command(name="remove", description="Remove the color of the user")
+    @app_commands.describe(user_name="Username")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
@@ -106,7 +106,7 @@ class ForceCog(commands.Cog):
             logging.info(
                 f"{interaction.user.name}[{interaction.locale}] issued bot command: /force remove {user_name.name}")
 
-    @group.command(name=app_commands.locale_str("forcepurge-name"), description=app_commands.locale_str("forcepurge"))
+    @group.command(name="purge", description="Remove all color roles (irreversible)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()

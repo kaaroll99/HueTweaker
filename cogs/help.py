@@ -13,7 +13,7 @@ class HelpCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name=app_commands.locale_str("help-name"), description=app_commands.locale_str("help"))
+    @app_commands.command(name="help", description="View information about the bot and a list of available commands")
     async def help(self, interaction: discord.Interaction) -> None:
         lang = load_lang(str(interaction.locale))
         embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=4539717)

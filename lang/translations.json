@@ -1,33 +1,40 @@
 {
   "en-US": {
-    "check": "Check color information (HEX, RGB, HSL, CMYK)",
-    "forceset": "Setting the color of the user",
-    "forceremove": "Remove the color of the user",
-    "forcepurge": "Remove all color roles (irreversible)",
-    "help": "View information about the bot and a list of available commands",
-    "remove": "Remove the color",
-    "select": "Choose one of the static colors on the server",
-    "set": "Set color using HEX code or CSS color name",
-    "setuptoprole": "Setup top role for color roles",
-    "setupselect": "Setup static colors on server",
-    "vote": "View links to vote",
-    "force": "Modify the color of specific user",
-    "check-name": "check",
-    "forceset-name": "set",
-    "forceremove-name": "remove",
-    "forcepurge-name": "purge",
-    "help-name": "help",
-    "remove-name": "remove",
-    "select-name": "select",
-    "set-name": "set",
-    "setuptoprole-name": "toprole",
-    "setupselect-name": "select",
-    "vote-name": "vote",
-    "force-name": "force",
-    "f-color": "Color code (e.g. #9932f0) or CSS color name (e.g royalblue)",
-    "f-user": "User name",
+    "check": ,
+    "forceset": ,
+    "forceremove": ,
+    "forcepurge": ,
+    "help": ,
+    "remove": ,
+    "select": ,
+    "set": ,
+    "setuptoprole": ,
+    "setupselect": ,
+    "vote": ,
+    "force": ,
+    "check-name": ,
+    "forceset-name": ,
+    "forceremove-name": ,
+    "forcepurge-name": ,
+    "help-name": ,
+    "remove-name": ,
+    "select-name": ,
+    "set-name": ,
+    "setuptoprole-name": ,
+    "setupselect-name": ,
+    "vote-name": ,
+    "force-name": ,
+
+
+    "f-color": "Color code (e.g. #9932f0) or CSS color name (e.g royalblue)"
+    "f-user": "Username"
     "f-trole": "Role name"
   },
+
+
+
+
+
   "pl": {
     "check": "Wyświetl informacje o kolorze (HEX, RGB, HSL, CMYK)",
     "forceset": "Ustaw kolor wygranemu użytkownikowi",
