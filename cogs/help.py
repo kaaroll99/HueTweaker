@@ -5,8 +5,7 @@ import yaml
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import bot
-from utils.lang_loader import load_lang
+from bot_init import bot, cmd_messages
 
 
 class HelpCog(commands.Cog):
@@ -15,9 +14,8 @@ class HelpCog(commands.Cog):
 
     @app_commands.command(name="help", description="View information about the bot and a list of available commands")
     async def help(self, interaction: discord.Interaction) -> None:
-        lang = load_lang(str(interaction.locale))
         embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=4539717)
-        select = discord.ui.Select(placeholder=lang['help_choose'], options=[
+        select = discord.ui.Select(placeholder=cmd_messages['help_choose'], options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
             discord.SelectOption(label="/set", value="set", emoji="🌈"),
             discord.SelectOption(label="/remove", value="remove", emoji="🗑️"),
@@ -51,15 +49,15 @@ class HelpCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
             # total_users = sum(guild.member_count for guild in bot.guilds)
             total_users = "-"
-            embed.description = lang['help_desc'].format(len(bot.guilds), total_users)
+            embed.description = cmd_messages['help_desc'].format(len(bot.guilds), total_users)
 
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
-            embed.add_field(name=lang['exception'], value=f"", inline=False)
+            embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
+            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
             logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /help")
@@ -67,7 +65,6 @@ class HelpCog(commands.Cog):
     @staticmethod
     async def __select_callback(interaction: discord.Interaction):
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
-        lang = load_lang(str(interaction.locale))
         try:
             with open('assets/help_commands.yml', 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)
@@ -75,17 +72,17 @@ class HelpCog(commands.Cog):
             embed: Embed = discord.Embed(title=f"<:star:1269288950174978100> Command `{data[selected_option]['name']}`",
                                          description=f"{data[selected_option]['desc']}", color=4539717)
 
-            embed.add_field(name=lang['com_syntax'], value=f"> {data[selected_option]['usage']}", inline=False)
-            embed.add_field(name=lang['com_syntax'], value=f"> {data[selected_option]['example']}", inline=False)
+            embed.add_field(name=cmd_messages['com_syntax'], value=f"> {data[selected_option]['usage']}", inline=False)
+            embed.add_field(name=cmd_messages['com_syntax'], value=f"> {data[selected_option]['example']}", inline=False)
             embed.add_field(name=f"<:star:1269288950174978100> Docs:",
-                            value="> " + lang['com_docs'].format(data[selected_option]['docs']), inline=False)
+                            value="> " + cmd_messages['com_docs'].format(data[selected_option]['docs']), inline=False)
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
-            embed.add_field(name=lang['exception'], value=f"", inline=False)
+            embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
+            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.edit_message(embed=embed)
 

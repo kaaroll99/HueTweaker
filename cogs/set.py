@@ -5,12 +5,11 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import bot
+from bot_init import bot, cmd_messages
 from config import db
 from database import model
 from utils.color_format import ColorUtils
 from utils.color_imput_type import color_type
-from utils.lang_loader import load_lang
 from utils.data_loader import load_yml
 
 
@@ -24,7 +23,6 @@ class SetCog(commands.Cog):
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
-        lang = load_yml('lang/en-US.yml')
         try:
             await interaction.response.defer(ephemeral=True)
 
@@ -45,37 +43,36 @@ class SetCog(commands.Cog):
             await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
 
             await interaction.user.add_roles(role)
-            embed.description = lang['color_set'].format(color_match)
+            embed.description = cmd_messages['color_set'].format(color_match)
             embed.color = discord.Colour(int(color_match, 16))
 
         except ValueError:
-            embed.description = lang['color_format']
+            embed.description = cmd_messages['color_format']
 
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
-                embed.description = lang['err_50013']
+                embed.description = cmd_messages['err_50013']
             else:
-                embed.description = lang['err_http'].format(e.code, e.text)
+                embed.description = cmd_messages['err_http'].format(e.code, e.text)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = lang['exception']
+            embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
+            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /set {color}")
 
     @set.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        lang = load_lang(str(interaction.locale))
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = lang["cool_down"].format(int(retry_time.timestamp()))
+            response = cmd_messages["cool_down"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
 

@@ -5,10 +5,8 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import bot
+from bot_init import bot, cmd_messages
 from utils.data_loader import load_yml
-
-lang = load_yml('lang/en-US.yml')
 
 
 class DevCog(commands.Cog):
@@ -56,11 +54,11 @@ class DevCog(commands.Cog):
                 embed.description = f"Command for bot developers only."
         except discord.HTTPException as e:
             embed.clear_fields()
-            embed.description = lang['exception']
+            embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
         except Exception as e:
             embed.clear_fields()
-            embed.description = lang['exception']
+            embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
             embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
