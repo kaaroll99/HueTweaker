@@ -19,7 +19,7 @@ class MyBot(commands.AutoShardedBot):
         self.default_locale = Locale.american_english
         self.NEED_SYNC = True
 
-    async def setup_hook(self):
+    async def setup_hook(self) -> None:
         cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
         logging.info("Loading extensions: " + ", ".join(cogs))
         for cog in cogs:
@@ -37,6 +37,17 @@ class MyBot(commands.AutoShardedBot):
             self.NEED_SYNC = False
         else:
             logging.info("Skipping command tree synchronization")
+
+    async def on_ready(self) -> None:
+        bot.remove_command('help')
+        logging.info(20 * '=' + " Bot is ready. " + 20 * "=")
+
+    async def on_socket_response(self, msg) -> None:
+        if msg.get('t') == 'RESUMED':
+            logging.info('Shard connection resumed.')
+
+    async def on_shard_disconnect(self, shard_id) -> None:
+        logging.info(f'Shard ID {shard_id} has disconnected from Gateway, attempting to reconnect...')
 
 
 intents = discord.Intents.none()

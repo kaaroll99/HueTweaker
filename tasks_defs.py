@@ -1,17 +1,17 @@
 import datetime
 import logging
+import os
 
 import requests
 import topgg
 from discord.ext import tasks
+from dotenv import load_dotenv
 from msgspec import json
 
-import utils.data_loader
 from bot_init import bot
 from utils.data_loader import load_json
 
-config_file = utils.data_loader.load_yml('assets/config.yml')
-token_file = utils.data_loader.load_yml('assets/token.yml')
+load_dotenv(".env")
 
 top_gg_times = [
     datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')),
@@ -21,11 +21,9 @@ top_gg_times = [
 
 @tasks.loop(time=top_gg_times)
 async def update_stats_topgg():
-    topgg_token = token_file['TOP_GG_TOKEN']
-    bot.topggpy = topgg.DBLClient(bot, topgg_token)
+    bot.topggpy = topgg.DBLClient(bot, os.getenv('top_gg_token'))
     try:
         await bot.topggpy.post_guild_count()
-        # await bot.topggpy.post_shard_count
         logging.info(f"Posted server info to topgg ({bot.topggpy.guild_count})")
     except Exception as e:
         logging.warning(f"Failed to post server info to topgg - {e.__class__.__name__}: {e}")
@@ -35,7 +33,7 @@ async def update_stats_topgg():
 async def update_stats_taks():
     await bot.wait_until_ready()
     stats_url = "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats"
-    stats_headers = {"Content-Type": "application/json", "Authorization": token_file['DISCORDBOTLIST_TOKEN']}
+    stats_headers = {"Content-Type": "application/json", "Authorization": os.getenv('discordbotlist_token')}
     stats_data = json.encode({"users": sum(guild.member_count for guild in bot.guilds), "guilds": len(bot.guilds)})
     try:
         response = requests.post(stats_url, data=stats_data, headers=stats_headers, timeout=10)
@@ -51,7 +49,7 @@ async def update_stats_taks():
     url = f"https://discordbotlist.com/api/v1/bots/1209187999934578738/commands"
     json_payload = load_json("assets/commands_list.json")
     headers = {
-        "Authorization": token_file['DISCORDBOTLIST_TOKEN'],
+        "Authorization": os.getenv('discordbotlist_token'),
         "Content-Type": "application/json"
     }
     try:

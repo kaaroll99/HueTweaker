@@ -1,9 +1,10 @@
 import csv
+
+from dotenv import load_dotenv
+
 from database import model, database
 
-from utils.data_loader import load_yml
-
-token_file = load_yml('assets/token.yml')
+load_dotenv(".env")
 
 
 def export_database(db, filename='guilds_export.csv'):
@@ -33,7 +34,7 @@ def import_database(db, filename='guilds_export.csv'):
 
     print(f"Import zakończony. Dane wczytano z pliku {filename}")
 
-# db = database.Database(url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
+# db = database.Database(url=f"mysql+pymysql://{os.getenv('db_login')}:{os.getenv('db_pass')}@{os.getenv('db_host')}/{os.getenv('db_name')}")
 db = database.Database(url=f"sqlite:///assets/guilds.db")
 
 # export_database(db)
