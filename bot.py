@@ -19,12 +19,14 @@ load_dotenv(".env")
 setup_logger()
 logger = logging.getLogger(__name__)
 logger.info("Log file has been created.")
+token_file = load_yml('assets/token.yml')
+
 
 if os.getenv('system', None) == 'DEV':
     db = database.Database(url=os.getenv('db_local_uri'))
 else:
     db = database.Database(
-        url=f"mysql+pymysql://{os.getenv('db_login')}:{os.getenv('db_pass')}@{os.getenv('db_host')}/{os.getenv('db_name')}")
+        url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
 
 cmd_messages = load_yml('assets/messages.yml')
 
