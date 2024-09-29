@@ -52,5 +52,4 @@ bot = MyBot(
     shard_count=2
 )
 
-def cmd_messages():
-    return load_yml('assets/messages.yml')
+cmd_messages = load_yml('assets/messages.yml')

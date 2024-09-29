@@ -26,7 +26,7 @@ def setup_logger():
         encoding='utf-8'
     )
     daily_handler.setFormatter(formatter)
-    daily_handler.namer = lambda name: name.replace("daily.log.", "") + ".log"
+    daily_handler.namer = lambda name: name.replace("latest.log.", "") + ".log"
     logger_setup.addHandler(daily_handler)
 
     return logger_setup

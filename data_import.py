@@ -20,6 +20,8 @@ def export_database(db, filename='guilds_export.csv'):
 
 
 def import_database(db, filename='guilds_export.csv'):
+    with db as db_session:
+        db_session.delete(model.guilds_class("guilds"), {})
     with open(filename, 'r') as csv_file:
         csv_reader = csv.reader(csv_file)
 
