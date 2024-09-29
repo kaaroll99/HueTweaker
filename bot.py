@@ -148,7 +148,7 @@ async def main():
         db_session.database_init()
     async with bot:
         logging.info(20 * '=' + " Bot is running. " + 20 * "=")
-        await bot.start(os.getenv('bot_token'))
+        await bot.start(os.environ('bot_token'))
 
 
 if __name__ == "__main__":
