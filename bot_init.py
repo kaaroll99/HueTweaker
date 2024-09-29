@@ -8,8 +8,6 @@ from pyexpat.errors import messages
 
 from utils.data_loader import load_json, load_yml
 
-translations = load_json('lang/translations.json')
-
 
 import asyncio
 import logging
@@ -54,4 +52,5 @@ bot = MyBot(
     shard_count=2
 )
 
-messages = load_yml('lang/en-US.yml')
+def cmd_messages():
+    return load_yml('assets/messages.yml')

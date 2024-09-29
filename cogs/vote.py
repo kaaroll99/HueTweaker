@@ -5,8 +5,7 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import bot,messages
-from utils.lang_loader import load_lang
+from bot_init import bot, cmd_messages
 
 
 class VoteCog(commands.Cog):
@@ -16,18 +15,17 @@ class VoteCog(commands.Cog):
     @app_commands.command(name="vote", description="View links to vote")
     async def vote(self, interaction: discord.Interaction) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
-        lang = load_lang(str(interaction.locale))
         try:
-            embed: Embed = discord.Embed(title=lang['vote_title'].format(bot.user.name), description=f"",
+            embed: Embed = discord.Embed(title=cmd_messages['vote_title'].format(bot.user.name), description=f"",
                                          color=4539717, timestamp=datetime.datetime.now())
             await interaction.response.defer(ephemeral=True)
-            embed.description = lang['vote_desc']
-            embed.add_field(name=f"", value=lang['vote_topgg'], inline=False)
-            embed.add_field(name=f"", value=lang['vote_dbl'], inline=False)
+            embed.description = cmd_messages['vote_desc']
+            embed.add_field(name=f"", value=cmd_messages['vote_topgg'], inline=False)
+            embed.add_field(name=f"", value=cmd_messages['vote_dbl'], inline=False)
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = lang['exception']
+            embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.locale}] raise critical exception - {repr(e)}")
         finally:
             embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)

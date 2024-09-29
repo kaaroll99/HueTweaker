@@ -6,13 +6,12 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import bot
+from bot_init import bot, cmd_messages
 from config import db
 from database import model
 from utils.color_format import ColorUtils
 from utils.color_imput_type import color_type
 from utils.data_loader import load_yml
-from utils.lang_loader import load_lang
 
 config_file = load_yml('assets/config.yml')
 
@@ -30,7 +29,6 @@ class ForceCog(commands.Cog):
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
-        lang = load_lang(str(interaction.locale))
         try:
             await interaction.response.defer(ephemeral=True)
             color = color_type(interaction, color)
@@ -50,27 +48,27 @@ class ForceCog(commands.Cog):
             await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
 
             await user_name.add_roles(role)
-            embed.description = lang['force_set_set'].format(user_name.name, color)
+            embed.description = cmd_messages['force_set_set'].format(user_name.name, color)
             embed.color = discord.Colour(int(color_match, 16))
 
         except ValueError:
-            embed.description = lang['color_format']
+            embed.description = cmd_messages['color_format']
 
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
-                embed.description = lang['err_50013']
+                embed.description = cmd_messages['err_50013']
             else:
-                embed.description = lang['err_http'].format(e.code, e.text)
+                embed.description = cmd_messages['err_http'].format(e.code, e.text)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = lang['exception']
+            embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
+            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
@@ -83,24 +81,23 @@ class ForceCog(commands.Cog):
     @app_commands.guild_only()
     async def forceremove(self, interaction: discord.Interaction, user_name: discord.Member) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
-        lang = load_lang(str(interaction.locale))
         try:
             await interaction.response.defer(ephemeral=True)
             role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
             if role is not None:
                 await user_name.remove_roles(role)
                 await role.delete()
-                embed.description = lang['force_remove_remove'].format(user_name.name)
+                embed.description = cmd_messages['force_remove_remove'].format(user_name.name)
             else:
-                embed.description = lang['force_remove_no_color']
+                embed.description = cmd_messages['force_remove_no_color']
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = lang['exception']
+            embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
+            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
@@ -114,16 +111,15 @@ class ForceCog(commands.Cog):
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         view = discord.ui.View()
         try:
-            lang = load_lang(str(interaction.locale))
             await interaction.response.defer(ephemeral=True)
 
-            embed.description = lang['purge_confirm']
+            embed.description = cmd_messages['purge_confirm']
 
-            individual_button = discord.ui.Button(label=lang['bttn_ind'], style=discord.ButtonStyle.green,
+            individual_button = discord.ui.Button(label=cmd_messages['bttn_ind'], style=discord.ButtonStyle.green,
                                                   custom_id="individual_roles")
-            statinc_button = discord.ui.Button(label=lang['bttn_stat'], style=discord.ButtonStyle.green,
+            statinc_button = discord.ui.Button(label=cmd_messages['bttn_stat'], style=discord.ButtonStyle.green,
                                                custom_id="static_roles")
-            both_button = discord.ui.Button(label=lang['bttn_both'], style=discord.ButtonStyle.green,
+            both_button = discord.ui.Button(label=cmd_messages['bttn_both'], style=discord.ButtonStyle.green,
                                             custom_id="both")
             individual_button.callback = self.__confirm_callback
             statinc_button.callback = self.__confirm_callback
@@ -135,11 +131,11 @@ class ForceCog(commands.Cog):
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = lang['exception']
+            embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
+            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
             logging.info(
@@ -149,7 +145,6 @@ class ForceCog(commands.Cog):
     async def __confirm_callback(interaction: discord.Interaction):
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         view = discord.ui.View()
-        lang = load_lang(str(interaction.locale))
 
         async def del_static_roles():
             for i, static_role in enumerate(interaction.guild.roles, start=1):
@@ -175,15 +170,15 @@ class ForceCog(commands.Cog):
                 await del_individual_roles()
                 await del_static_roles()
 
-            embed.description = lang['purge_ok']
+            embed.description = cmd_messages['purge_ok']
 
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
-            embed.add_field(name=lang['exception'], value=f"", inline=False)
+            embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
+            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.edit_message(embed=embed, view=view)
 
@@ -191,14 +186,13 @@ class ForceCog(commands.Cog):
     @forceremove.error
     @purge.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        lang = load_lang(str(interaction.locale))
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = lang["cool_down"].format(int(retry_time.timestamp()))
+            response = cmd_messages["cool_down"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
         elif isinstance(error, discord.app_commands.errors.MissingPermissions):
-            embed: Embed = discord.Embed(title="", description=lang['no_permissions'],
+            embed: Embed = discord.Embed(title="", description=cmd_messages['no_permissions'],
                                          color=4539717, timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)

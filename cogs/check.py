@@ -6,10 +6,9 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import bot
+from bot_init import bot, cmd_messages
 from utils.color_format import ColorUtils
 from utils.color_imput_type import color_type
-from utils.lang_loader import load_lang
 
 
 class CheckCog(commands.Cog):
@@ -21,7 +20,6 @@ class CheckCog(commands.Cog):
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
-        lang = load_lang(str(interaction.locale))
         try:
             await interaction.response.defer(ephemeral=True)
             color = color_type(interaction, color)
@@ -31,7 +29,7 @@ class CheckCog(commands.Cog):
                 raise ValueError
             image = color_utils.generate_image(output_color['RGB'])
 
-            embed.title = lang['check_title'].format(output_color['Input'])
+            embed.title = cmd_messages['check_title'].format(output_color['Input'])
 
             embed.add_field(name=f"<:star:1269288950174978100> Hex:",
                             value=f"{output_color['Hex'].upper()}",
@@ -48,7 +46,7 @@ class CheckCog(commands.Cog):
                             value=f"cmyk({output_color['CMYK'][0] * 100:.2f}%, {output_color['CMYK'][1] * 100:.2f}%,"
                                   f" {output_color['CMYK'][2] * 100:.2f}%, {output_color['CMYK'][3] * 100:.2f}%)",
                             inline=False)
-            embed.add_field(name=lang['check_css'],
+            embed.add_field(name=cmd_messages['check_css'],
                             value=f"{', '.join(str(x) for x in output_color['Similars'][:5]) if output_color['Similars'] else '-'}",
                             inline=False)
 
@@ -59,18 +57,18 @@ class CheckCog(commands.Cog):
 
             embed.color = int(output_color['Hex'].strip("#"), 16)
             embed.set_image(url="attachment://" + file.filename)
-            embed.set_footer(text=lang['footer_message'], icon_url=bot.user.avatar)
+            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed, file=file)
         except ValueError:
             embed.clear_fields()
-            embed.description = lang['check_color_format']
+            embed.description = cmd_messages['check_color_format']
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed)
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = lang['exception']
+            embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
             embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed)
@@ -80,10 +78,9 @@ class CheckCog(commands.Cog):
 
     @check.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        lang = load_lang(str(interaction.locale))
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = lang["cool_down"].format(int(retry_time.timestamp()))
+            response = cmd_messages["cool_down"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
 
