@@ -20,7 +20,7 @@ class SetupCog(commands.Cog):
 
     group = app_commands.Group(name="setup", description="Setup bot on your server")
 
-    @group.command(name=app_commands.locale_str("setupselect-name"), description=app_commands.locale_str("setupselect"))
+    @group.command(name="select", description="Setup static colors on server")
     @app_commands.checks.cooldown(1, 5.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
@@ -85,9 +85,8 @@ class SetupCog(commands.Cog):
             await interaction.followup.send(embed=embed)
             logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /setup select")
 
-    @group.command(name=app_commands.locale_str("setuptoprole-name"),
-                   description=app_commands.locale_str("setuptoprole"))
-    @app_commands.describe(role_name=app_commands.locale_str("f-trole"))
+    @group.command(name="toprole", description="Setup top role for color roles")
+    @app_commands.describe(role_name="Role name")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:

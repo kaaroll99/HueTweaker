@@ -6,4 +6,4 @@ def load_lang(locale: str):
     if locale in langs:
         return load_yml('lang/' + locale + '.yml')
     else:
-        return load_yml('lang/en-US.yml')
+        return

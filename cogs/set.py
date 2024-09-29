@@ -18,8 +18,8 @@ class SetCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name=app_commands.locale_str("set-name"), description=app_commands.locale_str("set"))
-    @app_commands.describe(color=app_commands.locale_str("f-color"))
+    @app_commands.command(name="set", description="Set color using HEX code or CSS color name")
+    @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:

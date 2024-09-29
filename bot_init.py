@@ -4,8 +4,9 @@ import logging
 import discord
 from discord import app_commands, Locale
 from discord.ext import commands
+from pyexpat.errors import messages
 
-from utils.data_loader import load_json
+from utils.data_loader import load_json, load_yml
 
 translations = load_json('lang/translations.json')
 
@@ -52,3 +53,5 @@ bot = MyBot(
     status=discord.Status.online,
     shard_count=2
 )
+
+messages = load_yml('lang/en-US.yml')

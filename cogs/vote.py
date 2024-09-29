@@ -5,7 +5,7 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import bot
+from bot_init import bot,messages
 from utils.lang_loader import load_lang
 
 
@@ -13,7 +13,7 @@ class VoteCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name=app_commands.locale_str("vote-name"), description=app_commands.locale_str("vote"))
+    @app_commands.command(name="vote", description="View links to vote")
     async def vote(self, interaction: discord.Interaction) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         lang = load_lang(str(interaction.locale))

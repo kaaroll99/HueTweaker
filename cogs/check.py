@@ -16,9 +16,9 @@ class CheckCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
-    @app_commands.command(name=app_commands.locale_str("check-name"), description=app_commands.locale_str("check"))
+    @app_commands.command(name="check", description="Check color information (HEX, RGB, HSL, CMYK)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
-    @app_commands.describe(color=app_commands.locale_str("f-color"))
+    @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         lang = load_lang(str(interaction.locale))
