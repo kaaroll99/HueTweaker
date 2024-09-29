@@ -83,7 +83,6 @@ class SelectCog(commands.Cog):
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
             logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /select")
@@ -111,7 +110,6 @@ class SelectCog(commands.Cog):
             embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.edit_message(embed=embed, view=edited_view)
 

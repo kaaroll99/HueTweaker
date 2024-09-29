@@ -14,7 +14,7 @@ class HelpCog(commands.Cog):
 
     @app_commands.command(name="help", description="View information about the bot and a list of available commands")
     async def help(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"", color=4539717)
+        embed: Embed = discord.Embed(title=f"{self.bot.user.name}", description=f"", color=4539717)
         select = discord.ui.Select(placeholder=cmd_messages['help_choose'], options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
             discord.SelectOption(label="/set", value="set", emoji="🌈"),
@@ -47,9 +47,8 @@ class HelpCog(commands.Cog):
 
         try:
             await interaction.response.defer(ephemeral=True)
-            # total_users = sum(guild.member_count for guild in bot.guilds)
             total_users = "-"
-            embed.description = cmd_messages['help_desc'].format(len(bot.guilds), total_users)
+            embed.description = cmd_messages['help_desc'].format(len(self.bot.guilds), total_users)
 
         except Exception as e:
             embed.clear_fields()
@@ -57,13 +56,12 @@ class HelpCog(commands.Cog):
             embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
             logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /help")
 
-    @staticmethod
-    async def __select_callback(interaction: discord.Interaction):
+
+    async def __select_callback(self, interaction: discord.Interaction):
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             with open('assets/help_commands.yml', 'r', encoding='utf-8') as f:
@@ -82,7 +80,6 @@ class HelpCog(commands.Cog):
             embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.edit_message(embed=embed)
 

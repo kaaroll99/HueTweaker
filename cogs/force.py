@@ -65,7 +65,6 @@ class ForceCog(commands.Cog):
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
@@ -94,7 +93,6 @@ class ForceCog(commands.Cog):
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
@@ -132,7 +130,6 @@ class ForceCog(commands.Cog):
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
             logging.info(
@@ -175,7 +172,6 @@ class ForceCog(commands.Cog):
             embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.edit_message(embed=embed, view=view)
 
@@ -192,7 +188,6 @@ class ForceCog(commands.Cog):
             embed: Embed = discord.Embed(title="", description=cmd_messages['no_permissions'],
                                          color=4539717, timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 

@@ -16,7 +16,7 @@ class VoteCog(commands.Cog):
     async def vote(self, interaction: discord.Interaction) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
-            embed: Embed = discord.Embed(title=cmd_messages['vote_title'].format(bot.user.name), description=f"",
+            embed: Embed = discord.Embed(title=cmd_messages['vote_title'].format(self.bot.user.name), description=f"",
                                          color=4539717, timestamp=datetime.datetime.now())
             await interaction.response.defer(ephemeral=True)
             embed.description = cmd_messages['vote_desc']
@@ -28,7 +28,7 @@ class VoteCog(commands.Cog):
             embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.locale}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
+            embed.set_footer(text=f"{self.bot.user.name} by kaaroll99", icon_url=self.bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(f"{interaction.user.name}[{interaction.user.id}] issued bot command: /vote")

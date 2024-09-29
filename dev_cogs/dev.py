@@ -73,7 +73,6 @@ class DevCog(commands.Cog):
                                      description=f"This command is only available to the developers of this bot and is used for testing.",
                                      color=4539717)
         embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-        embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
         await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
