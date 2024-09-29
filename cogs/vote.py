@@ -5,7 +5,7 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import bot, cmd_messages
+from bot import cmd_messages
 
 
 class VoteCog(commands.Cog):

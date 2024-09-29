@@ -6,8 +6,7 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import bot, cmd_messages
-from config import db
+from bot import db, cmd_messages
 from database import model
 from utils.color_format import ColorUtils
 from utils.data_loader import load_json
