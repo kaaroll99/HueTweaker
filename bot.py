@@ -8,14 +8,12 @@ import requests
 import topgg
 from discord import Locale
 from discord.ext import commands, tasks
-from dotenv import load_dotenv
 from msgspec import json
 
 from database import database
 from utils.console_logger import setup_logger
 from utils.data_loader import load_json, load_yml
 
-load_dotenv(".env")
 setup_logger()
 logger = logging.getLogger(__name__)
 logger.info("Log file has been created.")
@@ -51,7 +49,7 @@ class MyBot(commands.AutoShardedBot):
 
     @tasks.loop(time=update_times)
     async def update_stats_topgg(self):
-        self.topggpy = topgg.DBLClient(self, os.getenv('top_gg_token'))
+        self.topggpy = topgg.DBLClient(self, token_file['top_gg_token'])
         try:
             await self.topggpy.post_guild_count()
             logging.info(f"Posted server info to topgg ({self.topggpy.guild_count})")
@@ -62,7 +60,7 @@ class MyBot(commands.AutoShardedBot):
     @tasks.loop(time=update_times)
     async def update_stats_task(self):
         stats_url = "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats"
-        stats_headers = {"Content-Type": "application/json", "Authorization": os.getenv('discordbotlist_token')}
+        stats_headers = {"Content-Type": "application/json", "Authorization": token_file['discordbotlist_token']}
         stats_data = json.encode({"users": sum(guild.member_count for guild in self.guilds), "guilds": len(self.guilds)})
         try:
             response = requests.post(stats_url, data=stats_data, headers=stats_headers, timeout=10)
@@ -78,7 +76,7 @@ class MyBot(commands.AutoShardedBot):
         url = f"https://discordbotlist.com/api/v1/bots/1209187999934578738/commands"
         json_payload = load_json("assets/commands_list.json")
         headers = {
-            "Authorization": os.getenv('discordbotlist_token'),
+            "Authorization": token_file['discordbotlist_token'],
             "Content-Type": "application/json"
         }
         try:
@@ -148,7 +146,7 @@ async def main():
         db_session.database_init()
     async with bot:
         logging.info(20 * '=' + " Bot is running. " + 20 * "=")
-        await bot.start(os.getenv('bot_token'))
+        await bot.start(token_file['bot_token'])
 
 
 if __name__ == "__main__":
