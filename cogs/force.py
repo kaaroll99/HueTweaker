@@ -13,8 +13,6 @@ from utils.color_format import ColorUtils
 from utils.color_imput_type import color_type
 from utils.data_loader import load_yml
 
-config_file = load_yml('assets/config.yml')
-
 
 class ForceCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:

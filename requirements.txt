@@ -9,3 +9,4 @@ SQLAlchemy>=2.0.34
 requests>=2.32.3
 topggpy
 PyMySQL
+python-dotenv>=1.0.1

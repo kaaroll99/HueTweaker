@@ -9,8 +9,6 @@ from config import db
 from database import model
 from utils.data_loader import load_yml
 
-config_file = load_yml('assets/config.yml')
-
 
 class JoinListenerCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
