@@ -6,7 +6,7 @@ read -r continue_run
 if [ "$continue_run" = "y" ]; then
     while [ true ]; do
         echo "Starting Bot ..."
-        python3 main.py
+        python3 bot.py
         echo "Bot crashed ... Restarting in 5 seconds..."
         sleep 5
     done

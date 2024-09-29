@@ -57,20 +57,17 @@ class CheckCog(commands.Cog):
 
             embed.color = int(output_color['Hex'].strip("#"), 16)
             embed.set_image(url="attachment://" + file.filename)
-            embed.set_footer(text=cmd_messages['footer_message'], icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed, file=file)
         except ValueError:
             embed.clear_fields()
             embed.description = cmd_messages['check_color_format']
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed)
 
         except Exception as e:
             embed.clear_fields()
             embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
-            embed.set_footer(text=f"{bot.user.name}", icon_url=bot.user.avatar)
             await interaction.followup.send(embed=embed)
         finally:
             logging.info(

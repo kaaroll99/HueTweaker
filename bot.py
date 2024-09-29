@@ -26,17 +26,28 @@ else:
     db = database.Database(
         url=f"mysql+pymysql://{os.getenv('db_login')}:{os.getenv('db_pass')}@{os.getenv('db_host')}/{os.getenv('db_name')}")
 
+cmd_messages = load_yml('assets/messages.yml')
+
 class MyBot(commands.AutoShardedBot):
+    update_times = [
+        datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')),
+        datetime.time(hour=12, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET'))
+    ]
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.default_locale = Locale.american_english
         self.NEED_SYNC = True
-        self.update_times = [
-            datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')),
-            datetime.time(hour=12, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET'))
-        ]
 
-    @tasks.loop(time=self.update_times)
+    async def load_cogs(self):
+        cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
+        for cog in cogs:
+            try:
+                await self.load_extension(f"cogs.{cog}")
+                logger.info(f"Loaded extension '{cog}'")
+            except Exception as e:
+                logger.error(f"Failed to load extension {cog}: {e}")
+
+    @tasks.loop(time=update_times)
     async def update_stats_topgg(self):
         self.topggpy = topgg.DBLClient(self, os.getenv('top_gg_token'))
         try:
@@ -45,7 +56,8 @@ class MyBot(commands.AutoShardedBot):
         except Exception as e:
             logging.warning(f"Failed to post server info to topgg - {e.__class__.__name__}: {e}")
 
-    @tasks.loop(time=self.update_times)
+
+    @tasks.loop(time=update_times)
     async def update_stats_task(self):
         stats_url = "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats"
         stats_headers = {"Content-Type": "application/json", "Authorization": os.getenv('discordbotlist_token')}
@@ -78,21 +90,15 @@ class MyBot(commands.AutoShardedBot):
         except Exception as e:
             logging.error(f"Unexpected error occurred: {e}", exc_info=True)
 
+
     @update_stats_task.before_loop
     async def before_status_task(self) -> None:
         await self.wait_until_ready()
 
-    async def setup_hook(self) -> None:
-        cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
-        logging.info("Loading extensions: " + ", ".join(cogs))
-        for cog in cogs:
-            try:
-                logging.info(f"Loading {cog} cog ...")
-                await self.load_extension(f"cogs.{cog}")
-            except Exception as e:
-                logging.error(f"Failed to load extension {cog}: {e}")
-        logging.info("Loading of extensions completed")
 
+    async def setup_hook(self) -> None:
+        await self.load_cogs()
+        logging.info("Loading of extensions completed")
         if self.NEED_SYNC:
             logging.info("Command tree synchronization ...")
             await self.tree.sync()
@@ -104,18 +110,24 @@ class MyBot(commands.AutoShardedBot):
         self.update_stats_topgg.start()
         self.update_stats_task.start()
 
+
     async def on_ready(self) -> None:
         self.remove_command('help')
         logging.info(20 * '=' + " Bot is ready. " + 20 * "=")
 
-    async def on_socket_response(self, msg) -> None:
+
+    @staticmethod
+    async def on_socket_response(msg) -> None:
         if msg.get('t') == 'RESUMED':
             logging.info('Shard connection resumed.')
 
-    async def on_shard_disconnect(self, shard_id) -> None:
+
+    @staticmethod
+    async def on_shard_disconnect(shard_id) -> None:
         logging.info(f'Shard ID {shard_id} has disconnected from Gateway, attempting to reconnect...')
 
-intents = discord.Intents.none()
+
+intents = discord.Intents.default()
 intents.guilds = True
 intents.members = True
 activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
@@ -128,7 +140,6 @@ bot = MyBot(
     shard_count=2
 )
 
-cmd_messages = load_yml('assets/messages.yml')
 
 async def main():
     with db as db_session:
@@ -136,6 +147,7 @@ async def main():
     async with bot:
         logging.info(20 * '=' + " Bot is running. " + 20 * "=")
         await bot.start(os.getenv('bot_token'))
+
 
 if __name__ == "__main__":
     try:
