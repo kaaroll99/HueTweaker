@@ -11,6 +11,7 @@ from database import model
 from utils.color_format import ColorUtils
 from utils.color_imput_type import color_type
 from utils.lang_loader import load_lang
+from utils.data_loader import load_yml
 
 
 class SetCog(commands.Cog):
@@ -23,7 +24,7 @@ class SetCog(commands.Cog):
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
-        lang = load_lang(str(interaction.locale))
+        lang = load_yml('lang/en-US.yml')
         try:
             await interaction.response.defer(ephemeral=True)
 
