@@ -23,7 +23,7 @@ if token_file.get('SYSTEM', None) == 'DEV':
     db = database.Database(url=token_file['DB_LOCAL_URI'])
 else:
     db = database.Database(
-        url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
+        url=f"mysql+pymysql://{token_file['DB_LOGIN']}:{token_file['DB_PASS']}@{token_file['DB_HOST']}/{token_file['SB_NAME']}")
 
 cmd_messages = load_yml('assets/messages.yml')
 
