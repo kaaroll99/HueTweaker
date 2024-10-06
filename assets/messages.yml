@@ -56,7 +56,6 @@ toprole_set: |
 help_choose: "Choose a command from the list..."
 help_desc: |
   <:star:1269288950174978100> Online on `{}` servers.
-  <:star:1269288950174978100> Used by `{}` people.
   <:star:1269288950174978100> Created by `@kaaroll99`
   
   **<:bubble:1269288932340662333> Select one of the available commands from the list to learn more.**
