@@ -47,8 +47,7 @@ class HelpCog(commands.Cog):
 
         try:
             await interaction.response.defer(ephemeral=True)
-            total_users = "-"
-            embed.description = cmd_messages['help_desc'].format(len(self.bot.guilds), total_users)
+            embed.description = cmd_messages['help_desc'].format(len(self.bot.guilds))
 
         except Exception as e:
             embed.clear_fields()
