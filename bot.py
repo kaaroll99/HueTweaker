@@ -20,8 +20,10 @@ logger.info("Log file has been created.")
 token_file = load_yml('assets/token.yml')
 
 if token_file.get('SYSTEM', None) == 'DEV':
+    logging.info(f"Local database connect")
     db = database.Database(url=token_file['DB_LOCAL_URI'])
 else:
+    logging.info(f"MySQL database connect")
     db = database.Database(
         url=f"mysql+pymysql://{token_file['db_login']}:{token_file['db_pass']}@{token_file['db_host']}/{token_file['db_name']}")
 
@@ -36,7 +38,7 @@ class MyBot(commands.AutoShardedBot):
         super().__init__(*args, **kwargs)
         self.default_locale = Locale.american_english
         self.NEED_SYNC = True
-        self.topggpy = topgg.DBLClient(self, token_file['top_gg_token'])
+        self.topggpy = topgg.DBLClient(token_file['TOP_GG_TOKEN'])
 
     async def load_cogs(self):
         cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
