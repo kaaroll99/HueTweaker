@@ -51,11 +51,24 @@ class MyBot(commands.AutoShardedBot):
 
     @tasks.loop(time=update_times)
     async def update_stats_topgg(self):
+        url = f'https://top.gg/api/bots/{self.user.id}/stats'
+        headers = {
+            'Authorization': token_file['TOP_GG_TOKEN'],  # Make sure the key is correct
+            'Content-Type': 'application/json'
+        }
+        data = {
+            'server_count': len(self.guilds),
+            'shard_count': self.shard_count
+        }
         try:
-            await self.topggpy.post_guild_count()
-            logging.info(f"Posted server info to topgg ({self.topggpy.guild_count})")
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, headers=headers, json=data) as response:
+                    if response.status == 200:
+                        logging.info('Successfully posted server count to Top.gg')
+                    else:
+                        logging.warning(f'Failed to post server count to Top.gg: {response.status} {response.reason}')
         except Exception as e:
-            logging.warning(f"Failed to post server info to topgg - {e.__class__.__name__}: {e}", exc_info=True)
+            logging.error(f'Error posting server count to Top.gg: {e}', exc_info=True)
 
     @update_stats_topgg.before_loop
     async def before_update_stats_topgg(self):
