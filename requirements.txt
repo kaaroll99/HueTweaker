@@ -11,3 +11,4 @@ topggpy
 PyMySQL
 python-dotenv>=1.0.1
 colorlog>=6.8.2
+aiohttp>=3.10.5

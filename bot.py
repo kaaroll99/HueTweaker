@@ -14,6 +14,8 @@ from database import database
 from utils.console_logger import setup_logger
 from utils.data_loader import load_json, load_yml
 
+import aiohttp
+
 setup_logger()
 logger = logging.getLogger(__name__)
 logger.info("Log file has been created.")
@@ -38,7 +40,6 @@ class MyBot(commands.AutoShardedBot):
         super().__init__(*args, **kwargs)
         self.default_locale = Locale.american_english
         self.NEED_SYNC = True
-        # self.topggpy = topgg.DBLClient(self, token_file['TOP_GG_TOKEN'])
 
     async def load_cogs(self):
         cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
@@ -51,14 +52,14 @@ class MyBot(commands.AutoShardedBot):
 
     @tasks.loop(time=update_times)
     async def update_stats_topgg(self):
-        url = f'https://top.gg/api/bots/{self.user.id}/stats'
+        url = f'https://top.gg/api/bots/1209187999934578738/stats'
         headers = {
-            'Authorization': token_file['TOP_GG_TOKEN'],  # Make sure the key is correct
+            'Authorization': token_file['TOP_GG_TOKEN'],
             'Content-Type': 'application/json'
         }
         data = {
-            'server_count': len(self.guilds),
-            'shard_count': self.shard_count
+            'server_count': 1220,
+            'shard_count': 2
         }
         try:
             async with aiohttp.ClientSession() as session:
