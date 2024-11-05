@@ -38,7 +38,7 @@ class MyBot(commands.AutoShardedBot):
         super().__init__(*args, **kwargs)
         self.default_locale = Locale.american_english
         self.NEED_SYNC = True
-        self.topggpy = topgg.DBLClient(token_file['TOP_GG_TOKEN'])
+        self.topggpy = topgg.DBLClient(self, token_file['TOP_GG_TOKEN'])
 
     async def load_cogs(self):
         cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
