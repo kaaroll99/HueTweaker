@@ -36,6 +36,7 @@ class MyBot(commands.AutoShardedBot):
         super().__init__(*args, **kwargs)
         self.default_locale = Locale.american_english
         self.NEED_SYNC = True
+        self.topggpy = topgg.DBLClient(self, token_file['top_gg_token'])
 
     async def load_cogs(self):
         cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
@@ -48,13 +49,15 @@ class MyBot(commands.AutoShardedBot):
 
     @tasks.loop(time=update_times)
     async def update_stats_topgg(self):
-        self.topggpy = topgg.DBLClient(self, token_file['top_gg_token'])
         try:
             await self.topggpy.post_guild_count()
             logging.info(f"Posted server info to topgg ({self.topggpy.guild_count})")
         except Exception as e:
-            logging.warning(f"Failed to post server info to topgg - {e.__class__.__name__}: {e}")
+            logging.warning(f"Failed to post server info to topgg - {e.__class__.__name__}: {e}", exc_info=True)
 
+    @update_stats_topgg.before_loop
+    async def before_update_stats_topgg(self):
+        await self.wait_until_ready()
 
     @tasks.loop(time=update_times)
     async def update_stats_task(self):
