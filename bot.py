@@ -42,7 +42,7 @@ class MyBot(commands.AutoShardedBot):
         self.NEED_SYNC = True
 
     async def load_cogs(self):
-        cogs = ['dev', 'help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
+        cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
         for cog in cogs:
             try:
                 await self.load_extension(f"cogs.{cog}")
