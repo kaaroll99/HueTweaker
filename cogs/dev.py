@@ -5,7 +5,6 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot_init import bot
 from bot import cmd_messages
 from utils.data_loader import load_yml
 
@@ -20,11 +19,11 @@ class DevCog(commands.Cog):
     async def dev(self, interaction: discord.Interaction) -> None:
         # print(interaction.guild.preferred_locale)
         # print(interaction.locale)
-        embed: Embed = discord.Embed(title=f"{bot.user.name}", description=f"",
+        embed: Embed = discord.Embed(title=f"{self.bot.user.name}", description=f"",
                                      color=4539717, timestamp=datetime.datetime.now())
         file = None
         try:
-            if interaction.guild_id == 1209531775412604968:
+            if interaction.guild_id == 1135688599917056160:
                 await interaction.response.defer(ephemeral=True)
 
                 import csv
@@ -62,19 +61,19 @@ class DevCog(commands.Cog):
             embed.description = cmd_messages['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
-            embed.set_footer(text=f"{bot.user.name} by kaaroll99", icon_url=bot.user.avatar)
+            embed.set_footer(text=f"{self.bot.user.name} by kaaroll99", icon_url=self.bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, file=file)
             logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /vote")
 
-    @dev.error
-    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        embed: Embed = discord.Embed(title="",
-                                     description=f"This command is only available to the developers of this bot and is used for testing.",
-                                     color=4539717)
-        embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+    # @dev.error
+    # async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+    #     embed: Embed = discord.Embed(title="",
+    #                                  description=f"This command is only available to the developers of this bot and is used for testing.",
+    #                                  color=4539717)
+    #     embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+    #     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:
-    await bot.dev_tree.add_cog(DevCog(bot))
+    await bot.add_cog(DevCog(bot))
