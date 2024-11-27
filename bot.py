@@ -79,7 +79,7 @@ class MyBot(commands.AutoShardedBot):
     @tasks.loop(time=update_times)
     async def update_stats_task(self):
         stats_url = "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats"
-        stats_headers = {"Content-Type": "application/json", "Authorization": token_file['discordbotlist_token']}
+        stats_headers = {"Content-Type": "application/json", "Authorization": token_file['DISCORDBOTLIST_TOKEN']}
         stats_data = json.encode({"users": sum(guild.member_count for guild in self.guilds), "guilds": len(self.guilds)})
         try:
             response = requests.post(stats_url, data=stats_data, headers=stats_headers, timeout=10)
