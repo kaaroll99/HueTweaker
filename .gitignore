@@ -164,3 +164,4 @@ assets/token.yml
 /logs/
 /output/
 /assets/guilds.db
+.DS_Store
