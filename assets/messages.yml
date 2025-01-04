@@ -1,5 +1,5 @@
 #set
-color_set: "<:ok:1269288913147658371> **Color has been set to __#{}__**"
+color_set: "<:ok:1269288913147658371> **Color has been set to __{}__**"
 
 #revove
 color_remove: "<:ok:1269288913147658371> **Color has been removed**"

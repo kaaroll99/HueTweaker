@@ -22,9 +22,9 @@ class ForceCog(commands.Cog):
     @group.command(name="set", description="Setting the color of the user")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
-    @app_commands.describe(user_name="Username", color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
+    @app_commands.describe(username="Username", color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     @app_commands.guild_only()
-    async def forceset(self, interaction: discord.Interaction, user_name: discord.Member, color: str) -> None:
+    async def forceset(self, interaction: discord.Interaction, username: discord.Member, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             await interaction.response.defer(ephemeral=True)
@@ -34,18 +34,18 @@ class ForceCog(commands.Cog):
             with db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
-            role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
+            role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
             role_position = 1
             if role is None:
-                role = await interaction.guild.create_role(name=f"color-{user_name.id}")
+                role = await interaction.guild.create_role(name=f"color-{username.id}")
             if query:
                 top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
                 if top_role:
                     role_position = max(1, top_role.position - 1)
             await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
 
-            await user_name.add_roles(role)
-            embed.description = cmd_messages['force_set_set'].format(user_name.name, color)
+            await username.add_roles(role)
+            embed.description = cmd_messages['force_set_set'].format(username.name, color)
             embed.color = discord.Colour(int(color_match, 16))
 
         except ValueError:
@@ -68,22 +68,22 @@ class ForceCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.locale}] issued bot command: /force set {user_name.name} {color}")
+                f"{interaction.user.name}[{interaction.locale}] issued bot command: /force set {username.name} {color}")
 
     @group.command(name="remove", description="Remove the color of the user")
-    @app_commands.describe(user_name="Username")
+    @app_commands.describe(username="Username")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
-    async def forceremove(self, interaction: discord.Interaction, user_name: discord.Member) -> None:
+    async def forceremove(self, interaction: discord.Interaction, username: discord.Member) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             await interaction.response.defer(ephemeral=True)
-            role = discord.utils.get(interaction.guild.roles, name=f"color-{user_name.id}")
+            role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
             if role is not None:
-                await user_name.remove_roles(role)
+                await username.remove_roles(role)
                 await role.delete()
-                embed.description = cmd_messages['force_remove_remove'].format(user_name.name)
+                embed.description = cmd_messages['force_remove_remove'].format(username.name)
             else:
                 embed.description = cmd_messages['force_remove_no_color']
 
@@ -96,7 +96,7 @@ class ForceCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logging.info(
-                f"{interaction.user.name}[{interaction.locale}] issued bot command: /force remove {user_name.name}")
+                f"{interaction.user.name}[{interaction.locale}] issued bot command: /force remove {username.name}")
 
     @group.command(name="purge", description="Remove all color roles (irreversible)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
