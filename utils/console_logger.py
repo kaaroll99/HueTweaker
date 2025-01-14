@@ -3,6 +3,7 @@ import os
 from logging.handlers import TimedRotatingFileHandler
 from colorlog import ColoredFormatter
 
+
 def setup_logger():
     os.makedirs('logs', exist_ok=True)
 
@@ -11,7 +12,6 @@ def setup_logger():
     if not logger_setup.handlers:
         logger_setup.setLevel(logging.INFO)
 
-        # Kolorowy formatter dla konsoli, tylko dla levelname
         color_formatter = ColoredFormatter(
             "%(asctime)s - %(name)s - %(log_color)s%(levelname)s%(reset)s - %(message)s",
             log_colors={
@@ -25,7 +25,6 @@ def setup_logger():
             style='%'
         )
 
-        # Zwykły formatter dla plików
         file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
         console_handler = logging.StreamHandler()
