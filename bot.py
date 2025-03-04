@@ -31,6 +31,23 @@ else:
 
 cmd_messages = load_yml('assets/messages.yml')
 
+async def post_data(url: str, headers: dict, data: dict, message: str = "server count") -> dict:
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=headers, json=data, timeout=aiohttp.ClientTimeout(total=10)) as response:
+                if response.status == 200:
+                    logging.info(f'Successfully posted {message} to {url}')
+                    return {"status": response.status, "success": True}
+                else:
+                    logging.warning(f'Failed to post {message} to {url}: {response.status} {response.reason}')
+                    return {"status": response.status, "success": False, "reason": response.reason}
+    except asyncio.TimeoutError:
+        logging.error(f"Request to {url} timed out")
+        return {"status": None, "success": False, "reason": "Timeout"}
+    except Exception as e:
+        logging.error(f'Error posting {message} to {url}: {e}', exc_info=True)
+        return {"status": None, "success": False, "reason": str(e)}
+
 class MyBot(commands.AutoShardedBot):
     update_times = [
         datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=1), 'CET')),
@@ -62,15 +79,7 @@ class MyBot(commands.AutoShardedBot):
             'server_count': server_count,
             'shard_count': 2
         }
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.post(url, headers=headers, json=data) as response:
-                    if response.status == 200:
-                        logging.info(f'Successfully posted server count to Top.gg ({server_count})')
-                    else:
-                        logging.warning(f'Failed to post server count to Top.gg: {response.status} {response.reason}')
-        except Exception as e:
-            logging.error(f'Error posting server count to Top.gg: {e}', exc_info=True)
+        await post_data(url, headers, data, message="stats to Top.gg")
 
     @update_stats_topgg.before_loop
     async def before_update_stats_topgg(self):
@@ -78,37 +87,28 @@ class MyBot(commands.AutoShardedBot):
 
     @tasks.loop(time=update_times)
     async def update_stats_task(self):
-        stats_url = "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats"
-        stats_headers = {"Content-Type": "application/json", "Authorization": token_file['DISCORDBOTLIST_TOKEN']}
-        stats_data = json.encode({"users": sum(guild.member_count for guild in self.guilds), "guilds": len(self.guilds)})
-        try:
-            response = requests.post(stats_url, data=stats_data, headers=stats_headers, timeout=10)
-            response.raise_for_status()
-            logging.info(f"Servers count has been updated: {response.status_code}")
-        except requests.exceptions.Timeout:
-            logging.error("Request timed out")
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to post servers count: {e}")
-        except Exception as e:
-            logging.error(f"Unexpected error occurred: {e}", exc_info=True)
+        # Update bot stats
+        url = "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats"
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": token_file['DISCORDBOTLIST_TOKEN']
+        }
+        data = {
+            "users": sum(guild.member_count for guild in self.guilds), 
+            "guilds": len(self.guilds)
+        }
+        await post_data(url, headers, data, message="stats")
 
+        # Update commands list
         url = f"https://discordbotlist.com/api/v1/bots/1209187999934578738/commands"
         json_payload = load_json("assets/commands_list.json")
         headers = {
-            "Authorization": token_file['discordbotlist_token'],
+            "Authorization": token_file['DISCORDBOTLIST_TOKEN'],
             "Content-Type": "application/json"
         }
-        try:
-            response = requests.post(url, json=json_payload, headers=headers, timeout=10)
-            response.raise_for_status()
-            logging.info(f"Server command list has been updated: {response.status_code}")
-        except requests.exceptions.Timeout:
-            logging.error("Request timed out")
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to post bot commands: {e}")
-        except Exception as e:
-            logging.error(f"Unexpected error occurred: {e}", exc_info=True)
-
+        result = await post_data(url, headers, json_payload, message="command list")
+        if result["success"]:
+            logging.info(f"Server command list has been updated: {result['status']}")
 
     @update_stats_task.before_loop
     async def before_status_task(self) -> None:
