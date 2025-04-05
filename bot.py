@@ -86,7 +86,7 @@ class MyBot(commands.AutoShardedBot):
         url = f'https://api.discordlist.gg/v0/bots/1209187999934578738/guilds'
         server_count = len(self.guilds)
         headers = {
-            'Authorization': f'Bearer {token_file['DISCORDLIST_GG_TOKEN']}',
+            'Authorization': f"Bearer {token_file['DISCORDLIST_GG_TOKEN']}",
             'Content-Type': 'application/json; charset=utf-8'
         }
         data = {
