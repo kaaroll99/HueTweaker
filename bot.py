@@ -5,7 +5,6 @@ import os
 
 import discord
 import requests
-import topgg
 from discord import Locale
 from discord.ext import commands, tasks
 from msgspec import json
@@ -133,7 +132,6 @@ class MyBot(commands.AutoShardedBot):
         else:
             logging.info("Skipping command tree synchronization")
 
-        self.update_stats_topgg.start()
         self.update_stats_task.start()
 
 
