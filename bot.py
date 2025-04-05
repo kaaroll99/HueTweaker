@@ -68,7 +68,8 @@ class MyBot(commands.AutoShardedBot):
                 logger.error(f"Failed to load extension {cog}: {e}")
 
     @tasks.loop(time=update_times)
-    async def update_stats_topgg(self):
+    async def update_stats_task(self):
+        # Update bot stats top.gg
         url = f'https://top.gg/api/bots/1209187999934578738/stats'
         server_count = len(self.guilds)
         headers = {
@@ -80,14 +81,20 @@ class MyBot(commands.AutoShardedBot):
             'shard_count': 2
         }
         await post_data(url, headers, data, message="stats to Top.gg")
-
-    @update_stats_topgg.before_loop
-    async def before_update_stats_topgg(self):
-        await self.wait_until_ready()
-
-    @tasks.loop(time=update_times)
-    async def update_stats_task(self):
-        # Update bot stats
+        
+        # Update bot stats discordlist.gg
+        url = f'https://api.discordlist.gg/v0/bots/1209187999934578738/guilds'
+        server_count = len(self.guilds)
+        headers = {
+            'Authorization': f'Bearer {token_file['DISCORDLIST_GG_TOKEN']}',
+            'Content-Type': 'application/json; charset=utf-8'
+        }
+        data = {
+            'count': server_count
+        }
+        await post_data(url, headers, data, message="stats to discordlist.gg")
+        
+        # Update bot stats discordbotlist.com
         url = "https://discordbotlist.com/api/v1/bots/1209187999934578738/stats"
         headers = {
             "Content-Type": "application/json",
@@ -97,9 +104,9 @@ class MyBot(commands.AutoShardedBot):
             "users": sum(guild.member_count for guild in self.guilds), 
             "guilds": len(self.guilds)
         }
-        await post_data(url, headers, data, message="stats")
+        await post_data(url, headers, data, message="stats to discordbotlist.com")
 
-        # Update commands list
+        # Update commands list discordbotlist.com
         url = f"https://discordbotlist.com/api/v1/bots/1209187999934578738/commands"
         json_payload = load_json("assets/commands_list.json")
         headers = {
