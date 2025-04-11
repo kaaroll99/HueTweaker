@@ -63,7 +63,13 @@ class DevCog(commands.Cog):
         finally:
             embed.set_footer(text=f"{self.bot.user.name} by kaaroll99", icon_url=self.bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            await interaction.followup.send(embed=embed, file=file)
+            
+            # Only include file parameter when it's not None
+            if file:
+                await interaction.followup.send(embed=embed, file=file)
+            else:
+                await interaction.followup.send(embed=embed)
+                
             logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /vote")
 
     # @dev.error
