@@ -58,7 +58,7 @@ class MyBot(commands.AutoShardedBot):
         self.NEED_SYNC = True
 
     async def load_cogs(self):
-        cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
+        cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select', 'dev']
         for cog in cogs:
             try:
                 await self.load_extension(f"cogs.{cog}")
@@ -112,9 +112,7 @@ class MyBot(commands.AutoShardedBot):
             "Authorization": token_file['DISCORDBOTLIST_TOKEN'],
             "Content-Type": "application/json"
         }
-        result = await post_data(url, headers, json_payload, message="command list")
-        if result["success"]:
-            logging.info(f"Server command list has been updated: {result['status']}")
+        await post_data(url, headers, json_payload, message="command list")
 
     @update_stats_task.before_loop
     async def before_status_task(self) -> None:
@@ -161,7 +159,7 @@ bot = MyBot(
     intents=intents,
     activity=activity,
     status=discord.Status.online,
-    shard_count=2
+    shard_count=3
 )
 
 
