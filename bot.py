@@ -91,7 +91,7 @@ class MyBot(commands.AutoShardedBot):
 intents = discord.Intents.default()
 intents.guilds = True
 intents.members = True
-activity = discord.Activity(type=discord.ActivityType.playing, name="/help")
+activity = discord.CustomActivity(name="Change color of your username!")
 
 bot = MyBot(
     command_prefix="!$%ht",
