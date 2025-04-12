@@ -28,10 +28,6 @@ cmd_messages = load_yml('assets/messages.yml')
 
 
 class MyBot(commands.AutoShardedBot):
-    # update_times = [
-    #     datetime.time(hour=1, minute=0, tzinfo=datetime.timezone(datetime.timedelta(hours=0), 'CET')),
-    #     datetime.time(hour=23, minute=21, tzinfo=datetime.timezone(datetime.timedelta(hours=0), 'CET'))
-    # ]
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.default_locale = Locale.american_english
@@ -70,6 +66,7 @@ class MyBot(commands.AutoShardedBot):
         self.update_stats_task.start()
 
     async def on_ready(self) -> None:
+        await bot.wait_until_ready()
         self.remove_command('help')
         logging.info(20 * '=' + " Bot is ready. " + 20 * "=")
 
@@ -81,7 +78,15 @@ class MyBot(commands.AutoShardedBot):
     @staticmethod
     async def on_shard_disconnect(shard_id) -> None:
         logging.info(f'Shard ID {shard_id} has disconnected from Gateway, attempting to reconnect...')
-
+        
+    @staticmethod
+    async def on_shard_ready(shard_id) -> None:
+        logging.info(f'Shard ID {shard_id} is ready.')
+        
+    @staticmethod
+    async def on_shard_connect(shard_id) -> None:
+        logging.info(f'Shard ID {shard_id} has connected to Gateway.')
+        
 
 intents = discord.Intents.default()
 intents.guilds = True
@@ -101,13 +106,12 @@ async def main():
     with db as db_session:
         db_session.database_init()
     async with bot:
-        logging.info(20 * '=' + " Bot is running. " + 20 * "=")
+        logging.info(20 * '=' + " Starting the bot. " + 20 * "=")
         await bot.start(token_file['TOKEN'])
 
 
 if __name__ == "__main__":
     try:
-        logging.info(20 * '=' + " Starting the bot. " + 20 * "=")
         asyncio.run(main())
     except KeyboardInterrupt:
         logging.warning(f"Bot has been terminated from console line")
