@@ -43,6 +43,7 @@ class SetupEmbedView(discord.ui.View):
                     description="Utworzono listę. Możesz teraz modyfikować kolory.",
                     color=4539717
                 )
+                new_embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
                 
                 new_view = SetupEmbedView(new_colors, interaction.guild.id)
                 await interaction.response.send_message(embed=new_embed, view=new_view, ephemeral=True)
@@ -50,10 +51,6 @@ class SetupEmbedView(discord.ui.View):
                 await interaction.response.send_message("Błąd przy tworzeniu listy", ephemeral=True)
         except Exception as e:
             await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
-
-
-    async def add_color_callback(self, interaction: discord.Interaction):
-        await interaction.response.send_message("ADD button works!", ephemeral=True)
 
 
     async def edit_color_callback(self, interaction: discord.Interaction):
@@ -77,7 +74,6 @@ class SetupEmbedView(discord.ui.View):
                 await interaction.response.send_message("Brak kolorów do edycji.", ephemeral=True)
                 return
             
-            # Tworzymy formularz edycji
             modal = ColorSelectionModal(available_colors)
             await interaction.response.send_modal(modal)
         except Exception as e:
@@ -102,47 +98,84 @@ class ColorSelectionModal(Modal):
             label="Nowa wartość koloru",
             placeholder="#FFFFFF",
             style=discord.TextStyle.short,
-            required=True
+            required=False
         )
         self.add_item(self.color_input)
         
         self.available_colors = {str(i): hex_value for i, hex_value in available_colors}
     
+    
     async def on_submit(self, interaction: discord.Interaction):
         try:
             selected_index = self.color_index.value
-            new_color_value = self.color_input.value            
-            with db as session:
-                session.update(
-                    model.select_class("select"),
-                    {"server_id": interaction.guild.id},
-                    {f"hex_{selected_index}": new_color_value}
+                
+            try:
+                if self.color_input.value == "":
+                    new_color_value = None
+                else:     
+                    new_color_value = ColorUtils.color_parser(self.color_input.value)
+                
+                with db as session:
+                    session.update(
+                        model.select_class("select"),
+                        {"server_id": interaction.guild.id},
+                        {f"hex_{selected_index}": new_color_value}
+                    )
+                    
+                with db as session:
+                    query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
+                colors_data = query_result[0] if query_result else {}
+                
+                embed = discord.Embed(title="Konfiguracja kolorów", color=4539717)
+                embed.description = "Aktualnie ustawione kolory:\n"
+                for i in range(1, 11):
+                    color_val = colors_data.get(f"hex_{i}")
+                    if color_val:
+                        embed.description += f"**{i}.** #{color_val}\n"
+                    else:
+                        embed.description += f"**{i}.** -\n"
+                
+                view = SetupEmbedView(colors_data, interaction.guild.id)
+                embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+                await interaction.response.send_message(
+                    embed=embed,
+                    view=view,
+                    ephemeral=True
                 )
-            
-            with db as session:
-                query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
-            colors_data = query_result[0] if query_result else {}
-            
-            embed = discord.Embed(title="Konfiguracja kolorów", color=4539717)
-            embed.description = "Aktualnie ustawione kolory:\n"
-            for i in range(1, 11):
-                color_val = colors_data.get(f"hex_{i}")
-                if color_val:
-                    embed.description += f"**{i}.** {color_val}\n"
-                else:
-                    embed.description += f"**{i}.** -\n"
-            
-            view = SetupEmbedView(colors_data, interaction.guild.id)
-            
-            await interaction.response.send_message(
-                embed=embed,
-                view=view,
-                ephemeral=True
-            )
+                
+            except ValueError:
+                with db as session:
+                    query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
+                colors_data = query_result[0] if query_result else {}
+                
+                main_embed = discord.Embed(title="Konfiguracja kolorów", color=4539717)
+                main_embed.description = "Aktualnie ustawione kolory:\n"
+                for i in range(1, 11):
+                    color_val = colors_data.get(f"hex_{i}")
+                    if color_val:
+                        main_embed.description += f"**{i}.** {color_val}\n"
+                    else:
+                        main_embed.description += f"**{i}.** -\n"
+                
+                warn_embed = discord.Embed(title="", description=cmd_messages['color_format'], color=4539717)
+                warn_embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+                
+                view = SetupEmbedView(colors_data, interaction.guild.id)
+                
+                await interaction.response.send_message(
+                    embeds=[main_embed, warn_embed],  # Lista embedów pozwala wysłać oba na raz
+                    view=view,
+                    ephemeral=True
+                )
+                
         except Exception as e:
             logging.error(f"BŁĄD W ON_SUBMIT: {str(e)}", exc_info=True)
-
-
+            try:
+                await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
+            except:
+                pass
+            
+            
 class SetupCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -173,6 +206,7 @@ class SetupCog(commands.Cog):
                         embed.description += f"**{i}.** -\n"
 
             view = SetupEmbedView(colors_data, interaction.guild.id)
+            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view, ephemeral=True)
         except Exception as e:
             embed.clear_fields()
