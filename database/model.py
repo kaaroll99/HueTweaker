@@ -20,7 +20,7 @@ def guilds_class(table_name):
 class Select(Base):
     __tablename__ = 'select'
     __table_args__ = {'extend_existing': True}
-    server_id = Column(Integer, primary_key=True, nullable=False)
+    server_id = Column(BigInteger, primary_key=True, nullable=False)
     hex_1 = Column(Text)
     hex_2 = Column(Text)
     hex_3 = Column(Text)
