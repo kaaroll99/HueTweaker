@@ -5,7 +5,9 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot import cmd_messages
+from database import model
+
+from bot import db, cmd_messages
 
 
 class SelectCog(commands.Cog):
@@ -21,51 +23,25 @@ class SelectCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            role_count = 0
             embed.add_field(name=cmd_messages['available_colors'], value=f"", inline=False)
-            for number in range(1, 10):
-                role = discord.utils.get(interaction.guild.roles, name=f"color-static-{number}")
-                if role:
-                    role_count += 1
-                    embed.add_field(name=f"", value=f"**{role.mention}**", inline=False)
+            with db as db_session:
+                query = db_session.select(model.select_class("select"), {"server_id": interaction.guild.id})
+            available_colors = []
 
-            role1 = discord.utils.get(interaction.guild.roles, name=f"color-static-1")
-            if role1:
-                button1 = discord.ui.Button(label="1", style=discord.ButtonStyle.primary, custom_id="1")
-                button1.callback = self.__select_callback
-                view.add_item(button1)
+            if query and len(query) > 0:
+                colors_data = query[0]
 
-            role2 = discord.utils.get(interaction.guild.roles, name=f"color-static-2")
-            if role2:
-                button2 = discord.ui.Button(label="2", style=discord.ButtonStyle.primary, custom_id="2")
-                button2.callback = self.__select_callback
-                view.add_item(button2)
+                for i in range(1, 11):
+                    color_key = f"hex_{i}"
+                    color_value = colors_data.get(color_key)
 
-            role3 = discord.utils.get(interaction.guild.roles, name=f"color-static-3")
-            if role3:
-                button3 = discord.ui.Button(label="3", style=discord.ButtonStyle.primary, custom_id="3")
-                button3.callback = self.__select_callback
-                view.add_item(button3)
-
-            role4 = discord.utils.get(interaction.guild.roles, name=f"color-static-4")
-            if role4:
-                button4 = discord.ui.Button(label="4", style=discord.ButtonStyle.primary, custom_id="4")
-                button4.callback = self.__select_callback
-                view.add_item(button4)
-
-            role5 = discord.utils.get(interaction.guild.roles, name=f"color-static-5")
-            if role5:
-                button5 = discord.ui.Button(label="5", style=discord.ButtonStyle.primary, custom_id="5")
-                button5.callback = self.__select_callback
-                view.add_item(button5)
-
-            if role_count == 0:
-                embed.clear_fields()
-                embed.add_field(name=f"", value=cmd_messages['select_no_colors'], inline=False)
-            else:
-                button_delete = discord.ui.Button(label="❌", style=discord.ButtonStyle.danger, custom_id="delete")
-                button_delete.callback = self.__select_callback
-                view.add_item(button_delete)
+                    if color_value is not None:
+                        available_colors.append(color_value)
+            print(available_colors)
+            
+            for i, color in enumerate(available_colors, start=1):
+                embed.add_field(name=f"", value=f"**{i}.** #{color}", inline=False)
+  
 
         except discord.HTTPException as e:
             embed.clear_fields()
