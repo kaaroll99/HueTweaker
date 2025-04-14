@@ -93,3 +93,15 @@ check_color_format: |
 cool_down: "<:warn:1269288966754926623> Please cool down. Retry <t:{}:R>"
 no_permissions: "<:warn:1269288966754926623> You don't have permission to perform this command."
 footer_message: "Support the bot by voting with the /vote command"
+
+setup_select_embed_title: "<:star:1269288950174978100> /select color config"
+setup_select_embed_desc: |
+  <:bubble:1269288932340662333> Use the button below to add or edit existing colors using hex codes or CSS names.
+  <:bubble:1269288932340662333> Using the index number for an existing color will overwrite it. 
+  <:bubble:1269288932340662333> To remove an item from the list, leave the color field in the form blank.
+setup_select_create_info: "No colors set. Use the CREATE button to add the first one."
+setup_select_form_title: "Color edit form"
+setup_select_form_pl_index: "1"
+setup_select_form_index: "Index number to edit, e.g. 1, 2..., 10"
+setup_select_form_pl_color: "F5DF4D or royalblue"
+setup_select_form_color: "Color to set or leave blank to remove"

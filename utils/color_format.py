@@ -117,7 +117,7 @@ class ColorUtils:
         elif hex_regex.match(color):
             color = color.lstrip("#")
             if len(color) == 3:
-                return ''.join([x * 2 for x in color_match.strip("#")])
+                return ''.join([x * 2 for x in color.strip("#")])
             return color.strip("#")
         else:
             raise ValueError
