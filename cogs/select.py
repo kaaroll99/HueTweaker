@@ -6,8 +6,9 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from database import model
-
+from utils.color_format import ColorUtils
 from bot import db, cmd_messages
+from io import BytesIO
 
 
 class SelectCog(commands.Cog):
@@ -18,12 +19,10 @@ class SelectCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        embed: Embed = discord.Embed(title=cmd_messages['available_colors'], description=f"", color=4539717)
         view = discord.ui.View()
         try:
             await interaction.response.defer(ephemeral=True)
-
-            embed.add_field(name=cmd_messages['available_colors'], value=f"", inline=False)
             with db as db_session:
                 query = db_session.select(model.select_class("select"), {"server_id": interaction.guild.id})
             available_colors = []
@@ -36,13 +35,57 @@ class SelectCog(commands.Cog):
                     color_value = colors_data.get(color_key)
 
                     if color_value is not None:
-                        available_colors.append(color_value)
-            print(available_colors)
+                        available_colors.append((i, color_value))
+            options = []
+            for i, (index, color) in enumerate(available_colors, start=1):
+                options.append(
+                    discord.SelectOption(
+                        label=f"Color {i}", 
+                        value=str(index),
+                        description=f"#{color}"
+                    )
+                )
             
-            for i, color in enumerate(available_colors, start=1):
-                embed.add_field(name=f"", value=f"**{i}.** #{color}", inline=False)
-  
+            if options:
+                color_select = discord.ui.Select(
+                    placeholder="Select a color...",
+                    options=options,
+                    custom_id="color_select"
+                )
+                
+                async def color_select_callback(interaction: discord.Interaction):
+                    selected_value = interaction.data["values"][0]
+                    for idx, color in available_colors:
+                        if str(idx) == selected_value:
+                            with db as db_session:
+                                query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
+                            role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
+                            role_position = 1
+                            if role is None:
+                                role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
+                            if query:
+                                top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
+                                if top_role:
+                                    role_position = max(1, top_role.position - 1)
+                            await role.edit(colour=discord.Colour(int(color, 16)), position=role_position)
+                            break
+                    await interaction.response.defer()
+
+                color_select.callback = color_select_callback
+                view.add_item(color_select)
+                
+            if not available_colors:
+                embed.add_field(name=f"", value=cmd_messages['select_no_colors'], inline=False)
+            else:   
+                color_values = [color for _, color in available_colors]
+                image = ColorUtils.generate_colored_text_grid(interaction.user.name, color_values)
+                image_bytes = BytesIO()
+                image.save(image_bytes, format='PNG')
+                image_bytes.seek(0)
+                embed_file = discord.File(fp=image_bytes, filename="color_select2.png")
+                embed.set_image(url="attachment://" + embed_file.filename)
+            
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
@@ -59,35 +102,12 @@ class SelectCog(commands.Cog):
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            await interaction.followup.send(embed=embed, view=view)
+            if embed_file:
+                await interaction.followup.send(embed=embed, view=view, file=embed_file)
+            else:
+                await interaction.followup.send(embed=embed, view=view)
             logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /select")
 
-    @staticmethod
-    async def __select_callback(interaction: discord.Interaction):
-        edited_view = discord.ui.View()
-        embed: Embed = discord.Embed(title=f"", description="", color=4539717)
-        try:
-            for number in range(1, 10):
-                role = discord.utils.get(interaction.guild.roles, name=f"color-static-{number}")
-                if role:
-                    await interaction.user.remove_roles(role)
-                embed: Embed = discord.Embed(title=f"", description=cmd_messages['select_remove'], color=4539717)
-            if interaction.data['custom_id'] != "delete":
-                role = discord.utils.get(interaction.guild.roles, name=f"color-static-{interaction.data['custom_id']}")
-                embed: Embed = discord.Embed(title=f"", description=cmd_messages['select_set'].format(role.mention),
-                                             color=4539717)
-                if role:
-                    await interaction.user.add_roles(role)
-
-        except Exception as e:
-            embed.clear_fields()
-            embed.description = f""
-            embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
-        finally:
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            await interaction.response.edit_message(embed=embed, view=edited_view)
 
     @select.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

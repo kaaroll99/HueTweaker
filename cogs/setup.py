@@ -52,9 +52,9 @@ class SetupEmbedView(discord.ui.View):
                 new_view = SetupEmbedView(new_colors, interaction.guild.id)
                 await interaction.response.send_message(embed=new_embed, view=new_view, ephemeral=True)
             else:
-                await interaction.response.send_message("Błąd przy tworzeniu listy", ephemeral=True)
+                logging.error(f"Failed to create color list for server {interaction.guild.id}")
         except Exception as e:
-            await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
+            logging.error(f"Error creating color list: {str(e)}")
 
 
     async def edit_color_callback(self, interaction: discord.Interaction):
@@ -73,7 +73,7 @@ class SetupEmbedView(discord.ui.View):
             modal = ColorSelectionModal(available_colors)
             await interaction.response.send_modal(modal)
         except Exception as e:
-            await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
+            logging.error(f"Error in edit_color_callback: {str(e)}")
 
 
 class ColorSelectionModal(Modal):
@@ -103,10 +103,9 @@ class ColorSelectionModal(Modal):
     
     async def on_submit(self, interaction: discord.Interaction):
         try:
-            selected_index = self.color_index.value
-            print(type(selected_index))
+            selected_index = int(self.color_index.value)
             try:
-                if selected_index > '10' or selected_index < '1':
+                if selected_index > 10 or selected_index < 1:
                     raise ValueError
                 if self.color_input.value == "":
                     new_color_value = None
@@ -117,7 +116,7 @@ class ColorSelectionModal(Modal):
                     session.update(
                         model.select_class("select"),
                         {"server_id": interaction.guild.id},
-                        {f"hex_{selected_index}": new_color_value}
+                        {f"hex_{str(selected_index)}": new_color_value}
                     )
                     
                 with db as session:
@@ -148,6 +147,7 @@ class ColorSelectionModal(Modal):
                 
                 main_embed = discord.Embed(title=cmd_messages['setup_select_embed_title'], color=4539717)
                 main_embed.description = f"{cmd_messages['setup_select_embed_desc']}\n"
+                main_embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
                 for i in range(1, 11):
                     color_val = colors_data.get(f"hex_{i}")
                     if color_val:
@@ -161,7 +161,7 @@ class ColorSelectionModal(Modal):
                 view = SetupEmbedView(colors_data, interaction.guild.id)
                 
                 await interaction.response.send_message(
-                    embeds=[main_embed, warn_embed],  # Lista embedów pozwala wysłać oba na raz
+                    embeds=[main_embed, warn_embed],
                     view=view,
                     ephemeral=True
                 )
@@ -184,7 +184,6 @@ class SetupCog(commands.Cog):
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:
         embed = Embed(title=cmd_messages['setup_select_embed_title'], color=4539717)
-
         try:
             await interaction.response.defer(ephemeral=True)
             with db as session:
@@ -210,6 +209,7 @@ class SetupCog(commands.Cog):
             embed.description = cmd_messages['exception']
             await interaction.followup.send(embed=embed, ephemeral=True)
             self.bot.logger.critical(f"{interaction.user.name}[{interaction.user.id}] exception: {repr(e)}")
+
 
     @group.command(name="toprole", description="Setup top role for color roles")
     @app_commands.describe(role_name="Role name")
