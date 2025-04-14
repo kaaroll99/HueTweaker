@@ -27,18 +27,18 @@ class SelectCog(commands.Cog):
             with db as db_session:
                 query = db_session.select(model.select_class("select"), {"server_id": interaction.guild.id})
             available_colors = []
-            if not query and available_colors == []:
+             
+            if query and len(query) > 0:
+                colors_data = query[0]
+                for i in range(1, 11):
+                    color_key = f"hex_{i}"
+                    color_value = colors_data.get(color_key)
+                    if color_value is not None:
+                        available_colors.append((i, color_value))
+                        
+            if not available_colors:
                 embed.add_field(name=f"", value=cmd_messages['select_no_colors'], inline=False)
-            else: 
-                if query and len(query) > 0:
-                    colors_data = query[0]
-
-                    for i in range(1, 11):
-                        color_key = f"hex_{i}"
-                        color_value = colors_data.get(color_key)
-
-                        if color_value is not None:
-                            available_colors.append((i, color_value))
+            else:
                 options = []
                 for i, (index, color) in enumerate(available_colors, start=1):
                     options.append(
@@ -80,12 +80,13 @@ class SelectCog(commands.Cog):
                     
                 
                 color_values = [color for _, color in available_colors]
-                image = ColorUtils.generate_colored_text_grid(interaction.user.name, color_values)
-                image_bytes = BytesIO()
-                image.save(image_bytes, format='PNG')
-                image_bytes.seek(0)
-                embed_file = discord.File(fp=image_bytes, filename="color_select.png")
-                embed.set_image(url="attachment://" + embed_file.filename)
+                if len(color_values) > 0:
+                    image = ColorUtils.generate_colored_text_grid(interaction.user.name, color_values)
+                    image_bytes = BytesIO()
+                    image.save(image_bytes, format='PNG')
+                    image_bytes.seek(0)
+                    embed_file = discord.File(fp=image_bytes, filename="color_select.png")
+                    embed.set_image(url="attachment://" + embed_file.filename)
             
         except discord.HTTPException as e:
             embed.clear_fields()

@@ -70,7 +70,7 @@ class HelpCog(commands.Cog):
                                          description=f"{data[selected_option]['desc']}", color=4539717)
 
             embed.add_field(name=cmd_messages['com_syntax'], value=f"> {data[selected_option]['usage']}", inline=False)
-            embed.add_field(name=cmd_messages['com_syntax'], value=f"> {data[selected_option]['example']}", inline=False)
+            embed.add_field(name=cmd_messages['com_example'], value=f"> {data[selected_option]['example']}", inline=False)
             embed.add_field(name=f"<:star:1269288950174978100> Docs:",
                             value="> " + cmd_messages['com_docs'].format(data[selected_option]['docs']), inline=False)
         except Exception as e:
