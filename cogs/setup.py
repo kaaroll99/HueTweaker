@@ -20,14 +20,11 @@ class SetupEmbedView(discord.ui.View):
         self.guild_id = guild_id
         self.colors_data = colors_data or {}
 
-        # Dodajemy przyciski na podstawie stanu danych
         if not any(self.colors_data.values()):
-            # Dodajemy CREATE tylko gdy nie ma danych
             create_button = Button(label="CREATE", style=discord.ButtonStyle.primary, custom_id="create_button")
             create_button.callback = self.create_callback
             self.add_item(create_button)
         else:
-            # Dodaj przyciski ADD/EDIT tylko jeśli mamy dane
             add_button = Button(label="ADD", style=discord.ButtonStyle.success, custom_id="add_color")
             add_button.callback = self.add_color_callback
             self.add_item(add_button)
@@ -36,20 +33,16 @@ class SetupEmbedView(discord.ui.View):
             edit_button.callback = self.edit_color_callback
             self.add_item(edit_button)
         
-        # Dodaj przycisk BACK zawsze
-        back_button = Button(label="BACK", style=discord.ButtonStyle.danger, custom_id="back_main")
-        back_button.callback = self.back_callback
-        self.add_item(back_button)
+        # back_button = Button(label="BACK", style=discord.ButtonStyle.danger, custom_id="back_main")
+        # back_button.callback = self.back_callback
+        # self.add_item(back_button)
 
-    # Metody callbacków zdefiniowane jako zwykłe metody
     async def create_callback(self, interaction: discord.Interaction):
         try:
             with db as session:
-                # Wykonanie zapytania tworzącego rekord w bazie
                 query = session.create(model.select_class("select"), {"server_id": interaction.guild.id})
             
             if query:
-                # Pobierz zaktualizowane dane z bazy
                 with db as session:
                     query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
                 new_colors = query_result[0] if query_result else {}
@@ -60,7 +53,6 @@ class SetupEmbedView(discord.ui.View):
                     color=4539717
                 )
                 
-                # Wyślij nowy embed z zaktualizowanym widokiem
                 new_view = SetupEmbedView(new_colors, interaction.guild.id)
                 await interaction.response.send_message(embed=new_embed, view=new_view, ephemeral=True)
             else:
@@ -68,39 +60,14 @@ class SetupEmbedView(discord.ui.View):
         except Exception as e:
             await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
 
+
     async def add_color_callback(self, interaction: discord.Interaction):
         await interaction.response.send_message("ADD button works!", ephemeral=True)
+
 
     async def edit_color_callback(self, interaction: discord.Interaction):
         await interaction.response.send_message("EDIT button works!", ephemeral=True)
 
-    async def back_callback(self, interaction: discord.Interaction):
-        try:
-            # Pobierz aktualne dane z bazy
-            with db as session:
-                query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
-            # Jeśli nie znaleziono danych, ustawiamy pusty słownik
-            colors_data = query_result[0] if query_result else {}
-
-            embed = discord.Embed(title="Konfiguracja kolorów", color=4539717)
-            
-            # W zależności od wyniku generujemy embed
-            if not any(colors_data.values()):
-                embed.description = "Brak ustawionych kolorów. Użyj przycisku CREATE aby dodać pierwszy."
-            else:
-                embed.description = "Aktualnie ustawione kolory:\n"
-                for i in range(1, 11):
-                    color_val = colors_data.get(f"hex_{i}")
-                    if color_val:
-                        embed.description += f"**{i}.** {color_val}\n"
-                    else:
-                        embed.description += f"**{i}.** -\n"
-
-            # Odtwarzamy główny widok
-            view = SetupEmbedView(colors_data, interaction.guild.id)
-            await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-        except Exception as e:
-            await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
 
 
 # Widok edycji kolorów – przyciski jako cyfry (dla kolorów już ustawionych)
@@ -140,32 +107,6 @@ class ColorEditModal(Modal):
         # with db as db_session:
         #      db_session.update(model.select_class("select"), {"server_id": interaction.guild.id}, {f"hex_{self.color_index}": new_color})
         await interaction.response.send_message(f"Zaktualizowano kolor {self.color_index} na {new_color}", ephemeral=True)
-
-
-class CreateColorView(discord.ui.View):
-    def __init__(self):
-        super().__init__(timeout=180)
-
-    @discord.ui.button(label="CREATE", style=discord.ButtonStyle.primary, custom_id="create_color")
-    async def create_color_button(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message("CREATE DZIALA", ephemeral=True)
-        # with db as db_session:
-        #     query = db_session.create(model.select_class("select"), {"server_id": interaction.guild.id})
-        # if query:
-        #     # Pobierz zaktualizowane dane z bazy
-        #     with db as db_session:
-        #         query_result = db_session.select(model.select_class("select"), {"server_id": interaction.guild.id})
-        #     colors_data = query_result[0] if query_result else {}
-        #     embed = discord.Embed(
-        #         title="Konfiguracja kolorów",
-        #         description="Utworzono listę. Możesz teraz modyfikować kolory.",
-        #         color=4539717
-        #     )
-        #     # Po utworzeniu listy wyświetlamy główny widok do dalszych modyfikacji
-        #     view = SetupEmbedView(colors_data, interaction.guild.id)
-        #     await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
-        # else:
-        #     await interaction.response.send_message("Błąd przy tworzeniu listy", ephemeral=True)
 
 
 class SetupCog(commands.Cog):
