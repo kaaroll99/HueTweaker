@@ -28,10 +28,8 @@ class SelectCog(commands.Cog):
                 query = db_session.select(model.select_class("select"), {"server_id": interaction.guild.id})
             available_colors = []
             if not query and available_colors == []:
-                print("No colors available")
                 embed.add_field(name=f"", value=cmd_messages['select_no_colors'], inline=False)
             else: 
-                print("elese")
                 if query and len(query) > 0:
                     colors_data = query[0]
 
@@ -106,10 +104,8 @@ class SelectCog(commands.Cog):
 
         finally:
             if embed_file:
-                print("Sending file")
                 await interaction.followup.send(embed=embed, file=embed_file)
             else:
-                print("No file to send")
                 await interaction.followup.send(embed=embed)
             logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /select")
 
