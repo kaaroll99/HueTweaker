@@ -141,12 +141,9 @@ class ForceCog(commands.Cog):
         view = discord.ui.View()
 
         async def del_static_roles():
-            for i, static_role in enumerate(interaction.guild.roles, start=1):
-                if i > 5:
-                    break
-                role = discord.utils.get(interaction.guild.roles, name=f"color-static-{i}")
-                if role:
-                    await role.delete()
+            with db as db_session:
+                db_session.delete(model.select_class("select"), {"server_id": interaction.guild.id})
+                
 
         async def del_individual_roles():
             pattern = re.compile(f"color-\\d{{18,19}}")
