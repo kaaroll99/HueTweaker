@@ -104,7 +104,7 @@ class SelectCog(commands.Cog):
 
         finally:
             if embed_file:
-                await interaction.followup.send(embed=embed, file=embed_file)
+                await interaction.followup.send(embed=embed, view=view, file=embed_file)
             else:
                 await interaction.followup.send(embed=embed)
             logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /select")
