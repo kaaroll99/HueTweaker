@@ -13,7 +13,6 @@ from utils.color_format import ColorUtils
 from utils.data_loader import load_json
 
 
-# GŁÓWNY widok z przyciskami
 class SetupEmbedView(discord.ui.View):
     def __init__(self, colors_data: dict, guild_id: int):
         super().__init__(timeout=180)
@@ -24,18 +23,10 @@ class SetupEmbedView(discord.ui.View):
             create_button = Button(label="CREATE", style=discord.ButtonStyle.primary, custom_id="create_button")
             create_button.callback = self.create_callback
             self.add_item(create_button)
-        else:
-            add_button = Button(label="ADD", style=discord.ButtonStyle.success, custom_id="add_color")
-            add_button.callback = self.add_color_callback
-            self.add_item(add_button)
-            
-            edit_button = Button(label="EDIT", style=discord.ButtonStyle.secondary, custom_id="edit_color")
+        else:            
+            edit_button = Button(label="ADD/EDIT COLOR", style=discord.ButtonStyle.success, custom_id="edit_color")
             edit_button.callback = self.edit_color_callback
             self.add_item(edit_button)
-        
-        # back_button = Button(label="BACK", style=discord.ButtonStyle.danger, custom_id="back_main")
-        # back_button.callback = self.back_callback
-        # self.add_item(back_button)
 
     async def create_callback(self, interaction: discord.Interaction):
         try:
@@ -67,7 +58,6 @@ class SetupEmbedView(discord.ui.View):
 
     async def edit_color_callback(self, interaction: discord.Interaction):
         try:
-            # Tworzymy listę kolorów, które są już ustawione
             with db as session:
                 query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
             
@@ -78,7 +68,6 @@ class SetupEmbedView(discord.ui.View):
             colors_data = query_result[0]
             available_colors = []
             
-            # Zbieramy wszystkie ustawione kolory
             for i in range(1, 11):
                 color_key = f"hex_{i}"
                 if colors_data.get(color_key):
@@ -95,54 +84,10 @@ class SetupEmbedView(discord.ui.View):
             await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
 
 
-# Widok edycji kolorów – przyciski jako cyfry (dla kolorów już ustawionych)
-class EditColorView(View):
-    def __init__(self, colors_data: dict, guild_id: int):
-        super().__init__(timeout=180)
-        self.guild_id = guild_id
-        self.colors_data = colors_data or {}
-        
-        # Dodajemy przyciski dla każdego ustawionego koloru (od 1 do 10)
-        number_emojis = {1:"1️⃣",2:"2️⃣",3:"3️⃣",4:"4️⃣",5:"5️⃣",6:"6️⃣",7:"7️⃣",8:"8️⃣",9:"9️⃣",10:"🔟"}
-        for index in range(1, 11):
-            if self.colors_data.get(f"hex_{index}"):
-                self.add_item(
-                    Button(
-                        label=str(index),
-                        emoji=number_emojis[index],
-                        style=discord.ButtonStyle.primary,
-                        custom_id=f"edit_{index}"
-                    )
-                )
-        self.add_item(Button(label="BACK", style=discord.ButtonStyle.danger, custom_id="back_edit"))
-        
-    async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        return True
-
-# Modal, w którym użytkownik wpisze nowy kolor lub nadpisze stary
-class ColorEditModal(Modal):
-    def __init__(self, color_index: int):
-        super().__init__(title=f"Edycja koloru {color_index}")
-        self.color_index = color_index
-        # self.add_item(InputText(label="Wprowadź kolor (np. #FFFFFF)", placeholder="#FFFFFF"))
-    
-    async def callback(self, interaction: discord.Interaction):
-        new_color = self.children[0].value
-        # Tu możesz dodać logikę aktualizacji w bazie, np.:
-        # with db as db_session:
-        #      db_session.update(model.select_class("select"), {"server_id": interaction.guild.id}, {f"hex_{self.color_index}": new_color})
-        await interaction.response.send_message(f"Zaktualizowano kolor {self.color_index} na {new_color}", ephemeral=True)
-
-
-# Modal do wyboru koloru i edycji wartości
 class ColorSelectionModal(Modal):
     def __init__(self, available_colors):
         super().__init__(title="Edycja koloru")
-        
-        # Dodaj więcej logów
-        logging.info(f"Tworzenie modalu z dostępnymi kolorami: {available_colors}")
-        
-        # Zamiast Select, używamy TextInput do podania numeru koloru
+                
         self.color_index = TextInput(
             label="Numer koloru do edycji",
             placeholder="Wpisz numer od 1 do 10",
@@ -153,7 +98,6 @@ class ColorSelectionModal(Modal):
         )
         self.add_item(self.color_index)
         
-        # Pole do wpisania nowej wartości koloru
         self.color_input = TextInput(
             label="Nowa wartość koloru",
             placeholder="#FFFFFF",
@@ -162,28 +106,41 @@ class ColorSelectionModal(Modal):
         )
         self.add_item(self.color_input)
         
-        # Zachowujemy listę dostępnych kolorów jako atrybut klasy
         self.available_colors = {str(i): hex_value for i, hex_value in available_colors}
-        logging.info(f"Dostępne kolory: {self.available_colors}")
     
-    # Uproszczony callback - tylko potwierdź otrzymanie danych
     async def on_submit(self, interaction: discord.Interaction):
-        logging.info("MODAL ON_SUBMIT: Rozpoczęcie wykonania")
         try:
             selected_index = self.color_index.value
-            new_color_value = self.color_input.value
-            logging.info(f"Otrzymane wartości: indeks={selected_index}, kolor={new_color_value}")
+            new_color_value = self.color_input.value            
+            with db as session:
+                session.update(
+                    model.select_class("select"),
+                    {"server_id": interaction.guild.id},
+                    {f"hex_{selected_index}": new_color_value}
+                )
+            
+            with db as session:
+                query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
+            colors_data = query_result[0] if query_result else {}
+            
+            embed = discord.Embed(title="Konfiguracja kolorów", color=4539717)
+            embed.description = "Aktualnie ustawione kolory:\n"
+            for i in range(1, 11):
+                color_val = colors_data.get(f"hex_{i}")
+                if color_val:
+                    embed.description += f"**{i}.** {color_val}\n"
+                else:
+                    embed.description += f"**{i}.** -\n"
+            
+            view = SetupEmbedView(colors_data, interaction.guild.id)
             
             await interaction.response.send_message(
-                f"Pomyślnie odebrano dane: indeks={selected_index}, kolor={new_color_value}",
+                embed=embed,
+                view=view,
                 ephemeral=True
             )
         except Exception as e:
             logging.error(f"BŁĄD W ON_SUBMIT: {str(e)}", exc_info=True)
-            try:
-                await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
-            except:
-                pass
 
 
 class SetupCog(commands.Cog):
@@ -202,10 +159,8 @@ class SetupCog(commands.Cog):
             await interaction.response.defer(ephemeral=True)
             with db as session:
                 query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
-            # Jeśli nie znaleziono danych, ustawiamy pusty słownik
             colors_data = query_result[0] if query_result else {}
 
-            # W zależności od wyniku generujemy embed
             if not any(colors_data.values()):
                 embed.description = "Brak ustawionych kolorów. Użyj przycisku CREATE aby dodać pierwszy."
             else:
