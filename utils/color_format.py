@@ -107,6 +107,41 @@ class ColorUtils:
         rgb_color = rgb_color.astype(np.uint8)
         image_array = np.full((100, 300, 3), rgb_color, dtype=np.uint8)
         return Image.fromarray(image_array, 'RGB')
+    
+    
+    @staticmethod
+    def generate_colored_text_grid(text, hex_colors):
+        from PIL import ImageDraw, ImageFont
+        
+        try:
+            font = ImageFont.truetype("assets/gg_sans_mid.ttf", 18)
+        except IOError:
+            font = ImageFont.load_default()
+        
+        padding = 0
+        line_height = 30
+        height = (len(hex_colors) * line_height) + padding * 2
+        width = 400
+        
+        image = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(image)
+        
+        for i, hex_color in enumerate(hex_colors):
+            hex_color = hex_color.lstrip('#')
+            
+            r = int(hex_color[0:2], 16)
+            g = int(hex_color[2:4], 16)
+            b = int(hex_color[4:6], 16)
+            
+            numbered_text = f"{i+1}. {text}"
+            
+            draw.text(
+                (padding, padding + i * line_height),
+                numbered_text,
+                fill=(r, g, b, 255),
+                font=font
+            )
+        return image
 
     @staticmethod
     def color_parser(color):
