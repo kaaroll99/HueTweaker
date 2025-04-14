@@ -139,6 +139,9 @@ class ColorSelectionModal(Modal):
     def __init__(self, available_colors):
         super().__init__(title="Edycja koloru")
         
+        # Dodaj więcej logów
+        logging.info(f"Tworzenie modalu z dostępnymi kolorami: {available_colors}")
+        
         # Zamiast Select, używamy TextInput do podania numeru koloru
         self.color_index = TextInput(
             label="Numer koloru do edycji",
@@ -159,68 +162,28 @@ class ColorSelectionModal(Modal):
         )
         self.add_item(self.color_input)
         
-        # Zachowujemy listę dostępnych kolorów
+        # Zachowujemy listę dostępnych kolorów jako atrybut klasy
         self.available_colors = {str(i): hex_value for i, hex_value in available_colors}
-        
-    async def callback(self, interaction: discord.Interaction):
-        # Pobieramy wybrany indeks koloru i nową wartość
-        selected_index = self.color_index.value
-        new_color_value = self.color_input.value
-        
-        # Sprawdzamy czy indeks jest prawidłowy
-        if selected_index not in self.available_colors:
-            await interaction.response.send_message(
-                f"Nieprawidłowy numer koloru. Dostępne numery: {', '.join(self.available_colors.keys())}", 
-                ephemeral=True
-            )
-            return
-        
-        # Sprawdzamy poprawność formatu koloru
-        if not ColorUtils.is_valid_hex(new_color_value):
-            await interaction.response.send_message(
-                "Nieprawidłowy format koloru. Użyj formatu #RRGGBB.", 
-                ephemeral=True
-            )
-            return
-        
+        logging.info(f"Dostępne kolory: {self.available_colors}")
+    
+    # Uproszczony callback - tylko potwierdź otrzymanie danych
+    async def on_submit(self, interaction: discord.Interaction):
+        logging.info("MODAL ON_SUBMIT: Rozpoczęcie wykonania")
         try:
-            # Aktualizujemy wartość w bazie danych
-            with db as session:
-                session.update(
-                    model.select_class("select"),
-                    {"server_id": interaction.guild.id},
-                    {f"hex_{selected_index}": new_color_value}
-                )
+            selected_index = self.color_index.value
+            new_color_value = self.color_input.value
+            logging.info(f"Otrzymane wartości: indeks={selected_index}, kolor={new_color_value}")
             
-            # Potwierdzamy aktualizację
             await interaction.response.send_message(
-                f"Zaktualizowano kolor {selected_index} na {new_color_value}",
+                f"Pomyślnie odebrano dane: indeks={selected_index}, kolor={new_color_value}",
                 ephemeral=True
             )
-            
-            # Opcjonalnie, można odświeżyć główny widok
-            with db as session:
-                query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
-            colors_data = query_result[0] if query_result else {}
-            
-            embed = discord.Embed(
-                title="Konfiguracja kolorów",
-                description="Kolory zaktualizowane:",
-                color=4539717
-            )
-            
-            for i in range(1, 11):
-                color_val = colors_data.get(f"hex_{i}")
-                if color_val:
-                    embed.description += f"\n**{i}.** {color_val}"
-                else:
-                    embed.description += f"\n**{i}.** -"
-            
-            new_view = SetupEmbedView(colors_data, interaction.guild.id)
-            await interaction.followup.send(embed=embed, view=new_view, ephemeral=True)
-            
         except Exception as e:
-            await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
+            logging.error(f"BŁĄD W ON_SUBMIT: {str(e)}", exc_info=True)
+            try:
+                await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
+            except:
+                pass
 
 
 class SetupCog(commands.Cog):
