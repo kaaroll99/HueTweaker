@@ -38,13 +38,17 @@ class SetupEmbedView(discord.ui.View):
                     query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
                 new_colors = query_result[0] if query_result else {}
                 
-                new_embed = discord.Embed(
-                    title="Konfiguracja kolorów",
-                    description="Utworzono listę. Możesz teraz modyfikować kolory.",
-                    color=4539717
-                )
-                new_embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+                new_embed = discord.Embed(title=cmd_messages['setup_select_embed_title'], color=4539717)
+                new_embed.description = f"{cmd_messages['setup_select_embed_desc']}\n"
                 
+                for i in range(1, 11):
+                    color_val = new_colors.get(f"hex_{i}")
+                    if color_val:
+                        new_embed.description += f"**{i}.** #{color_val}\n"
+                    else:
+                        new_embed.description += f"**{i}.** -\n"
+                
+                new_embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
                 new_view = SetupEmbedView(new_colors, interaction.guild.id)
                 await interaction.response.send_message(embed=new_embed, view=new_view, ephemeral=True)
             else:
@@ -57,10 +61,6 @@ class SetupEmbedView(discord.ui.View):
         try:
             with db as session:
                 query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
-            
-            if not query_result:
-                await interaction.response.send_message("Brak kolorów do edycji.", ephemeral=True)
-                return
                 
             colors_data = query_result[0]
             available_colors = []
@@ -70,10 +70,6 @@ class SetupEmbedView(discord.ui.View):
                 if colors_data.get(color_key):
                     available_colors.append((i, colors_data[color_key]))
             
-            if not available_colors:
-                await interaction.response.send_message("Brak kolorów do edycji.", ephemeral=True)
-                return
-            
             modal = ColorSelectionModal(available_colors)
             await interaction.response.send_modal(modal)
         except Exception as e:
@@ -82,11 +78,11 @@ class SetupEmbedView(discord.ui.View):
 
 class ColorSelectionModal(Modal):
     def __init__(self, available_colors):
-        super().__init__(title="Edycja koloru")
+        super().__init__(title=cmd_messages['setup_select_form_title'])
                 
         self.color_index = TextInput(
-            label="Numer koloru do edycji",
-            placeholder="Wpisz numer od 1 do 10",
+            label=cmd_messages['setup_select_form_index'],
+            placeholder=cmd_messages['setup_select_form_pl_index'],
             style=discord.TextStyle.short,
             required=True,
             min_length=1,
@@ -95,8 +91,8 @@ class ColorSelectionModal(Modal):
         self.add_item(self.color_index)
         
         self.color_input = TextInput(
-            label="Nowa wartość koloru",
-            placeholder="#FFFFFF",
+            label=cmd_messages['setup_select_form_color'],
+            placeholder=cmd_messages['setup_select_form_pl_color'],
             style=discord.TextStyle.short,
             required=False
         )
@@ -108,8 +104,10 @@ class ColorSelectionModal(Modal):
     async def on_submit(self, interaction: discord.Interaction):
         try:
             selected_index = self.color_index.value
-                
+            print(type(selected_index))
             try:
+                if selected_index > '10' or selected_index < '1':
+                    raise ValueError
                 if self.color_input.value == "":
                     new_color_value = None
                 else:     
@@ -126,8 +124,8 @@ class ColorSelectionModal(Modal):
                     query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
                 colors_data = query_result[0] if query_result else {}
                 
-                embed = discord.Embed(title="Konfiguracja kolorów", color=4539717)
-                embed.description = "Aktualnie ustawione kolory:\n"
+                embed = discord.Embed(title=cmd_messages['setup_select_embed_title'], color=4539717)
+                embed.description = f"{cmd_messages['setup_select_embed_desc']}\n"
                 for i in range(1, 11):
                     color_val = colors_data.get(f"hex_{i}")
                     if color_val:
@@ -148,12 +146,12 @@ class ColorSelectionModal(Modal):
                     query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
                 colors_data = query_result[0] if query_result else {}
                 
-                main_embed = discord.Embed(title="Konfiguracja kolorów", color=4539717)
-                main_embed.description = "Aktualnie ustawione kolory:\n"
+                main_embed = discord.Embed(title=cmd_messages['setup_select_embed_title'], color=4539717)
+                main_embed.description = f"{cmd_messages['setup_select_embed_desc']}\n"
                 for i in range(1, 11):
                     color_val = colors_data.get(f"hex_{i}")
                     if color_val:
-                        main_embed.description += f"**{i}.** {color_val}\n"
+                        main_embed.description += f"**{i}.** #{color_val}\n"
                     else:
                         main_embed.description += f"**{i}.** -\n"
                 
@@ -169,11 +167,10 @@ class ColorSelectionModal(Modal):
                 )
                 
         except Exception as e:
-            logging.error(f"BŁĄD W ON_SUBMIT: {str(e)}", exc_info=True)
-            try:
-                await interaction.response.send_message(f"Wystąpił błąd: {str(e)}", ephemeral=True)
-            except:
-                pass
+            embed = discord.Embed(title=cmd_messages['setup_select_embed_title'], color=4539717)
+            embed.description = cmd_messages['exception']
+            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            await interaction.followup.send(embed=embed)
             
             
 class SetupCog(commands.Cog):
@@ -186,7 +183,7 @@ class SetupCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:
-        embed = Embed(title="Konfiguracja kolorów", color=4539717)
+        embed = Embed(title=cmd_messages['setup_select_embed_title'], color=4539717)
 
         try:
             await interaction.response.defer(ephemeral=True)
@@ -195,13 +192,13 @@ class SetupCog(commands.Cog):
             colors_data = query_result[0] if query_result else {}
 
             if not any(colors_data.values()):
-                embed.description = "Brak ustawionych kolorów. Użyj przycisku CREATE aby dodać pierwszy."
+                embed.description = cmd_messages['setup_select_create_info']
             else:
-                embed.description = "Aktualnie ustawione kolory:\n"
+                embed.description = f"{cmd_messages['setup_select_embed_desc']}\n"
                 for i in range(1, 11):
                     color_val = colors_data.get(f"hex_{i}")
                     if color_val:
-                        embed.description += f"**{i}.** {color_val}\n"
+                        embed.description += f"**{i}.** #{color_val}\n"
                     else:
                         embed.description += f"**{i}.** -\n"
 
