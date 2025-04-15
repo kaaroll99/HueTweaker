@@ -50,8 +50,11 @@ remove:
 select:
   name: select
   desc: >-
-    Choose one of the prepared colors on the server using the button under the message. 
-    You can remove the color by pressing the red button.
+    Choose one of the colors configured on your server from the dropdown menu.
+    The command displays a preview of how your name will look with each available color.
+    
+    If no colors are configured on the server, administrators need to set them up 
+    using the `/setup select` command first.
 
   usage: /select
   example: /select
@@ -218,11 +221,19 @@ setupselect:
   name: setup select
   desc: >-
     Configure the colors that will be available for selection using the `/select` command.
-    Two colors are required. The others are optional. Up to 5.
-  
-  
-    `<color>` - Color to set (hexadecimal format, e.g. __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__) 
+    This command opens an interactive panel where you can add, edit, or remove colors.
+    You can configure up to 10 different colors.
+    
+    
+    When adding or editing a color, you'll need to fill out a form with:
+    - Color index (1-10) - Position of the color in the selection menu
+    - Color value - The color you want to set at that position
+    
+    
+    Colors can be set in hexadecimal format (e.g. __F5DF4D__) or using a [CSS color name](https://huetweaker.gitbook.io/docs/main/colors) (e.g. __royalblue__).
+    
+    ⚠️ The command can only be executed by a user with administrator privileges.
 
-  usage: /setup select <color> <color> <color> <color> <color>
-  example: /setup select `red` `F5DF4D` `gold` `royalblue` `#9ACD32`
+  usage: /setup select
+  example: /setup select
   docs: setup-select
