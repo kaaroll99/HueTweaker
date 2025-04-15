@@ -9,6 +9,7 @@ from database import model
 from utils.color_format import ColorUtils
 from bot import db, cmd_messages
 from io import BytesIO
+import re
 
 
 class SelectCog(commands.Cog):
@@ -33,12 +34,9 @@ class SelectCog(commands.Cog):
                 for i in range(1, 11):
                     color_key = f"hex_{i}"
                     color_value = colors_data.get(color_key)
-                    if color_value is not None:
-                        available_colors.append((i, color_value))
+                    if isinstance(color_value, str) and color_value.strip():
+                        available_colors.append((i, color_value.strip()))
                         
-            if not available_colors:
-                embed.add_field(name=f"", value=cmd_messages['select_no_colors'], inline=False)
-            else:
                 options = []
                 for i, (index, color) in enumerate(available_colors, start=1):
                     options.append(
@@ -78,15 +76,18 @@ class SelectCog(commands.Cog):
                     color_select.callback = color_select_callback
                     view.add_item(color_select)
                     
-                
+            if not available_colors:
+                s=0
+                embed.add_field(name=f"", value=cmd_messages['select_no_colors'], inline=False)
+            else:
+                s=1
                 color_values = [color for _, color in available_colors]
-                if len(color_values) > 0:
-                    image = ColorUtils.generate_colored_text_grid(interaction.user.name, color_values)
-                    image_bytes = BytesIO()
-                    image.save(image_bytes, format='PNG')
-                    image_bytes.seek(0)
-                    embed_file = discord.File(fp=image_bytes, filename="color_select.png")
-                    embed.set_image(url="attachment://" + embed_file.filename)
+                image = ColorUtils.generate_colored_text_grid(interaction.user.name, color_values)
+                image_bytes = BytesIO()
+                image.save(image_bytes, format='PNG')
+                image_bytes.seek(0)
+                embed_file = discord.File(fp=image_bytes, filename="color_select.png")
+                embed.set_image(url="attachment://" + embed_file.filename)
             
         except discord.HTTPException as e:
             embed.clear_fields()
@@ -108,7 +109,7 @@ class SelectCog(commands.Cog):
                 await interaction.followup.send(embed=embed, view=view, file=embed_file)
             else:
                 await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /select")
+            logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /select (s:{s},q:{query})")
 
 
     @select.error

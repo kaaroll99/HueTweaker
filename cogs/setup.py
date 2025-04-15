@@ -103,9 +103,10 @@ class ColorSelectionModal(Modal):
     
     async def on_submit(self, interaction: discord.Interaction):
         try:
-            selected_index = int(self.color_index.value)
             try:
-                if selected_index > 10 or selected_index < 1:
+                import re
+                index_value = int(re.sub(r"\D", "", self.color_index.value))
+                if not isinstance(index_value, int) or index_value > 10 or index_value < 1:
                     raise ValueError
                 if self.color_input.value == "":
                     new_color_value = None
@@ -116,7 +117,7 @@ class ColorSelectionModal(Modal):
                     session.update(
                         model.select_class("select"),
                         {"server_id": interaction.guild.id},
-                        {f"hex_{str(selected_index)}": new_color_value}
+                        {f"hex_{str(index_value)}": new_color_value}
                     )
                     
                 with db as session:
