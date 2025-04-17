@@ -1,5 +1,9 @@
 #set
-color_set: "<:ok:1269288913147658371> **Color has been set to __{}__**"
+color_set: |
+  <:ok:1269288913147658371> **Color has been set to __{}__**
+
+  <:star:1269288950174978100> [Add HueTweaker to your server!](https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot)
+
 
 #revove
 color_remove: "<:ok:1269288913147658371> **Color has been removed**"
