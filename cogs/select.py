@@ -77,10 +77,8 @@ class SelectCog(commands.Cog):
                     view.add_item(color_select)
                     
             if not available_colors:
-                s=0
                 embed.add_field(name=f"", value=cmd_messages['select_no_colors'], inline=False)
             else:
-                s=1
                 color_values = [color for _, color in available_colors]
                 image = ColorUtils.generate_colored_text_grid(interaction.user.name, color_values)
                 image_bytes = BytesIO()
@@ -109,7 +107,7 @@ class SelectCog(commands.Cog):
                 await interaction.followup.send(embed=embed, view=view, file=embed_file)
             else:
                 await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /select (s:{s},q:{query})")
+            logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /select")
 
 
     @select.error
