@@ -144,20 +144,6 @@ class ColorUtils:
         return image
 
     @staticmethod
-    def color_parser(color):
-        data = load_json("assets/css-color-names.json")
-        css_name = re.sub(r"[^A-Za-z]", "", color.lower())
-        if css_name in map(lambda x: x.lower(), data.keys()):
-            return data[css_name]
-        elif hex_regex.match(color):
-            color = color.lstrip("#")
-            if len(color) == 3:
-                return ''.join([x * 2 for x in color.strip("#")])
-            return color.strip("#")
-        else:
-            raise ValueError
-
-    @staticmethod
     def __find_similar_colors(hsl_color, threshold=20):
         color_dict = load_json("assets/css-color-names.json")
         similar_colors = []

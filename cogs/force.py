@@ -8,9 +8,7 @@ from discord.ext import commands
 
 from bot import db, cmd_messages
 from database import model
-from utils.color_format import ColorUtils
-from utils.color_imput_type import fetch_color_representation
-from utils.data_loader import load_yml
+from utils.color_parse import fetch_color_representation, color_parser
 
 
 class ForceCog(commands.Cog):
@@ -29,7 +27,7 @@ class ForceCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
             color = fetch_color_representation(interaction, color)
-            color_match = ColorUtils.color_parser(color)
+            color_match = color_parser(color)
 
             with db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})

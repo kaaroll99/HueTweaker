@@ -9,8 +9,7 @@ from discord.ui import View, Button, Modal, TextInput, Select
 
 from bot import db, cmd_messages
 from database import model
-from utils.color_format import ColorUtils
-from utils.data_loader import load_json
+from utils.color_parse import color_parser
 
 
 class SetupEmbedView(discord.ui.View):
@@ -111,7 +110,7 @@ class ColorSelectionModal(Modal):
                 if self.color_input.value == "":
                     new_color_value = None
                 else:     
-                    new_color_value = ColorUtils.color_parser(self.color_input.value)
+                    new_color_value = color_parser(self.color_input.value)
                 
                 with db as session:
                     session.update(
