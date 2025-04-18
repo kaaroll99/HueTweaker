@@ -1,7 +1,8 @@
 import discord
+import random
+import re
 
-
-def color_type(interaction, color):
+def fetch_color_representation(interaction, color):
     if color.startswith("<@") and color.endswith(">"):
         cleaned_color = re.sub(r"[<>@]", "", color)
         copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{cleaned_color}")

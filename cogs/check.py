@@ -8,7 +8,7 @@ from discord.ext import commands
 
 from bot import cmd_messages
 from utils.color_format import ColorUtils
-from utils.color_imput_type import color_type
+from utils.color_imput_type import fetch_color_representation
 
 
 class CheckCog(commands.Cog):
@@ -22,7 +22,7 @@ class CheckCog(commands.Cog):
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
             await interaction.response.defer(ephemeral=True)
-            color = color_type(interaction, color)
+            color = fetch_color_representation(interaction, color)
             color_utils = ColorUtils(color)
             output_color = color_utils.color_converter()
             if output_color is None:

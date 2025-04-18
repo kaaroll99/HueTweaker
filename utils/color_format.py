@@ -118,12 +118,12 @@ class ColorUtils:
         except IOError:
             font = ImageFont.load_default()
         
-        padding = 0
+        padding = 10
         line_height = 30
         height = (len(hex_colors) * line_height) + padding * 2
         width = 400
         
-        image = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        image = Image.new('RGBA', (width, height), (50, 51, 57, 255))
         draw = ImageDraw.Draw(image)
         
         for i, hex_color in enumerate(hex_colors):
@@ -136,7 +136,7 @@ class ColorUtils:
             numbered_text = f"{i+1}. {text}"
             
             draw.text(
-                (padding, padding + i * line_height),
+                (padding*1.5, padding + i * line_height),
                 numbered_text,
                 fill=(r, g, b, 255),
                 font=font
