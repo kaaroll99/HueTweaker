@@ -1,42 +1,42 @@
 #set
 color_set: |
-  <:ok:1269288913147658371> **Color has been set to __{}__**
+  <:ok:1362879418640498748> **Color has been set to __{}__**
 
-  <:star:1269288950174978100> [Add HueTweaker to your server!](https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot)
+  <:star:1362879443625971783> [Add HueTweaker to your server!](https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot)
 
 
 #revove
-color_remove: "<:ok:1269288913147658371> **Color has been removed**"
+color_remove: "<:ok:1362879418640498748> **Color has been removed**"
 
 #select
-select_set: "<:ok:1269288913147658371> **Static color has been set to {}**"
-select_remove: "<:ok:1269288913147658371> **Static color has been removed**"
-select_no_colors: "<:warn:1269288966754926623> **There are no static colors configured on this server.**"
+select_set: "<:ok:1362879418640498748> **Static color has been set to {}**"
+select_remove: "<:ok:1362879418640498748> **Static color has been removed**"
+select_no_colors: "<:warn:1362879461468672130> **There are no static colors configured on this server.**"
 available_colors: "Available colors:"
 
 #vote
 vote_title: "Vote for {}"
 vote_desc: "Every 12 hours you can support by voting for the bot on the following pages."
-vote_topgg: "<:star:1269288950174978100> [Click here to vote on top.gg](https://top.gg/bot/1209187999934578738/vote)"
-vote_dbl: "<:star:1269288950174978100> [Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/huetweaker/upvote)"
+vote_topgg: "<:star:1362879443625971783> [Click here to vote on top.gg](https://top.gg/bot/1209187999934578738/vote)"
+vote_dbl: "<:star:1362879443625971783> [Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/huetweaker/upvote)"
 
 #check
 check_title: "Details for color: **{}**"
-check_css: "<:star:1269288950174978100> The most similar CSS colors:"
+check_css: "<:star:1362879443625971783> The most similar CSS colors:"
 
 #force set
-force_set_set: "<:ok:1269288913147658371> **Color has been set for {} to __#{}__**"
+force_set_set: "<:ok:1362879418640498748> **Color has been set for {} to __#{}__**"
 
 #force remove
-force_remove_remove: "<:ok:1269288913147658371> **Color has been removed for {}**"
-force_remove_no_color: "<:warn:1269288966754926623> **The user with the given name did not have the color set**"
+force_remove_remove: "<:ok:1362879418640498748> **Color has been removed for {}**"
+force_remove_no_color: "<:warn:1362879461468672130> **The user with the given name did not have the color set**"
 
 #force purge
 purge_confirm: |
   **Are you sure you want to remove all roles with user colors?**
   
   Choose which type of roles you want to remove.
-  <:warn:1269288966754926623> **The changes will be irreversible.**
+  <:warn:1362879461468672130> **The changes will be irreversible.**
 bttn_ind: "INDIVIDUAL ROLES"
 bttn_stat: "STATIC ROLES"
 bttn_both: "INDIVIDUAL&STATIC ROLES"
@@ -46,47 +46,47 @@ purge_ok: "**All roles with colors have been successfully removed**"
 
 #setup toprole
 toprole_reset: |
-  <:ok:1269288913147658371> **Top role settings have been reset**
+  <:ok:1362879418640498748> **Top role settings have been reset**
   
-  <:bubble:1269288932340662333> Please remember the selected role should be positioned below the bot's highest role.
+  <:bubble:1362879391423533226> Please remember the selected role should be positioned below the bot's highest role.
   Otherwise it will cause errors when setting the username color.
 toprole_set: |
-  <:ok:1269288913147658371> **Top role has been set for __{}__**
+  <:ok:1362879418640498748> **Top role has been set for __{}__**
   
-  <:bubble:1269288932340662333> Remember that the selected role should be under the highest role the bot has.
+  <:bubble:1362879391423533226> Remember that the selected role should be under the highest role the bot has.
   Otherwise, it will cause errors when setting the username color.
 
 #help
 help_choose: "Choose a command from the list..."
 help_desc: |
-  <:star:1269288950174978100> Online on `{}` servers.
-  <:star:1269288950174978100> Created by `@kaaroll99`
+  <:star:1362879443625971783> Online on `{}` servers.
+  <:star:1362879443625971783> Created by `@kaaroll99`
   
-  **<:bubble:1269288932340662333> Select one of the available commands from the list to learn more.**
-com_syntax: "<:star:1269288950174978100> Command syntax:"
-com_example: "<:star:1269288950174978100> Command example:"
+  **<:bubble:1362879391423533226> Select one of the available commands from the list to learn more.**
+com_syntax: "<:star:1362879443625971783> Command syntax:"
+com_example: "<:star:1362879443625971783> Command example:"
 com_docs: "[See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/{})"
 
 #exceptions
-exception: "<:warn:1269288966754926623> **The bot encountered an unexpected error.**"
+exception: "<:warn:1362879461468672130> **The bot encountered an unexpected error.**"
 color_format: |
-  <:warn:1269288966754926623> **Incorrect color format or the selected user does not have the color set**
+  <:warn:1362879461468672130> **Incorrect color format or the selected user does not have the color set**
   
   Please use hexadecimal format, e.g. __F5DF4D__
   or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__
 err_50013: |
-  <:warn:1269288966754926623> **The bot does not have permissions to perform this operation.**
+  <:warn:1362879461468672130> **The bot does not have permissions to perform this operation.**
   
   Error may have been caused by misconfiguration of top-role bot (`/setup toprole`).
   Notify the server administrator of the occurrence of this error.
   
-  <:bubble:1269288932340662333> Use the `/help` command to learn how to properly configure top role.
+  <:bubble:1362879391423533226> Use the `/help` command to learn how to properly configure top role.
 err_http: |
-  <:warn:1269288966754926623> Bot could not perform this operation due to HTTP discord error.**
+  <:warn:1362879461468672130> Bot could not perform this operation due to HTTP discord error.**
   
   {} - {}
 check_color_format: |
-  <:warn:1269288966754926623> **Incorrect color format**
+  <:warn:1362879461468672130> **Incorrect color format**
   
   **Correct formats:**
   * 9932f0
@@ -94,15 +94,15 @@ check_color_format: |
   * hsl(272.53, 86.36%, 56.86%)
   * cmyk(36.25%, 79.17%, 0.00%, 5.88%)
   * [CSS color](https://huetweaker.gitbook.io/docs/main/colors)
-cool_down: "<:warn:1269288966754926623> Please cool down. Retry <t:{}:R>"
-no_permissions: "<:warn:1269288966754926623> You don't have permission to perform this command."
+cool_down: "<:warn:1362879461468672130> Please cool down. Retry <t:{}:R>"
+no_permissions: "<:warn:1362879461468672130> You don't have permission to perform this command."
 footer_message: "Support the bot by voting with the /vote command"
 
-setup_select_embed_title: "<:star:1269288950174978100> /select color config"
+setup_select_embed_title: "<:star:1362879443625971783> /select color config"
 setup_select_embed_desc: |
-  <:bubble:1269288932340662333> Use the button below to add or edit existing colors using hex codes or CSS names.
-  <:bubble:1269288932340662333> Using the index number for an existing color will overwrite it. 
-  <:bubble:1269288932340662333> To remove an item from the list, leave the color field in the form blank.
+  <:bubble:1362879391423533226> Use the button below to add or edit existing colors using hex codes or CSS names.
+  <:bubble:1362879391423533226> Using the index number for an existing color will overwrite it. 
+  <:bubble:1362879391423533226> To remove an item from the list, leave the color field in the form blank.
 setup_select_create_info: "No colors set. Use the CREATE button to add the first one."
 setup_select_form_title: "Color edit form"
 setup_select_form_pl_index: "1"

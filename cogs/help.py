@@ -66,12 +66,12 @@ class HelpCog(commands.Cog):
             with open('assets/help_commands.yml', 'r', encoding='utf-8') as f:
                 data = yaml.safe_load(f)
             selected_option = interaction.data['values'][0]
-            embed: Embed = discord.Embed(title=f"<:star:1269288950174978100> Command `{data[selected_option]['name']}`",
+            embed: Embed = discord.Embed(title=f"<:star:1362879443625971783> Command `{data[selected_option]['name']}`",
                                          description=f"{data[selected_option]['desc']}", color=4539717)
 
             embed.add_field(name=cmd_messages['com_syntax'], value=f"> {data[selected_option]['usage']}", inline=False)
             embed.add_field(name=cmd_messages['com_example'], value=f"> {data[selected_option]['example']}", inline=False)
-            embed.add_field(name=f"<:star:1269288950174978100> Docs:",
+            embed.add_field(name=f"<:docs:1362879505613586643> Docs:",
                             value="> " + cmd_messages['com_docs'].format(data[selected_option]['docs']), inline=False)
         except Exception as e:
             embed.clear_fields()
