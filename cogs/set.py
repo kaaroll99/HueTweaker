@@ -8,7 +8,7 @@ from discord.ext import commands
 from bot import db, cmd_messages
 from database import model
 from utils.color_format import ColorUtils
-from utils.color_imput_type import color_type
+from utils.color_imput_type import fetch_color_representation
 from utils.data_loader import load_yml
 
 
@@ -25,7 +25,7 @@ class SetCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            color = color_type(interaction, color)
+            color = fetch_color_representation(interaction, color)
             color_match = ColorUtils.color_parser(color)
 
             with db as db_session:

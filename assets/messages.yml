@@ -12,7 +12,7 @@ color_remove: "<:ok:1362879418640498748> **Color has been removed**"
 select_set: "<:ok:1362879418640498748> **Static color has been set to {}**"
 select_remove: "<:ok:1362879418640498748> **Static color has been removed**"
 select_no_colors: "<:warn:1362879461468672130> **There are no static colors configured on this server.**"
-available_colors: "Available colors:"
+available_colors: "<:star:1362879443625971783> Available colors to select:"
 
 #vote
 vote_title: "Vote for {}"
@@ -29,7 +29,7 @@ force_set_set: "<:ok:1362879418640498748> **Color has been set for {} to __#{}__
 
 #force remove
 force_remove_remove: "<:ok:1362879418640498748> **Color has been removed for {}**"
-force_remove_no_color: "<:warn:1362879461468672130> **The user with the given name did not have the color set**"
+force_remove_no_color: "<:warn:1362879461468672130> **The user with the given name did not have the color set.**"
 
 #force purge
 purge_confirm: |
@@ -40,7 +40,7 @@ purge_confirm: |
 bttn_ind: "INDIVIDUAL ROLES"
 bttn_stat: "STATIC ROLES"
 bttn_both: "INDIVIDUAL&STATIC ROLES"
-purge_ok: "**All roles with colors have been successfully removed**"
+purge_ok: "<:ok:1362879418640498748> **All roles with colors have been successfully removed.**"
 
 #setup select
 

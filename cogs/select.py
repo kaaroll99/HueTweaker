@@ -77,7 +77,9 @@ class SelectCog(commands.Cog):
                     view.add_item(color_select)
                     
             if not available_colors:
+                embed.title = None
                 embed.add_field(name=f"", value=cmd_messages['select_no_colors'], inline=False)
+                embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             else:
                 color_values = [color for _, color in available_colors]
                 image = ColorUtils.generate_colored_text_grid(interaction.user.name, color_values)
