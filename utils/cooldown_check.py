@@ -1,9 +1,8 @@
 import aiohttp
 import discord
-from discord import app_commands, Embed
-from discord.ext import commands
+from discord import app_commands
+
 from utils.data_loader import load_yml
-import logging
 
 token_file = load_yml('assets/token.yml')
 

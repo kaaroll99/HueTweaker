@@ -1,6 +1,8 @@
-import aiohttp
-import logging
 import asyncio
+import logging
+
+import aiohttp
+
 from utils.data_loader import load_json, load_yml
 
 token_file = load_yml('assets/token.yml')

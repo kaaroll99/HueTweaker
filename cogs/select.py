@@ -1,15 +1,14 @@
 import logging
 from datetime import datetime, timedelta
+from io import BytesIO
 
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
+from bot import db, cmd_messages
 from database import model
 from utils.color_format import ColorUtils
-from bot import db, cmd_messages
-from io import BytesIO
-import re
 
 
 class SelectCog(commands.Cog):

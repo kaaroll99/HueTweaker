@@ -8,7 +8,7 @@ from discord.ext import commands
 
 from bot import cmd_messages
 from utils.color_format import ColorUtils
-from utils.color_imput_type import fetch_color_representation
+from utils.color_parse import fetch_color_representation
 
 
 class CheckCog(commands.Cog):
