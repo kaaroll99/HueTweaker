@@ -31,10 +31,9 @@ class MyBot(commands.AutoShardedBot):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.default_locale = Locale.american_english
-        self.NEED_SYNC = True
 
     async def load_cogs(self):
-        cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select']
+        cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select', 'dev']
         for cog in cogs:
             try:
                 await self.load_extension(f"cogs.{cog}")
@@ -54,14 +53,13 @@ class MyBot(commands.AutoShardedBot):
 
     async def setup_hook(self) -> None:
         await self.load_cogs()
-        logging.info("Loading of extensions completed")
-        if self.NEED_SYNC:
-            logging.info("Command tree synchronization ...")
-            await self.tree.sync()
-            logging.info("Command tree synchronization completed")
-            self.NEED_SYNC = False
-        else:
-            logging.info("Skipping command tree synchronization")
+        # logging.info("Loading of extensions completed")
+        #     logging.info("Command tree synchronization ...")
+        await self.tree.sync()
+        #     logging.info("Command tree synchronization completed")
+        #     self.NEED_SYNC = False
+        # else:
+        logging.info("Skipping command tree synchronization")
 
         self.update_stats_task.start()
 
