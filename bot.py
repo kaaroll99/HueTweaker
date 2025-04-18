@@ -53,12 +53,7 @@ class MyBot(commands.AutoShardedBot):
 
     async def setup_hook(self) -> None:
         await self.load_cogs()
-        # logging.info("Loading of extensions completed")
-        #     logging.info("Command tree synchronization ...")
-        await self.tree.sync()
-        #     logging.info("Command tree synchronization completed")
-        #     self.NEED_SYNC = False
-        # else:
+        # await self.tree.sync()
         logging.info("Skipping command tree synchronization")
 
         self.update_stats_task.start()
