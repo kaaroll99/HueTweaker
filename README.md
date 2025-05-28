@@ -1,6 +1,4 @@
 <div align="center">
-    
-![logo](https://github.com/user-attachments/assets/7db45e2e-c4d7-413d-8b42-c6ab34b84162)
 
 ![License](https://img.shields.io/github/license/kaaroll99/HueTweaker.svg?style=for-the-badge&logo=unlicense&logoColor=white)
 ![Servers](https://img.shields.io/badge/dynamic/json?url=https://discordbotlist.com/api/v1/bots/1209187999934578738&query=$.stats.guilds&style=for-the-badge&label=servers&color=5865F2&logo=serverless&logoColor=white)
