@@ -8,6 +8,11 @@ from discord.ext import commands
 from bot import db, cmd_messages
 from database import model
 from utils.color_parse import fetch_color_representation, color_parser
+from utils.cooldown_check import is_user_on_cooldown
+
+
+async def dynamic_cooldown(interaction: discord.Interaction):
+    return await is_user_on_cooldown(interaction)
 
 
 class SetCog(commands.Cog):
@@ -16,7 +21,7 @@ class SetCog(commands.Cog):
 
     @app_commands.command(name="set", description="Set color using HEX code or CSS color name")
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
-    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
+    @app_commands.checks.dynamic_cooldown(dynamic_cooldown, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
@@ -68,7 +73,7 @@ class SetCog(commands.Cog):
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = cmd_messages["cool_down"].format(int(retry_time.timestamp()))
+            response = cmd_messages["cool_down_with_api"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
 

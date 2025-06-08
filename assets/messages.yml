@@ -94,6 +94,7 @@ check_color_format: |
   * hsl(272.53, 86.36%, 56.86%)
   * cmyk(36.25%, 79.17%, 0.00%, 5.88%)
   * [CSS color](https://huetweaker.gitbook.io/docs/main/colors)
+cool_down_with_api: "<:warn:1362879461468672130> Please cool down. [Vote for the bot to reduce the next cooldown time for 12h](https://top.gg/bot/1209187999934578738/vote). Retry <t:{}:R>"
 cool_down: "<:warn:1362879461468672130> Please cool down. Retry <t:{}:R>"
 no_permissions: "<:warn:1362879461468672130> You don't have permission to perform this command."
 footer_message: "Support the bot by voting with the /vote command"
