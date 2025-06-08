@@ -29,17 +29,19 @@ for CMD in "${COMMANDS[@]}"; do
   TOTAL=$((TOTAL + COUNT))
 done
 
+echo "--------------------------------"
 echo "Statystyki poleceń dla plików: $LOGPATTERN"
+echo "--------------------------------"
+ALL=${COUNTS[/]}
+lines=()
 for CMD in "${COMMANDS[@]}"; do
-  printf "%-18s: %d\n" "$CMD" "${COUNTS[$CMD]}"
+  if [ "$CMD" != "/" ] && [ "$ALL" -gt 0 ]; then
+    PROC=$(awk "BEGIN {printf \"%.2f\", (${COUNTS[$CMD]} / $ALL) * 100}")
+    lines+=("$(printf '%-15s| %5d | %5.2f%%' "$CMD" "${COUNTS[$CMD]}" "$PROC")")
+  else
+    lines+=("$(printf '%-15s| %5d |' "$CMD" "${COUNTS[$CMD]}")")
+  fi
 done
 
-if [ "$TOTAL" -gt 0 ]; then
-  PROC=$(awk "BEGIN {printf \"%.2f\", (${COUNTS[/]} / $TOTAL) * 100}")
-else
-  PROC=0
-fi
-
-echo "-----------------------------"
-echo "Suma wszystkich poleceń: $TOTAL"
-echo "Procent '/': $PROC%"
+printf "%s\n" "${lines[@]}" | sort -t'|' -k2,2nr
+echo "--------------------------------"
