@@ -92,7 +92,7 @@ class SelectCog(commands.Cog):
             embed.clear_fields()
             if e.code == 50013:
                 embed.description = cmd_messages['err_50013']
-            if e.code == 10062:
+            elif e.code == 10062:
                 pass
             else:
                 embed.description = cmd_messages['err_http'].format(e.code, e.text)
