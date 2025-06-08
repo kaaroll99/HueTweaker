@@ -23,7 +23,12 @@ class JoinListenerCog(commands.Cog):
             pass
 
     @commands.Cog.listener()
+    async def on_guild_join(self, guild):
+        logging.info(f"Bot has been added to guild: {guild.name}")
+    
+    @commands.Cog.listener()
     async def on_guild_remove(self, guild):
+        logging.info(f"Bot has been removed from guild: {guild.name}")
         with db as db_session:
             db_session.delete(model.guilds_class("guilds"), {"server": guild.id})
 
