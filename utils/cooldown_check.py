@@ -8,30 +8,25 @@ token_file = load_yml('assets/token.yml')
 
 
 async def check_query(user_id: int):
-    url = f'https://top.gg/api/bots/1209187999934578738/check'
+    url = f'https://top.gg/api/bots/1209187999934578738/check?userId={user_id}'
     headers = {
         'Authorization': token_file['TOP_GG_TOKEN'],
-        'Content-Type': 'application/json'
-    }
-    data = {
-        'userId': user_id,
     }
     async with aiohttp.ClientSession() as session:
-        async with session.post(url, headers=headers, json=data) as response:
+        async with session.get(url, headers=headers) as response:
             if response.status == 200:
                 data = await response.json()
-                if data['voted'] > 0:
+                if int(data.get('voted', 0)) > 0:
                     return True
                 else:
                     return False
             else:
-                return True
+                return True 
 
 
 async def is_user_on_cooldown(interaction: discord.Interaction):
     query = await check_query(interaction.user.id)
     if query:
-        return app_commands.Cooldown(1, 3.0)
+        return app_commands.Cooldown(1, 5.0)
     else:
-        return app_commands.Cooldown(1, 60.0)
-    
+        return app_commands.Cooldown(1, 30.0)
