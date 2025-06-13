@@ -29,8 +29,6 @@ set:
     __Random color__
     
     > Set the color using a random color using __random__
-    
-    > -
 
   usage: /set <color>
   example: /set f5df4d
