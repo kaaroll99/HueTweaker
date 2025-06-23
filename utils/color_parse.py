@@ -4,7 +4,7 @@ import re
 import discord
 
 from utils.data_loader import load_json
-from utils.color_format import hex_regex
+from utils.color_format import hex_regex, rgb_regex, ColorUtils
 
 
 def fetch_color_representation(interaction, color):
@@ -26,10 +26,10 @@ def color_parser(color):
     css_name = re.sub(r"[^A-Za-z]", "", color.lower())
     if css_name in map(lambda x: x.lower(), data.keys()):
         return data[css_name]
-    elif hex_regex.match(color):
-        color = color.lstrip("#")
-        if len(color) == 3:
-            return ''.join([x * 2 for x in color.strip("#")])
-        return color.strip("#")
     else:
-        raise ValueError
+        color_utils = ColorUtils(color)
+        result = color_utils.color_converter()
+        if result is not None:
+            return result["Hex"].lstrip("#")
+        else:
+            raise ValueError
