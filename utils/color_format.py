@@ -18,11 +18,12 @@ cmyk_regex = re.compile(r"^cmyk\((100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.
 
 
 class ColorUtils:
-    __slots__ = ['color', 'color_format']
+    __slots__ = ['color', 'color_format', 'find_similar_colors']
 
-    def __init__(self, color, color_format=None):
+    def __init__(self, color, color_format=None, find_similar_colors=False):
         self.color = color
         self.color_format = color_format
+        self.find_similar_colors = find_similar_colors
 
     def __determine_color_format(self):
         data = load_json("assets/css-color-names.json")
@@ -66,7 +67,7 @@ class ColorUtils:
             rgb_values = rgb_color.get_value_tuple()
             hsl_color = convert_color(rgb_color, HSLColor).get_value_tuple()
             cmyk_color = convert_color(rgb_color, CMYKColor).get_value_tuple()
-            similar_colors = self.__find_similar_colors(hsl_color)
+            similar_colors = self.__find_similar_colors(hsl_color) if self.find_similar_colors else []
 
             result = {
                 "Input": self.color,

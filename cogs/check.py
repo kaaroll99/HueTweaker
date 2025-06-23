@@ -23,7 +23,7 @@ class CheckCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
             color = fetch_color_representation(interaction, color)
-            color_utils = ColorUtils(color)
+            color_utils = ColorUtils(color,find_similar_colors=True)
             output_color = color_utils.color_converter()
             if output_color is None:
                 raise ValueError
