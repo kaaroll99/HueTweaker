@@ -11,6 +11,8 @@ from discord.ui import View, Button, Modal, TextInput, Select
 from database import model
 from utils.color_parse import color_parser
 
+logger = logging.getLogger(__name__)
+
 
 class SetupEmbedView(discord.ui.View):
     def __init__(self, colors_data: dict, guild_id: int, bot: commands.Bot):
@@ -54,9 +56,9 @@ class SetupEmbedView(discord.ui.View):
                 new_view = SetupEmbedView(new_colors, interaction.guild.id, self.bot)
                 await interaction.response.send_message(embed=new_embed, view=new_view, ephemeral=True)
             else:
-                logging.error(f"Failed to create color list for server {interaction.guild.id}")
+                logger.error("Failed to create color list for server %s", interaction.guild.id)
         except Exception as e:
-            logging.error(f"Error creating color list: {str(e)}")
+            logger.error("Error creating color list: %s", str(e))
 
 
     async def edit_color_callback(self, interaction: discord.Interaction):
@@ -75,7 +77,7 @@ class SetupEmbedView(discord.ui.View):
             modal = ColorSelectionModal(available_colors, self.bot)
             await interaction.response.send_modal(modal)
         except Exception as e:
-            logging.error(f"Error in edit_color_callback: {str(e)}")
+            logger.error("Error in edit_color_callback: %s", str(e))
 
 
 class ColorSelectionModal(Modal):
@@ -175,7 +177,7 @@ class ColorSelectionModal(Modal):
         except Exception as e:
             embed = discord.Embed(title=self.msg['setup_select_embed_title'], color=4539717)
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
             await interaction.followup.send(embed=embed)
             
             
@@ -216,7 +218,7 @@ class SetupCog(commands.Cog):
             embed.clear_fields()
             embed.description = self.msg['exception']
             await interaction.followup.send(embed=embed, ephemeral=True)
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] exception: {repr(e)}")
+            logger.critical("%s[%s] exception: %r", interaction.user.name, interaction.user.id, e)
 
 
     @group.command(name="toprole", description="Setup top role for color roles")
@@ -265,18 +267,17 @@ class SetupCog(commands.Cog):
                 embed.description = self.msg['err_50013']
             else:
                 embed.description = self.msg['err_http'].format(e.code, e.text)
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
+            logger.critical("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
 
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(
-                f"{interaction.user.name}[{interaction.locale}] issued bot command: /setup toprole")
+            logger.info("%s[%s] issued bot command: /setup toprole", interaction.user.name, interaction.locale)
 
     @toprole.error
     @select.error

@@ -10,6 +10,8 @@ from discord.ext import commands
 from database import model
 from utils.color_format import ColorUtils
 
+logger = logging.getLogger(__name__)
+
 
 class SelectCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -78,11 +80,11 @@ class SelectCog(commands.Cog):
                             if not interaction.response.is_done():
                                 await interaction.response.defer()  # pozwala na dalsze wybory
                         except discord.HTTPException as e:
-                            logging.exception("Select callback HTTP error: %s", e)
+                            logger.exception("Select callback HTTP error: %s", e)
                             if not interaction.response.is_done():
                                 await interaction.response.defer()
                         except Exception as e:
-                            logging.exception("Select callback error: %r", e)
+                            logger.exception("Select callback error: %r", e)
                             if not interaction.response.is_done():
                                 await interaction.response.defer()
                     
@@ -110,19 +112,19 @@ class SelectCog(commands.Cog):
                 pass
             else:
                 embed.description = self.msg['err_http'].format(e.code, e.text)
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
+            logger.critical("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
 
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
             if embed_file:
                 await interaction.followup.send(embed=embed, view=view, file=embed_file)
             else:
                 await interaction.followup.send(embed=embed, view=view)
-            logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /select")
+            logger.info("%s[%s] issued bot command: /select", interaction.user.name, interaction.locale)
 
 
     @select.error

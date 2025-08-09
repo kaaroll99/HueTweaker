@@ -7,6 +7,8 @@ from discord.ext import commands
 
 from utils.data_loader import load_yml
 
+logger = logging.getLogger(__name__)
+
 
 class DevCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -55,11 +57,11 @@ class DevCog(commands.Cog):
         except discord.HTTPException as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
+            logger.critical("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
         finally:
             embed.set_footer(text=f"{self.bot.user.name} by kaaroll99", icon_url=self.bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
@@ -69,7 +71,7 @@ class DevCog(commands.Cog):
             else:
                 await interaction.followup.send(embed=embed)
                 
-            logging.warning(f"{interaction.user.name}[{interaction.locale}] issued bot command: /dev {action}")
+            logger.warning("%s[%s] issued bot command: /dev %s", interaction.user.name, interaction.locale, action)
 
     # @dev.error
     # async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

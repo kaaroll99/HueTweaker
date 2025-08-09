@@ -7,6 +7,8 @@ from discord.ext import commands
 from database import model
 from utils.data_loader import load_yml
 
+logger = logging.getLogger(__name__)
+
 
 class JoinListenerCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -24,11 +26,11 @@ class JoinListenerCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
-        logging.info(f"Bot has been added to guild: {guild.name}")
+        logger.info("Bot has been added to guild: %s", guild.name)
     
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
-        logging.info(f"Bot has been removed from guild: {guild.name}")
+        logger.info("Bot has been removed from guild: %s", guild.name)
         with self.db as db_session:
             db_session.delete(model.guilds_class("guilds"), {"server": guild.id})
 

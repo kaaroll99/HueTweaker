@@ -9,6 +9,8 @@ from discord.ext import commands
 from utils.color_format import ColorUtils
 from utils.color_parse import fetch_color_representation
 
+logger = logging.getLogger(__name__)
+
 
 class CheckCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -67,11 +69,10 @@ class CheckCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
             await interaction.followup.send(embed=embed)
         finally:
-            logging.info(
-                f"{interaction.user.name}[{interaction.locale}] issued bot command: /check {color}")
+            logger.info("%s[%s] issued bot command: /check %s", interaction.user.name, interaction.locale, color)
 
     @check.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
