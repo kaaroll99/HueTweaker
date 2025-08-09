@@ -42,15 +42,15 @@ class SetCog(commands.Cog):
                 return
 
             with self.db as db_session:
-                query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+                guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
             async with self.bot.get_guild_lock(interaction.guild.id):
                 role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
                 role_position = 1
                 if role is None:
                     role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
-                if query:
-                    top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
+                if guild_row:
+                    top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
                     if top_role:
                         role_position = max(1, top_role.position - 1)
 

@@ -234,14 +234,14 @@ class SetupCog(commands.Cog):
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
 
             with self.db as db_session:
-                query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+                guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
             if top_role.position == 0:
-                if query:
+                if guild_row:
                     self.db.delete(model.guilds_class(f"guilds"), {"server": interaction.guild.id})
                 embed.description = self.msg['toprole_reset']
             else:
-                if query:
+                if guild_row:
                     self.db.update(model.guilds_class(f"guilds"), {"server": interaction.guild.id},
                               {"role": role_name.id})
                 else:
