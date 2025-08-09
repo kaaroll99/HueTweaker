@@ -36,17 +36,26 @@ class ForceCog(commands.Cog):
             with self.db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
-            role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
-            role_position = 1
-            if role is None:
-                role = await interaction.guild.create_role(name=f"color-{username.id}")
-            if query:
-                top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
-                if top_role:
-                    role_position = max(1, top_role.position - 1)
-            await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
+            async with self.bot.get_guild_lock(interaction.guild.id):
+                role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
+                role_position = 1
+                if role is None:
+                    role = await interaction.guild.create_role(name=f"color-{username.id}")
+                if query:
+                    top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
+                    if top_role:
+                        role_position = max(1, top_role.position - 1)
 
-            await username.add_roles(role)
+                # Fast return jeśli taki sam kolor
+                try:
+                    if role.colour and int(color_match, 16) == role.colour.value:
+                        await username.add_roles(role)
+                    else:
+                        await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
+                        await username.add_roles(role)
+                except Exception:
+                    await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
+                    await username.add_roles(role)
             embed.description = self.msg['force_set_set'].format(username.name, color)
             embed.color = discord.Colour(int(color_match, 16))
 

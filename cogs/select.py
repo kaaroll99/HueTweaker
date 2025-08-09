@@ -6,7 +6,6 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-# from bot import db, cmd_messages  # removed after DI refactor
 from database import model
 from utils.color_format import ColorUtils
 
@@ -62,23 +61,33 @@ class SelectCog(commands.Cog):
                             selected_value = interaction.data["values"][0]
                             for idx, color in available_colors:
                                 if str(idx) == selected_value:
-                                    with self.db as db_session:
-                                        query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
-                                    role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
-                                    role_position = 1
-                                    if role is None:
-                                        role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
-                                    if query:
-                                        top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
-                                        if top_role:
-                                            role_position = max(1, top_role.position - 1)
-                                    await role.edit(colour=discord.Colour(int(color, 16)), position=role_position)
-                                    if role not in interaction.user.roles:
-                                        await interaction.user.add_roles(role, reason="Static color selection")
+                                    async with self.bot.get_guild_lock(interaction.guild.id):
+                                        with self.db as db_session:
+                                            query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+                                        role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
+                                        role_position = 1
+                                        if role is None:
+                                            role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
+                                        if query:
+                                            top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
+                                            if top_role:
+                                                role_position = max(1, top_role.position - 1)
+                                        # Fast skip jeśli kolor ten sam
+                                        try:
+                                            if role.colour and int(color, 16) == role.colour.value:
+                                                if role not in interaction.user.roles:
+                                                    await interaction.user.add_roles(role, reason="Static color selection")
+                                            else:
+                                                await role.edit(colour=discord.Colour(int(color, 16)), position=role_position)
+                                                if role not in interaction.user.roles:
+                                                    await interaction.user.add_roles(role, reason="Static color selection")
+                                        except Exception:
+                                            await role.edit(colour=discord.Colour(int(color, 16)), position=role_position)
+                                            if role not in interaction.user.roles:
+                                                await interaction.user.add_roles(role, reason="Static color selection")
                                     break
-                            # tylko potwierdzenie techniczne (ACK) bez dodatkowej wiadomości aby lista pozostała aktywna
                             if not interaction.response.is_done():
-                                await interaction.response.defer()  # pozwala na dalsze wybory
+                                await interaction.response.defer()
                         except discord.HTTPException as e:
                             logger.exception("Select callback HTTP error: %s", e)
                             if not interaction.response.is_done():

@@ -25,16 +25,20 @@ def fetch_color_representation(interaction, color):
 
 
 def color_parser(color):
+    """Parse color and return 6-char hex (without #) or None if invalid.
+
+    Zamiast rzucać ValueError dla normalnych błędów użytkownika zwracamy None
+    aby uniknąć kosztu wyjątków w ścieżce kontrolowanej.
+    Wyjątki nadal rzucane są wcześniej (np. za długi input) albo podczas fetch_color_representation.
+    """
     if len(color) > MAX_COLOR_INPUT_LEN:
-        raise ValueError
+        return None
     data = load_json("assets/css-color-names.json")
     css_name = re.sub(r"[^A-Za-z]", "", color.lower())
     if css_name in map(lambda x: x.lower(), data.keys()):
         return data[css_name]
-    else:
-        color_utils = ColorUtils(color)
-        result = color_utils.color_converter()
-        if result is not None:
-            return result["Hex"].lstrip("#")
-        else:
-            raise ValueError
+    color_utils = ColorUtils(color)
+    result = color_utils.color_converter()
+    if result is not None:
+        return result["Hex"].lstrip("#")
+    return None
