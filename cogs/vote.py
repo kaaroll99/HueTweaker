@@ -5,6 +5,8 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
+logger = logging.getLogger(__name__)
+
 
 class VoteCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -25,12 +27,12 @@ class VoteCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.locale}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.locale, e)
         finally:
             embed.set_footer(text=f"{self.bot.user.name} by kaaroll99", icon_url=self.bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.user.id}] issued bot command: /vote")
+            logger.info("%s[%s] issued bot command: /vote", interaction.user.name, interaction.user.id)
 
 
 async def setup(bot: commands.Bot) -> None:

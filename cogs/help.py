@@ -5,6 +5,8 @@ import yaml
 from discord import app_commands, Embed
 from discord.ext import commands
 
+logger = logging.getLogger(__name__)
+
 
 class HelpCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -52,11 +54,11 @@ class HelpCog(commands.Cog):
             embed.clear_fields()
             embed.description = f""
             embed.add_field(name=self.msg['exception'], value=f"", inline=False)
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
-            logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /help")
+            logger.info("%s[%s] issued bot command: /help", interaction.user.name, interaction.locale)
 
 
     async def __select_callback(self, interaction: discord.Interaction):
@@ -76,7 +78,7 @@ class HelpCog(commands.Cog):
             embed.clear_fields()
             embed.description = f""
             embed.add_field(name=self.msg['exception'], value=f"", inline=False)
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.edit_message(embed=embed)

@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Set
 
 import discord
 from discord import Locale
@@ -24,6 +24,7 @@ class MyBot(commands.AutoShardedBot):
         self.db = db
         self.messages = messages
         self._guild_role_locks: Dict[int, asyncio.Lock] = {}
+        self._ready_shards: Set[int] = set()  # śledzenie które shard'y są gotowe
 
     def get_guild_lock(self, guild_id: int) -> asyncio.Lock:
         lock = self._guild_role_locks.get(guild_id)
@@ -59,6 +60,7 @@ class MyBot(commands.AutoShardedBot):
 
     async def setup_hook(self) -> None:
         await self.load_cogs()
+        logger.info("Sharding configuration: total shards = %d", self.shard_count or -1)
         logger.info("Skipping command tree synchronization")
         self.remove_command('help')
         if not self.update_stats_task.is_running():
@@ -75,7 +77,10 @@ class MyBot(commands.AutoShardedBot):
         logger.warning('Shard %d has disconnected from Gateway, attempting to reconnect...', shard_id)
         
     async def on_shard_ready(self, shard_id: int) -> None:
-        logger.info('Shard %d is ready.', shard_id)
+        self._ready_shards.add(shard_id)
+        logger.info('Shard %d is ready (%d/%d).', shard_id, len(self._ready_shards), self.shard_count)
+        if len(self._ready_shards) == self.shard_count:
+            logger.info('All shards ready (%d total).', self.shard_count)
         
     async def on_shard_connect(self, shard_id: int) -> None:
         logger.info('Shard %d has connected to Gateway.', shard_id)
@@ -104,7 +109,6 @@ async def main():
         intents=intents,
         activity=activity,
         status=discord.Status.online,
-        shard_count=3,
         config=config,
         db=db_instance,
         messages=messages

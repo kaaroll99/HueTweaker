@@ -9,6 +9,8 @@ from database import model
 from utils.color_parse import fetch_color_representation, color_parser
 from utils.cooldown_check import is_user_on_cooldown
 
+logger = logging.getLogger(__name__)
+
 
 async def dynamic_cooldown(interaction: discord.Interaction):
     return await is_user_on_cooldown(interaction)
@@ -58,17 +60,17 @@ class SetCog(commands.Cog):
                 embed.description = self.msg['err_50013']
             else:
                 embed.description = self.msg['err_http'].format(e.code, e.text)
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
+            logger.critical("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
 
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /set {color}")
+            logger.info("%s[%s] issued bot command: /set %s", interaction.user.name, interaction.locale, color)
 
     @set.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

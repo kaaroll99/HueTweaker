@@ -10,6 +10,8 @@ from discord.ext import commands
 from database import model
 from utils.color_parse import fetch_color_representation, color_parser
 
+logger = logging.getLogger(__name__)
+
 
 class ForceCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -57,18 +59,17 @@ class ForceCog(commands.Cog):
                 embed.description = self.msg['err_50013']
             else:
                 embed.description = self.msg['err_http'].format(e.code, e.text)
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
+            logger.critical("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
 
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(
-                f"{interaction.user.name}[{interaction.locale}] issued bot command: /force set {username.name} {color}")
+            logger.info("%s[%s] issued bot command: /force set %s %s", interaction.user.name, interaction.locale, username.name, color)
 
     @group.command(name="remove", description="Remove the color of the user")
     @app_commands.describe(username="Username")
@@ -90,13 +91,12 @@ class ForceCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(
-                f"{interaction.user.name}[{interaction.locale}] issued bot command: /force remove {username.name}")
+            logger.info("%s[%s] issued bot command: /force remove %s", interaction.user.name, interaction.locale, username.name)
 
     @group.command(name="purge", description="Remove all color roles (irreversible)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
@@ -127,13 +127,12 @@ class ForceCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed, view=view)
-            logging.info(
-                f"{interaction.user.name}[{interaction.locale}] issued bot command: /force purge")
+            logger.info("%s[%s] issued bot command: /force purge", interaction.user.name, interaction.locale)
 
     async def __confirm_callback(self, interaction: discord.Interaction):
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
@@ -166,7 +165,7 @@ class ForceCog(commands.Cog):
             embed.clear_fields()
             embed.description = f""
             embed.add_field(name=self.msg['exception'], value=f"", inline=False)
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.edit_message(embed=embed, view=view)

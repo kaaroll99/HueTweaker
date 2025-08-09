@@ -5,6 +5,8 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
+logger = logging.getLogger(__name__)
+
 
 class RemoveCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
@@ -27,12 +29,12 @@ class RemoveCog(commands.Cog):
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
-            logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
+            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
-            logging.info(f"{interaction.user.name}[{interaction.locale}] issued bot command: /remove")
+            logger.info("%s[%s] issued bot command: /remove", interaction.user.name, interaction.locale)
 
     @remove.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
