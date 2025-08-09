@@ -34,42 +34,26 @@ class SetCog(commands.Cog):
             color = fetch_color_representation(interaction, color)
             color_match = color_parser(color)
             if color_match is None:
-                # Nieprawidłowy format – elegancko kończymy bez wyjątku
                 embed.description = self.msg['color_format']
-                embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-                await interaction.followup.send(embed=embed)
                 logger.info("%s[%s] issued bot command: /set (invalid format)", interaction.user.name, interaction.user.id)
-                return
+            else:
+                with self.db as db_session:
+                    guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
-            with self.db as db_session:
-                guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
+                async with self.bot.get_guild_lock(interaction.guild.id):
+                    role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
+                    role_position = 1
+                    if role is None:
+                        role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
+                    if guild_row:
+                        top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
+                        if top_role:
+                            role_position = max(1, top_role.position - 1)
 
-            async with self.bot.get_guild_lock(interaction.guild.id):
-                role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
-                role_position = 1
-                if role is None:
-                    role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
-                if guild_row:
-                    top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
-                    if top_role:
-                        role_position = max(1, top_role.position - 1)
-
-                try:
-                    if role.colour and int(color_match, 16) == role.colour.value:
-                        await interaction.user.add_roles(role)
-                        embed.description = self.msg['color_set'].format(color_match)
-                        embed.color = discord.Colour(int(color_match, 16))
-                        embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-                        await interaction.followup.send(embed=embed)
-                        logger.info("%s[%s] issued bot command: /set (no change) %s", interaction.user.name, interaction.user.id, color_match)
-                        return
-                except Exception:
-                    pass
-
-                await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
-                await interaction.user.add_roles(role)
-                embed.description = self.msg['color_set'].format(color_match)
-                embed.color = discord.Colour(int(color_match, 16))
+                    await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
+                    await interaction.user.add_roles(role)
+                    embed.description = self.msg['color_set'].format(color_match)
+                    embed.color = discord.Colour(int(color_match, 16))
 
         except ValueError:
             embed.description = self.msg['color_format']
