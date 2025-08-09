@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, MetaData, BigInteger
+from sqlalchemy import Table, Column, Integer, MetaData, BigInteger, Text
 from sqlalchemy import create_engine
 from sqlalchemy import insert, select, update, delete, and_
 from sqlalchemy.exc import OperationalError
@@ -18,19 +18,34 @@ class Database:
         self.__session.close()
 
     def database_init(self):
+        """Create required tables if they do not exist."""
         if not self.__engine:
             raise Exception("Database is not connected. Call connect() first.")
-        else:
-            metadata = MetaData()
-            Table(
-                'guilds', metadata,
-                Column('id', Integer, primary_key=True, autoincrement=True),
-                Column('server', BigInteger),
-                Column('role', BigInteger),
-            )
-
-            metadata.create_all(self.__engine)
-            return True
+        metadata = MetaData()
+        # guilds table (legacy manual definition)
+        Table(
+            'guilds', metadata,
+            Column('id', BigInteger, primary_key=True, autoincrement=True),
+            Column('server', BigInteger),
+            Column('role', BigInteger),
+        )
+        # select table for static colors
+        Table(
+            'select', metadata,
+            Column('server_id', BigInteger, primary_key=True, nullable=False),
+            Column('hex_1', Text),
+            Column('hex_2', Text),
+            Column('hex_3', Text),
+            Column('hex_4', Text),
+            Column('hex_5', Text),
+            Column('hex_6', Text),
+            Column('hex_7', Text),
+            Column('hex_8', Text),
+            Column('hex_9', Text),
+            Column('hex_10', Text),
+        )
+        metadata.create_all(self.__engine)
+        return True
 
     def select(self, table, parameters=None):
         try:

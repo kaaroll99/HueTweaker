@@ -6,7 +6,7 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot import db, cmd_messages
+# from bot import db, cmd_messages  # removed after DI refactor
 from database import model
 from utils.color_parse import fetch_color_representation, color_parser
 
@@ -14,6 +14,8 @@ from utils.color_parse import fetch_color_representation, color_parser
 class ForceCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+        self.db = bot.db
+        self.msg = bot.messages
 
     group = app_commands.Group(name="force", description="Modify the color of specific user")
 
@@ -29,7 +31,7 @@ class ForceCog(commands.Cog):
             color = fetch_color_representation(interaction, color)
             color_match = color_parser(color)
 
-            with db as db_session:
+            with self.db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
             role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
@@ -43,23 +45,23 @@ class ForceCog(commands.Cog):
             await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
 
             await username.add_roles(role)
-            embed.description = cmd_messages['force_set_set'].format(username.name, color)
+            embed.description = self.msg['force_set_set'].format(username.name, color)
             embed.color = discord.Colour(int(color_match, 16))
 
         except ValueError:
-            embed.description = cmd_messages['color_format']
+            embed.description = self.msg['color_format']
 
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
-                embed.description = cmd_messages['err_50013']
+                embed.description = self.msg['err_50013']
             else:
-                embed.description = cmd_messages['err_http'].format(e.code, e.text)
+                embed.description = self.msg['err_http'].format(e.code, e.text)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = cmd_messages['exception']
+            embed.description = self.msg['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
@@ -81,13 +83,13 @@ class ForceCog(commands.Cog):
             if role is not None:
                 await username.remove_roles(role)
                 await role.delete()
-                embed.description = cmd_messages['force_remove_remove'].format(username.name)
+                embed.description = self.msg['force_remove_remove'].format(username.name)
             else:
-                embed.description = cmd_messages['force_remove_no_color']
+                embed.description = self.msg['force_remove_no_color']
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = cmd_messages['exception']
+            embed.description = self.msg['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
@@ -106,13 +108,13 @@ class ForceCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            embed.description = cmd_messages['purge_confirm']
+            embed.description = self.msg['purge_confirm']
 
-            individual_button = discord.ui.Button(label=cmd_messages['bttn_ind'], style=discord.ButtonStyle.green,
+            individual_button = discord.ui.Button(label=self.msg['bttn_ind'], style=discord.ButtonStyle.green,
                                                   custom_id="individual_roles")
-            statinc_button = discord.ui.Button(label=cmd_messages['bttn_stat'], style=discord.ButtonStyle.green,
+            statinc_button = discord.ui.Button(label=self.msg['bttn_stat'], style=discord.ButtonStyle.green,
                                                custom_id="static_roles")
-            both_button = discord.ui.Button(label=cmd_messages['bttn_both'], style=discord.ButtonStyle.green,
+            both_button = discord.ui.Button(label=self.msg['bttn_both'], style=discord.ButtonStyle.green,
                                             custom_id="both")
             individual_button.callback = self.__confirm_callback
             statinc_button.callback = self.__confirm_callback
@@ -124,7 +126,7 @@ class ForceCog(commands.Cog):
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = cmd_messages['exception']
+            embed.description = self.msg['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
@@ -133,18 +135,17 @@ class ForceCog(commands.Cog):
             logging.info(
                 f"{interaction.user.name}[{interaction.locale}] issued bot command: /force purge")
 
-    @staticmethod
-    async def __confirm_callback(interaction: discord.Interaction):
+    async def __confirm_callback(self, interaction: discord.Interaction):
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         view = discord.ui.View()
 
         async def del_static_roles():
-            with db as db_session:
+            with self.db as db_session:
                 db_session.delete(model.select_class("select"), {"server_id": interaction.guild.id})
                 
 
         async def del_individual_roles():
-            pattern = re.compile(f"color-\\d{{18,19}}")
+            pattern = re.compile(f"color-\\d{18,19}")
             for role in interaction.guild.roles:
                 if pattern.match(role.name):
                     role = discord.utils.get(interaction.guild.roles, id=role.id)
@@ -159,12 +160,12 @@ class ForceCog(commands.Cog):
                 await del_individual_roles()
                 await del_static_roles()
 
-            embed.description = cmd_messages['purge_ok']
+            embed.description = self.msg['purge_ok']
 
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
-            embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
+            embed.add_field(name=self.msg['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
@@ -176,11 +177,11 @@ class ForceCog(commands.Cog):
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = cmd_messages["cool_down"].format(int(retry_time.timestamp()))
+            response = self.msg["cool_down"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
         elif isinstance(error, discord.app_commands.errors.MissingPermissions):
-            embed: Embed = discord.Embed(title="", description=cmd_messages['no_permissions'],
+            embed: Embed = discord.Embed(title="", description=self.msg['no_permissions'],
                                          color=4539717, timestamp=datetime.now())
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.response.send_message(embed=embed, ephemeral=True)

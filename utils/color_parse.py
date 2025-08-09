@@ -5,9 +5,12 @@ import discord
 
 from utils.data_loader import load_json
 from utils.color_format import hex_regex, rgb_regex, ColorUtils
+from utils.constants import MAX_COLOR_INPUT_LEN
 
 
 def fetch_color_representation(interaction, color):
+    if len(color) > MAX_COLOR_INPUT_LEN:
+        raise ValueError
     if color.startswith("<@") and color.endswith(">"):
         cleaned_color = re.sub(r"[<>@]", "", color)
         copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{cleaned_color}")
@@ -22,6 +25,8 @@ def fetch_color_representation(interaction, color):
 
 
 def color_parser(color):
+    if len(color) > MAX_COLOR_INPUT_LEN:
+        raise ValueError
     data = load_json("assets/css-color-names.json")
     css_name = re.sub(r"[^A-Za-z]", "", color.lower())
     if css_name in map(lambda x: x.lower(), data.keys()):

@@ -4,7 +4,6 @@ from datetime import datetime
 import discord
 from discord.ext import commands
 
-from bot import db
 from database import model
 from utils.data_loader import load_yml
 
@@ -12,6 +11,7 @@ from utils.data_loader import load_yml
 class JoinListenerCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+        self.db = bot.db
 
     @commands.Cog.listener()
     async def on_member_remove(self, member):
@@ -29,7 +29,7 @@ class JoinListenerCog(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         logging.info(f"Bot has been removed from guild: {guild.name}")
-        with db as db_session:
+        with self.db as db_session:
             db_session.delete(model.guilds_class("guilds"), {"server": guild.id})
 
 
