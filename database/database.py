@@ -64,6 +64,23 @@ class Database:
             self.__session.rollback()
             return False
 
+    def select_one(self, table, parameters=None):
+        try:
+            if not parameters:
+                query = select(table).limit(1)
+            else:
+                where_clause = and_(*(getattr(table, k) == v for k, v in parameters.items()))
+                query = select(table).where(where_clause).limit(1)
+
+            result = self.__session.execute(query)
+            row_obj = result.scalars().first()
+            if not row_obj:
+                return None
+            return {column.key: getattr(row_obj, column.key) for column in row_obj.__table__.columns}
+        except OperationalError:
+            self.__session.rollback()
+            return False
+
     def create(self, table, values):
         try:
             query = insert(table).values(**values)

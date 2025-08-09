@@ -6,7 +6,6 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-# from bot import db, cmd_messages  # removed after DI refactor
 from database import model
 from utils.color_parse import fetch_color_representation, color_parser
 
@@ -34,15 +33,15 @@ class ForceCog(commands.Cog):
             color_match = color_parser(color)
 
             with self.db as db_session:
-                query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
+                guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
             async with self.bot.get_guild_lock(interaction.guild.id):
                 role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
                 role_position = 1
                 if role is None:
                     role = await interaction.guild.create_role(name=f"color-{username.id}")
-                if query:
-                    top_role = discord.utils.get(interaction.guild.roles, id=query[-1].get("role", None))
+                if guild_row:
+                    top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
                     if top_role:
                         role_position = max(1, top_role.position - 1)
 
