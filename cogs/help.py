@@ -5,17 +5,16 @@ import yaml
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot import cmd_messages
-
 
 class HelpCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+        self.msg = bot.messages
 
     @app_commands.command(name="help", description="View information about the bot and a list of available commands")
     async def help(self, interaction: discord.Interaction) -> None:
         embed: Embed = discord.Embed(title=f"{self.bot.user.name}", description=f"", color=4539717)
-        select = discord.ui.Select(placeholder=cmd_messages['help_choose'], options=[
+        select = discord.ui.Select(placeholder=self.msg['help_choose'], options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
             discord.SelectOption(label="/set", value="set", emoji="🌈"),
             discord.SelectOption(label="/remove", value="remove", emoji="🗑️"),
@@ -47,12 +46,12 @@ class HelpCog(commands.Cog):
 
         try:
             await interaction.response.defer(ephemeral=True)
-            embed.description = cmd_messages['help_desc'].format(len(self.bot.guilds))
+            embed.description = self.msg['help_desc'].format(len(self.bot.guilds))
 
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
-            embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
+            embed.add_field(name=self.msg['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
@@ -69,14 +68,14 @@ class HelpCog(commands.Cog):
             embed: Embed = discord.Embed(title=f"<:star:1362879443625971783> Command `{data[selected_option]['name']}`",
                                          description=f"{data[selected_option]['desc']}", color=4539717)
 
-            embed.add_field(name=cmd_messages['com_syntax'], value=f"> {data[selected_option]['usage']}", inline=False)
-            embed.add_field(name=cmd_messages['com_example'], value=f"> {data[selected_option]['example']}", inline=False)
+            embed.add_field(name=self.msg['com_syntax'], value=f"> {data[selected_option]['usage']}", inline=False)
+            embed.add_field(name=self.msg['com_example'], value=f"> {data[selected_option]['example']}", inline=False)
             embed.add_field(name=f"<:docs:1362879505613586643> Docs:",
-                            value="> " + cmd_messages['com_docs'].format(data[selected_option]['docs']), inline=False)
+                            value="> " + self.msg['com_docs'].format(data[selected_option]['docs']), inline=False)
         except Exception as e:
             embed.clear_fields()
             embed.description = f""
-            embed.add_field(name=cmd_messages['exception'], value=f"", inline=False)
+            embed.add_field(name=self.msg['exception'], value=f"", inline=False)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")

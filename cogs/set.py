@@ -5,7 +5,6 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot import db, cmd_messages
 from database import model
 from utils.color_parse import fetch_color_representation, color_parser
 from utils.cooldown_check import is_user_on_cooldown
@@ -18,6 +17,8 @@ async def dynamic_cooldown(interaction: discord.Interaction):
 class SetCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+        self.db = bot.db
+        self.msg = bot.messages
 
     @app_commands.command(name="set", description="Set color using HEX code or CSS color name")
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
@@ -31,7 +32,7 @@ class SetCog(commands.Cog):
             color = fetch_color_representation(interaction, color)
             color_match = color_parser(color)
 
-            with db as db_session:
+            with self.db as db_session:
                 query = db_session.select(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
@@ -45,23 +46,23 @@ class SetCog(commands.Cog):
             await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
 
             await interaction.user.add_roles(role)
-            embed.description = cmd_messages['color_set'].format(color_match)
+            embed.description = self.msg['color_set'].format(color_match)
             embed.color = discord.Colour(int(color_match, 16))
 
         except ValueError:
-            embed.description = cmd_messages['color_format']
+            embed.description = self.msg['color_format']
 
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
-                embed.description = cmd_messages['err_50013']
+                embed.description = self.msg['err_50013']
             else:
-                embed.description = cmd_messages['err_http'].format(e.code, e.text)
+                embed.description = self.msg['err_http'].format(e.code, e.text)
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = cmd_messages['exception']
+            embed.description = self.msg['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
@@ -73,7 +74,7 @@ class SetCog(commands.Cog):
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = cmd_messages["cool_down_with_api"].format(int(retry_time.timestamp()))
+            response = self.msg["cool_down_with_api"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
 

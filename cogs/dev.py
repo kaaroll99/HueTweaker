@@ -5,20 +5,18 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot import cmd_messages
 from utils.data_loader import load_yml
 
 
 class DevCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+        self.msg = bot.messages
 
     @app_commands.command(name="dev", description="Developer command. It won't work.")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def dev(self, interaction: discord.Interaction, action: str) -> None:
-        # print(interaction.guild.preferred_locale)
-        # print(interaction.locale)
         embed: Embed = discord.Embed(title=f"{self.bot.user.name}", description=f"",
                                      color=4539717, timestamp=datetime.datetime.now())
         await interaction.response.defer(ephemeral=True)
@@ -56,17 +54,16 @@ class DevCog(commands.Cog):
                 embed.description = f"Command for bot developers only."
         except discord.HTTPException as e:
             embed.clear_fields()
-            embed.description = cmd_messages['exception']
+            embed.description = self.msg['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise HTTP exception: {e.text}")
         except Exception as e:
             embed.clear_fields()
-            embed.description = cmd_messages['exception']
+            embed.description = self.msg['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
         finally:
             embed.set_footer(text=f"{self.bot.user.name} by kaaroll99", icon_url=self.bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             
-            # Only include file parameter when it's not None
             if file:
                 await interaction.followup.send(embed=embed, file=file)
             else:

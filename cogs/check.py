@@ -6,7 +6,6 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot import cmd_messages
 from utils.color_format import ColorUtils
 from utils.color_parse import fetch_color_representation
 
@@ -14,6 +13,7 @@ from utils.color_parse import fetch_color_representation
 class CheckCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+        self.msg = bot.messages
 
     @app_commands.command(name="check", description="Check color information (HEX, RGB, HSL, CMYK)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
@@ -29,7 +29,7 @@ class CheckCog(commands.Cog):
                 raise ValueError
             image = color_utils.generate_image(output_color['RGB'])
 
-            embed.title = cmd_messages['check_title'].format(output_color['Input'])
+            embed.title = self.msg['check_title'].format(output_color['Input'])
 
             embed.add_field(name=f"<:star:1362879443625971783> Hex:",
                             value=f"{output_color['Hex'].upper()}",
@@ -46,7 +46,7 @@ class CheckCog(commands.Cog):
                             value=f"cmyk({output_color['CMYK'][0] * 100:.2f}%, {output_color['CMYK'][1] * 100:.2f}%,"
                                   f" {output_color['CMYK'][2] * 100:.2f}%, {output_color['CMYK'][3] * 100:.2f}%)",
                             inline=False)
-            embed.add_field(name=cmd_messages['check_css'],
+            embed.add_field(name=self.msg['check_css'],
                             value=f"{', '.join(str(x) for x in output_color['Similars'][:5]) if output_color['Similars'] else '-'}",
                             inline=False)
 
@@ -60,13 +60,13 @@ class CheckCog(commands.Cog):
             await interaction.followup.send(embed=embed, file=file)
         except ValueError:
             embed.clear_fields()
-            embed.description = cmd_messages['check_color_format']
+            embed.description = self.msg['check_color_format']
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = cmd_messages['exception']
+            embed.description = self.msg['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
             await interaction.followup.send(embed=embed)
         finally:
@@ -77,7 +77,7 @@ class CheckCog(commands.Cog):
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = cmd_messages["cool_down"].format(int(retry_time.timestamp()))
+            response = self.msg["cool_down"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
 

@@ -6,6 +6,7 @@ from colormath.color_conversions import convert_color
 from colormath.color_objects import sRGBColor, CMYKColor, HSLColor
 
 from utils.data_loader import load_json
+from functools import lru_cache
 
 rgb_pattern = re.compile(r"rgb\((\d+),\s*(\d+),\s*(\d+)\)")
 hsl_pattern = re.compile(r"hsl\((\d+(\.\d+)?),\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$")
@@ -16,6 +17,12 @@ rgb_regex = re.compile(r"^rgb\((25[0-5]|2[0-4]\d|[01]?\d{1,2})\s*,\s*(25[0-5]|2[
 hsl_regex = re.compile(r"^hsl\((\d+(\.\d+)?|100(\.0+)?),\s*(\d+(\.\d+)?|100(\.0+)?)%\s*,\s*(\d+(\.\d+)?|100(\.0+)?)%\)$")
 cmyk_regex = re.compile(r"^cmyk\((100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%\)$")
 
+@lru_cache(maxsize=1)
+def _load_css_color_cache():
+    """Cache css-color-names.json and provide lowered mapping for O(1) lookup."""
+    data = load_json("assets/css-color-names.json")
+    lowered = {name.lower(): value for name, value in data.items()}
+    return data, lowered
 
 class ColorUtils:
     __slots__ = ['color', 'color_format', 'find_similar_colors']
@@ -26,10 +33,12 @@ class ColorUtils:
         self.find_similar_colors = find_similar_colors
 
     def __determine_color_format(self):
-        data = load_json("assets/css-color-names.json")
+        # Normalizacja: usuń otaczające białe znaki
+        self.color = self.color.strip()
+        data, lowered = _load_css_color_cache()
         css_name = re.sub(r"[^A-Za-z]", "", self.color.lower())
-        if css_name in map(lambda x: x.lower(), data.keys()):
-            self.color = data[css_name]
+        if css_name in lowered:
+            self.color = lowered[css_name]
             self.color_format = "hex"
         elif hex_regex.match(self.color):
             self.color = self.color.lstrip("#")
@@ -146,7 +155,7 @@ class ColorUtils:
 
     @staticmethod
     def __find_similar_colors(hsl_color, threshold=20):
-        color_dict = load_json("assets/css-color-names.json")
+        color_dict, lowered = _load_css_color_cache()
         similar_colors = []
         hsl_color_np = np.array(hsl_color)
 

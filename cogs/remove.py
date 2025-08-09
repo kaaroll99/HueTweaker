@@ -5,12 +5,11 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from bot import cmd_messages
-
 
 class RemoveCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
+        self.msg = bot.messages
 
     @app_commands.command(name="remove", description="Remove the color")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
@@ -23,11 +22,11 @@ class RemoveCog(commands.Cog):
             if role is not None:
                 await interaction.user.remove_roles(role)
                 await role.delete()
-            embed.description = cmd_messages['color_remove']
+            embed.description = self.msg['color_remove']
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = cmd_messages['exception']
+            embed.description = self.msg['exception']
             logging.critical(f"{interaction.user.name}[{interaction.user.id}] raise critical exception - {repr(e)}")
 
         finally:
@@ -39,7 +38,7 @@ class RemoveCog(commands.Cog):
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = cmd_messages["cool_down"].format(int(retry_time.timestamp()))
+            response = self.msg["cool_down"].format(int(retry_time.timestamp()))
             await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
 
 
