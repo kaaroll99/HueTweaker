@@ -24,7 +24,7 @@ class MyBot(commands.AutoShardedBot):
         self.db = db
         self.messages = messages
         self._guild_role_locks: Dict[int, asyncio.Lock] = {}
-        self._ready_shards: Set[int] = set()  # śledzenie które shard'y są gotowe
+        self._ready_shards: Set[int] = set() 
 
     def get_guild_lock(self, guild_id: int) -> asyncio.Lock:
         lock = self._guild_role_locks.get(guild_id)
