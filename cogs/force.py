@@ -32,29 +32,28 @@ class ForceCog(commands.Cog):
             color = fetch_color_representation(interaction, color)
             color_match = color_parser(color)
 
-            with self.db as db_session:
-                guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
-
-            async with self.bot.get_guild_lock(interaction.guild.id):
-                role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
+            role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
+            
+            if role is None:
                 role_position = 1
-                if role is None:
-                    role = await interaction.guild.create_role(name=f"color-{username.id}")
+                with self.db as db_session:
+                    guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
+                
                 if guild_row:
                     top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
                     if top_role:
                         role_position = max(1, top_role.position - 1)
-
-                # Fast return jeśli taki sam kolor
-                try:
-                    if role.colour and int(color_match, 16) == role.colour.value:
-                        await username.add_roles(role)
-                    else:
-                        await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
-                        await username.add_roles(role)
-                except Exception:
-                    await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
-                    await username.add_roles(role)
+                role = await interaction.guild.create_role(
+                    name=f"color-{username.id}",
+                    colour=discord.Colour(int(color_match, 16))
+                )
+                if role_position > 1:
+                    await role.edit(position=role_position)
+            else:
+                if not (role.colour and int(color_match, 16) == role.colour.value):
+                    await role.edit(colour=discord.Colour(int(color_match, 16)))
+            
+            await username.add_roles(role)
             embed.description = self.msg['force_set_set'].format(username.name, color)
             embed.color = discord.Colour(int(color_match, 16))
 
@@ -78,6 +77,7 @@ class ForceCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logger.info("%s[%s] issued bot command: /force set %s %s", interaction.user.name, interaction.locale, username.name, color)
+
 
     @group.command(name="remove", description="Remove the color of the user")
     @app_commands.describe(username="Username")
@@ -105,6 +105,7 @@ class ForceCog(commands.Cog):
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             await interaction.followup.send(embed=embed)
             logger.info("%s[%s] issued bot command: /force remove %s", interaction.user.name, interaction.locale, username.name)
+
 
     @group.command(name="purge", description="Remove all color roles (irreversible)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))

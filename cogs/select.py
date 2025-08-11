@@ -22,7 +22,7 @@ class SelectCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title=self.msg['available_colors'], description=f"", color=4539717)
+        embed: Embed = discord.Embed(title="", description=self.msg['available_colors'], color=4539717)
         view = discord.ui.View()
         embed_file = None
         try:
@@ -39,15 +39,14 @@ class SelectCog(commands.Cog):
                     if isinstance(color_value, str) and color_value.strip():
                         available_colors.append((i, color_value.strip()))
                         
-                options = []
-                for i, (index, color) in enumerate(available_colors, start=1):
-                    options.append(
-                        discord.SelectOption(
-                            label=f"Color {i}", 
-                            value=str(index),
-                            description=f"#{color}"
-                        )
+                options = [
+                    discord.SelectOption(
+                        label=f"Color {i}",
+                        value=str(index),
+                        description=f"#{color}"
                     )
+                    for i, (index, color) in enumerate(available_colors, start=1)
+                ]
                 
                 if options:
                     color_select = discord.ui.Select(
@@ -61,30 +60,38 @@ class SelectCog(commands.Cog):
                             selected_value = interaction.data["values"][0]
                             for idx, color in available_colors:
                                 if str(idx) == selected_value:
-                                    async with self.bot.get_guild_lock(interaction.guild.id):
+                                    
+                                    role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
+                                    
+                                    if role is None:
+                                        role_position = 1
                                         with self.db as db_session:
                                             guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
-                                        role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
-                                        role_position = 1
-                                        if role is None:
-                                            role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
+                                        
                                         if guild_row:
                                             top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
                                             if top_role:
                                                 role_position = max(1, top_role.position - 1)
-                                        # Fast skip jeśli kolor ten sam
-                                        try:
-                                            if role.colour and int(color, 16) == role.colour.value:
-                                                if role not in interaction.user.roles:
-                                                    await interaction.user.add_roles(role, reason="Static color selection")
-                                            else:
-                                                await role.edit(colour=discord.Colour(int(color, 16)), position=role_position)
-                                                if role not in interaction.user.roles:
-                                                    await interaction.user.add_roles(role, reason="Static color selection")
-                                        except Exception:
-                                            await role.edit(colour=discord.Colour(int(color, 16)), position=role_position)
+                                        role = await interaction.guild.create_role(
+                                            name=f"color-{interaction.user.id}",
+                                            colour=discord.Colour(int(color, 16))
+                                        )
+                                        if role_position > 1:
+                                            await role.edit(position=role_position)
+                                    
+                                    try:
+                                        if role.colour and int(color, 16) == role.colour.value:
                                             if role not in interaction.user.roles:
                                                 await interaction.user.add_roles(role, reason="Static color selection")
+                                        else:
+                                            await role.edit(colour=discord.Colour(int(color, 16)))
+                                            if role not in interaction.user.roles:
+                                                await interaction.user.add_roles(role, reason="Static color selection")
+                                    except Exception as e:
+                                        logger.error("Failed to edit role: %s", e)
+                                        if not interaction.response.is_done():
+                                            await interaction.response.send_message("Failed to change color due to insufficient permissions.", ephemeral=True)
+                                        return
                                     break
                             if not interaction.response.is_done():
                                 await interaction.response.defer()

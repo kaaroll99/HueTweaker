@@ -22,14 +22,12 @@ class Database:
         if not self.__engine:
             raise Exception("Database is not connected. Call connect() first.")
         metadata = MetaData()
-        # guilds table (legacy manual definition)
         Table(
             'guilds', metadata,
             Column('id', BigInteger, primary_key=True, autoincrement=True),
             Column('server', BigInteger),
             Column('role', BigInteger),
         )
-        # select table for static colors
         Table(
             'select', metadata,
             Column('server_id', BigInteger, primary_key=True, nullable=False),

@@ -8,11 +8,10 @@ from utils.data_loader import load_json, load_yml
 
 token_file = load_yml('assets/token.yml')
 
-# Retry / backoff configuration
 MAX_RETRIES = 3
-BASE_BACKOFF = 1.0  # seconds
+BASE_BACKOFF = 1.0 
 MAX_BACKOFF = 8.0
-JITTER = 0.3  # +/- jitter fraction
+JITTER = 0.3 
 
 
 async def post_data(url: str, headers: dict, data: dict, message: str = "server count") -> dict:
