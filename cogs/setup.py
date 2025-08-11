@@ -7,7 +7,6 @@ from discord import app_commands, Embed
 from discord.ext import commands
 from discord.ui import View, Button, Modal, TextInput, Select
 
-# from bot import db, cmd_messages  # removed after DI refactor
 from database import model
 from utils.color_parse import color_parser
 

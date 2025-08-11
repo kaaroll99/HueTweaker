@@ -37,23 +37,29 @@ class SetCog(commands.Cog):
                 embed.description = self.msg['color_format']
                 logger.info("%s[%s] issued bot command: /set (invalid format)", interaction.user.name, interaction.user.id)
             else:
-                with self.db as db_session:
-                    guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
-
-                async with self.bot.get_guild_lock(interaction.guild.id):
-                    role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
+                role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
+                
+                if role is None:
                     role_position = 1
-                    if role is None:
-                        role = await interaction.guild.create_role(name=f"color-{interaction.user.id}")
+                    with self.db as db_session:
+                        guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
+                        
                     if guild_row:
                         top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
                         if top_role:
                             role_position = max(1, top_role.position - 1)
-
-                    await role.edit(colour=discord.Colour(int(color_match, 16)), position=role_position)
-                    await interaction.user.add_roles(role)
-                    embed.description = self.msg['color_set'].format(color_match)
-                    embed.color = discord.Colour(int(color_match, 16))
+                    role = await interaction.guild.create_role(
+                        name=f"color-{interaction.user.id}",
+                        colour=discord.Colour(int(color_match, 16))
+                    )
+                    if role_position > 1:
+                        await role.edit(position=role_position)
+                else:
+                    await role.edit(colour=discord.Colour(int(color_match, 16)))
+                
+                await interaction.user.add_roles(role)
+                embed.description = self.msg['color_set'].format(color)
+                embed.color = discord.Colour(int(color_match, 16))
 
         except ValueError:
             embed.description = self.msg['color_format']

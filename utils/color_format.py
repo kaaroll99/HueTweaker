@@ -33,7 +33,6 @@ class ColorUtils:
         self.find_similar_colors = find_similar_colors
 
     def __determine_color_format(self):
-        # Normalizacja: usuń otaczające białe znaki
         self.color = self.color.strip()
         data, lowered = _load_css_color_cache()
         css_name = re.sub(r"[^A-Za-z]", "", self.color.lower())
