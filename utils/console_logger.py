@@ -34,8 +34,7 @@ def setup_logger():
 
         file_formatter = logging.Formatter(
             (
-                "%(asctime)s %(levelname)-5s %(process)d --- [%(threadName)s] "
-                "%(name)-5s : %(message)s"
+                "%(asctime)sZ %(levelname)s %(name)s [pid=%(process)d tid=%(thread)d] %(module)s:%(lineno)d - %(message)s"
             )
         )
         file_path = os.path.join(log_dir, 'app.log')
