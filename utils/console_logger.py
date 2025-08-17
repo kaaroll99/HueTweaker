@@ -6,7 +6,10 @@ from colorlog import ColoredFormatter
 
 
 def setup_logger():
-    os.makedirs('logs', exist_ok=True)
+    log_dir = 'logs'
+    history_dir = os.path.join(log_dir, 'history')
+    os.makedirs(log_dir, exist_ok=True)
+    os.makedirs(history_dir, exist_ok=True)
 
     logger_setup = logging.getLogger()
 
@@ -25,25 +28,38 @@ def setup_logger():
             secondary_log_colors={},
             style='%'
         )
-
-        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(color_formatter)
         logger_setup.addHandler(console_handler)
 
-        latest_handler = logging.FileHandler('logs/latest.log', mode='w', encoding='utf-8')
-        latest_handler.setFormatter(file_formatter)
-        logger_setup.addHandler(latest_handler)
-
-        daily_handler = TimedRotatingFileHandler(
-            'logs/latest.log',
+        file_formatter = logging.Formatter(
+            (
+                "%(asctime)s %(levelname)-5s %(process)d --- [%(threadName)s] "
+                "%(name)-5s : %(message)s"
+            )
+        )
+        file_path = os.path.join(log_dir, 'app.log')
+        file_handler = TimedRotatingFileHandler(
+            file_path,
             when="midnight",
             backupCount=7,
-            encoding='utf-8'
+            encoding='utf-8',
+            utc=False,
         )
-        daily_handler.setFormatter(file_formatter)
-        daily_handler.namer = lambda name: name.replace("latest.log.", "") + ".log"
-        logger_setup.addHandler(daily_handler)
+
+        base_name = os.path.basename(file_path)
+        root, ext = os.path.splitext(base_name)  
+
+        def namer(default_name: str) -> str:
+            date_part = default_name.split(base_name + '.', 1)[-1]
+            return os.path.join(history_dir, f"{date_part}{ext}")
+
+        def rotator(source: str, dest: str) -> None:
+            os.replace(source, dest)
+
+        file_handler.namer = namer
+        file_handler.rotator = rotator
+        file_handler.setFormatter(file_formatter)
+        logger_setup.addHandler(file_handler)
 
     return logger_setup
