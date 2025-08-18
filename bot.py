@@ -13,7 +13,7 @@ from utils.stats_api import api_request
 from utils.constants import MAX_COLOR_INPUT_LEN
 
 setup_logger()
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("bot")
 logger.info("Log file has been created.")
 
 class MyBot(commands.AutoShardedBot):

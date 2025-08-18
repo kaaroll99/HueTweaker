@@ -4,6 +4,9 @@ color_set: |
 
   <:star:1362879443625971783> [Add HueTweaker to your server!](https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot)
 
+color_same: |
+  <:ok:1362879418640498748> **Color is already set to __{}__**
+
 
 #revove
 color_remove: "<:ok:1362879418640498748> **Color has been removed**"
