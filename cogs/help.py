@@ -5,6 +5,8 @@ import yaml
 from discord import app_commands, Embed
 from discord.ext import commands
 
+from utils.data_loader import load_yml
+
 logger = logging.getLogger(__name__)
 
 
@@ -12,6 +14,7 @@ class HelpCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.msg = bot.messages
+        self.help_data = load_yml('assets/help_commands.yml')
 
     @app_commands.command(name="help", description="View information about the bot and a list of available commands")
     async def help(self, interaction: discord.Interaction) -> None:
@@ -64,8 +67,7 @@ class HelpCog(commands.Cog):
     async def __select_callback(self, interaction: discord.Interaction):
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
         try:
-            with open('assets/help_commands.yml', 'r', encoding='utf-8') as f:
-                data = yaml.safe_load(f)
+            data = self.help_data
             selected_option = interaction.data['values'][0]
             embed: Embed = discord.Embed(title=f"<:star:1362879443625971783> Command `{data[selected_option]['name']}`",
                                          description=f"{data[selected_option]['desc']}", color=4539717)

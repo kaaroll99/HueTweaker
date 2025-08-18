@@ -38,7 +38,8 @@ class SetCog(commands.Cog):
                 logger.info("%s[%s] issued bot command: /set (invalid format)", interaction.user.name, interaction.user.id)
             else:
                 role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
-                
+                new_color_val = int(color_match, 16)
+
                 if role is None:
                     role_position = 1
                     with self.db as db_session:
@@ -50,16 +51,22 @@ class SetCog(commands.Cog):
                             role_position = max(1, top_role.position - 1)
                     role = await interaction.guild.create_role(
                         name=f"color-{interaction.user.id}",
-                        colour=discord.Colour(int(color_match, 16))
+                        colour=discord.Colour(new_color_val)
                     )
                     if role_position > 1:
                         await role.edit(position=role_position)
+                    embed.description = self.msg['color_set'].format(color)
                 else:
-                    await role.edit(colour=discord.Colour(int(color_match, 16)))
-                
-                await interaction.user.add_roles(role)
-                embed.description = self.msg['color_set'].format(color)
-                embed.color = discord.Colour(int(color_match, 16))
+                    if not role.colour or role.colour.value != new_color_val:
+                        await role.edit(colour=discord.Colour(new_color_val))
+                        embed.description = self.msg['color_set'].format(color)
+                    else:
+                        embed.description = self.msg['color_same'].format(color)
+
+                if role not in interaction.user.roles:
+                    await interaction.user.add_roles(role)
+
+                embed.color = discord.Colour(new_color_val)
 
         except ValueError:
             embed.description = self.msg['color_format']
