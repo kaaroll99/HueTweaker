@@ -102,6 +102,13 @@ cool_down: "<:warn:1362879461468672130> Please cool down. Retry <t:{}:R>"
 no_permissions: "<:warn:1362879461468672130> You don't have permission to perform this command."
 footer_message: "Support the bot by voting with the /vote command"
 
+color_reverted: |
+  <:ok:1362879418640498748> **Color has been reverted to __{}__**
+
+  <:star:1362879443625971783> [Add HueTweaker to your server!](https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot)
+
+revert_button: "Revert to previous color"
+
 setup_select_embed_title: "<:star:1362879443625971783> /select color config"
 setup_select_embed_desc: |
   <:bubble:1362879391423533226> Use the button below to add or edit existing colors using hex codes or CSS names.

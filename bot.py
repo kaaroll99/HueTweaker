@@ -10,7 +10,6 @@ from database import database
 from utils.console_logger import setup_logger
 from utils.data_loader import load_yml
 from utils.stats_api import api_request
-from utils.constants import MAX_COLOR_INPUT_LEN
 
 setup_logger()
 logger = logging.getLogger("bot")
@@ -25,13 +24,6 @@ class MyBot(commands.AutoShardedBot):
         self.messages = messages
         self._guild_role_locks: Dict[int, asyncio.Lock] = {}
         self._ready_shards: Set[int] = set() 
-
-    def get_guild_lock(self, guild_id: int) -> asyncio.Lock:
-        lock = self._guild_role_locks.get(guild_id)
-        if lock is None:
-            lock = asyncio.Lock()
-            self._guild_role_locks[guild_id] = lock
-        return lock
 
     async def load_cogs(self) -> None:
         cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select', 'dev']
