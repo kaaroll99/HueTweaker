@@ -13,15 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 class RevertColorView(discord.ui.View):
-    def __init__(self, prev_color_val: int | None, role_id: int, author_id: int, button_label: str | None = None, revert_message: str | None = None, timeout: float = 300):
+    def __init__(self, prev_color_val: int | None, role_id: int, author_id: int, messages: dict, timeout: float = 300):
         super().__init__(timeout=timeout)
         self.prev_color_val = prev_color_val
         self.role_id = role_id
         self.author_id = author_id
-        self.button_label = button_label
-        self.revert_message = revert_message
+        self.msg = messages
 
-        btn = discord.ui.Button(label=self.button_label, style=discord.ButtonStyle.secondary)
+        btn = discord.ui.Button(label=self.msg.get('revert_button'), style=discord.ButtonStyle.secondary, emoji="<:back:1408056926121627679>")
         async def _btn_callback(interaction: discord.Interaction):
             await self._on_revert(interaction, btn)
         btn.callback = _btn_callback
@@ -30,8 +29,11 @@ class RevertColorView(discord.ui.View):
     async def _on_revert(self, interaction: discord.Interaction, button: discord.ui.Button):
         guild = interaction.guild
         role = discord.utils.get(guild.roles, id=self.role_id)
+        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
         if role is None:
-            await interaction.response.send_message("User role not found.", ephemeral=True)
+            embed.description = self.msg.get('revert_not_found')
+            await interaction.response.send_message(embed=embed, ephemeral=True)
             return
 
         try:
@@ -43,8 +45,7 @@ class RevertColorView(discord.ui.View):
                 hex_str = f"#{self.prev_color_val:06X}".lower()
 
             button.disabled = True
-            embed = discord.Embed(description=self.revert_message.format(hex_str))
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+            embed.description = self.msg.get('color_reverted').format(hex_str)
             await interaction.response.edit_message(embed=embed, view=self)
             logger.info("%s[%s] reverted color for role to %s", interaction.user.name, interaction.locale, hex_str)
         except discord.HTTPException as e:
@@ -68,13 +69,16 @@ class SetCog(commands.Cog):
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:
         embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        role, prev_color_val = None, None
         try:
             await interaction.response.defer(ephemeral=True)
+            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
 
             color = fetch_color_representation(interaction, color)
             color_match = color_parser(color)
             if color_match is None:
                 embed.description = self.msg['color_format']
+                await interaction.followup.send(embed=embed)
                 logger.info("%s[%s] issued bot command: /set (invalid format)", interaction.user.name, interaction.user.id)
             else:
                 role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
@@ -103,12 +107,20 @@ class SetCog(commands.Cog):
                         await role.edit(colour=discord.Colour(new_color_val))
                         embed.description = self.msg['color_set'].format(color)
                     else:
-                        embed.description = self.msg['color_same'].format(color)
+                        embed.description = self.msg['color_same']
 
                 if role not in interaction.user.roles:
                     await interaction.user.add_roles(role)
 
                 embed.color = discord.Colour(new_color_val)
+                
+                view = RevertColorView(
+                    prev_color_val if 'prev_color_val' in locals() else None,
+                    role.id if role is not None else 0,
+                    interaction.user.id,
+                    self.msg
+                )
+                await interaction.followup.send(embed=embed, view=view)
 
         except ValueError:
             embed.description = self.msg['color_format']
@@ -127,17 +139,8 @@ class SetCog(commands.Cog):
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            # spróbuj wysłać view z przyciskiem przywracania poprzedniego koloru
-            try:
-                btn_label = self.msg.get('revert_button') if hasattr(self, 'msg') else None
-                revert_msg = self.msg.get('color_reverted') if hasattr(self, 'msg') else None
-                view = RevertColorView(prev_color_val if 'prev_color_val' in locals() else None, role.id if role is not None else 0, interaction.user.id, button_label=btn_label, revert_message=revert_msg)
-                await interaction.followup.send(embed=embed, view=view)
-            except Exception:
-                await interaction.followup.send(embed=embed)
-            logger.info("%s[%s] issued bot command: /set %s", interaction.user.name, interaction.locale, color)
-
+            logger.info("%s[%s] issued bot command: /set %s", interaction.user.name, interaction.locale, color) 
+            
     @set.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):

@@ -1,20 +1,20 @@
 #set
 color_set: |
-  <:ok:1362879418640498748> **Color has been set to __{}__**
+  <:ok:1362879418640498748> **Your color has been set to __{}__**
 
   <:star:1362879443625971783> [Add HueTweaker to your server!](https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot)
 
 color_same: |
-  <:ok:1362879418640498748> **Color is already set to __{}__**
+  <:ok:1362879418640498748> **This color is already set.**
 
 
 #revove
 color_remove: "<:ok:1362879418640498748> **Color has been removed**"
 
 #select
-select_set: "<:ok:1362879418640498748> **Static color has been set to {}**"
+select_set: "<:ok:1362879418640498748> **Your color has been set to the preset: {}**"
 select_remove: "<:ok:1362879418640498748> **Static color has been removed**"
-select_no_colors: "<:warn:1362879461468672130> **There are no static colors configured on this server.**"
+select_no_colors: "<:warn:1362879461468672130> **There are no preset colors configured on this server yet.**"
 available_colors: "<:star:1362879443625971783> Available colors to select:"
 
 #vote
@@ -85,7 +85,7 @@ err_50013: |
   
   <:bubble:1362879391423533226> Use the `/help` command to learn how to properly configure top role.
 err_http: |
-  <:warn:1362879461468672130> Bot could not perform this operation due to HTTP discord error.**
+  <:warn:1362879461468672130> A Discord API error occurred, so I couldn't complete the action.**
   
   {} - {}
 check_color_format: |
@@ -97,8 +97,8 @@ check_color_format: |
   * hsl(272.53, 86.36%, 56.86%)
   * cmyk(36.25%, 79.17%, 0.00%, 5.88%)
   * [CSS color](https://huetweaker.gitbook.io/docs/main/colors)
-cool_down_with_api: "<:warn:1362879461468672130> Please cool down. [Vote for the bot to reduce the next cooldown time for 12h](https://top.gg/bot/1209187999934578738/vote). Retry <t:{}:R>"
-cool_down: "<:warn:1362879461468672130> Please cool down. Retry <t:{}:R>"
+cool_down_with_api: "<:warn:1362879461468672130> Please wait a moment. [Vote for the bot to reduce the next cooldown time for 12h](https://top.gg/bot/1209187999934578738/vote). Retry <t:{}:R>"
+cool_down: "<:warn:1362879461468672130> Please wait a moment. You can try again <t:{}:R>."
 no_permissions: "<:warn:1362879461468672130> You don't have permission to perform this command."
 footer_message: "Support the bot by voting with the /vote command"
 
@@ -107,7 +107,9 @@ color_reverted: |
 
   <:star:1362879443625971783> [Add HueTweaker to your server!](https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot)
 
-revert_button: "Revert to previous color"
+revert_button: "Undo to previous color"
+
+revert_not_found: "<:warn:1362879461468672130> **No previous color was found to revert to.**"
 
 setup_select_embed_title: "<:star:1362879443625971783> /select color config"
 setup_select_embed_desc: |
