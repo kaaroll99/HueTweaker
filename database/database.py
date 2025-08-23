@@ -1,4 +1,4 @@
-from sqlalchemy import Table, Column, Integer, MetaData, BigInteger, Text
+from sqlalchemy import Table, Column, MetaData, BigInteger, Text
 from sqlalchemy import create_engine
 from sqlalchemy import insert, select, update, delete, and_
 from sqlalchemy.exc import OperationalError
@@ -58,7 +58,7 @@ class Database:
                     result.scalars()]
             return rows
 
-        except OperationalError as e:
+        except OperationalError:
             self.__session.rollback()
             return False
 
@@ -85,7 +85,7 @@ class Database:
             self.__session.execute(query)
             self.__session.commit()
             return True
-        except OperationalError as e:
+        except OperationalError:
             self.__session.rollback()
             return False
 
@@ -97,7 +97,7 @@ class Database:
             self.__session.execute(query)
             self.__session.commit()
             return True
-        except OperationalError as e:
+        except OperationalError:
             self.__session.rollback()
             return False
 
@@ -108,6 +108,6 @@ class Database:
             self.__session.execute(query)
             self.__session.commit()
             return True
-        except OperationalError as e:
+        except OperationalError:
             self.__session.rollback()
             return False

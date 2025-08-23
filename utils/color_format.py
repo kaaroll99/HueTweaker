@@ -17,12 +17,14 @@ rgb_regex = re.compile(r"^rgb\((25[0-5]|2[0-4]\d|[01]?\d{1,2})\s*,\s*(25[0-5]|2[
 hsl_regex = re.compile(r"^hsl\((\d+(\.\d+)?|100(\.0+)?),\s*(\d+(\.\d+)?|100(\.0+)?)%\s*,\s*(\d+(\.\d+)?|100(\.0+)?)%\)$")
 cmyk_regex = re.compile(r"^cmyk\((100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%\)$")
 
+
 @lru_cache(maxsize=1)
 def _load_css_color_cache():
     """Cache css-color-names.json and provide lowered mapping for O(1) lookup."""
     data = load_json("assets/css-color-names.json")
     lowered = {name.lower(): value for name, value in data.items()}
     return data, lowered
+
 
 class ColorUtils:
     __slots__ = ['color', 'color_format', 'find_similar_colors']
@@ -116,36 +118,35 @@ class ColorUtils:
         rgb_color = rgb_color.astype(np.uint8)
         image_array = np.full((100, 300, 3), rgb_color, dtype=np.uint8)
         return Image.fromarray(image_array, 'RGB')
-    
-    
+
     @staticmethod
     def generate_colored_text_grid(text, hex_colors):
         from PIL import ImageDraw, ImageFont
-        
+
         try:
             font = ImageFont.truetype("assets/gg_sans_mid.ttf", 18)
         except IOError:
             font = ImageFont.load_default()
-        
+
         padding = 10
         line_height = 30
         height = (len(hex_colors) * line_height) + padding * 2
         width = 400
-        
+
         image = Image.new('RGBA', (width, height), (50, 51, 57, 255))
         draw = ImageDraw.Draw(image)
-        
+
         for i, hex_color in enumerate(hex_colors):
             hex_color = hex_color.lstrip('#')
-            
+
             r = int(hex_color[0:2], 16)
             g = int(hex_color[2:4], 16)
             b = int(hex_color[4:6], 16)
-            
-            numbered_text = f"{i+1}. {text}"
-            
+
+            numbered_text = f"{i + 1}. {text}"
+
             draw.text(
-                (padding*1.5, padding + i * line_height),
+                (padding * 1.5, padding + i * line_height),
                 numbered_text,
                 fill=(r, g, b, 255),
                 font=font

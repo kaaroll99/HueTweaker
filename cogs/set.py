@@ -21,6 +21,7 @@ class RevertColorView(discord.ui.View):
         self.msg = messages
 
         btn = discord.ui.Button(label=self.msg.get('revert_button'), style=discord.ButtonStyle.secondary, emoji="<:back:1408056926121627679>")
+
         async def _btn_callback(interaction: discord.Interaction):
             await self._on_revert(interaction, btn)
         btn.callback = _btn_callback
@@ -29,7 +30,7 @@ class RevertColorView(discord.ui.View):
     async def _on_revert(self, interaction: discord.Interaction, button: discord.ui.Button):
         guild = interaction.guild
         role = discord.utils.get(guild.roles, id=self.role_id)
-        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        embed: Embed = discord.Embed(title="", description="", color=4539717)
         embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
         if role is None:
             embed.description = self.msg.get('revert_not_found')
@@ -68,7 +69,7 @@ class SetCog(commands.Cog):
     @app_commands.checks.dynamic_cooldown(dynamic_cooldown, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        embed: Embed = discord.Embed(title="", description="", color=4539717)
         role, prev_color_val = None, None
         try:
             await interaction.response.defer(ephemeral=True)
@@ -88,7 +89,7 @@ class SetCog(commands.Cog):
                     role_position = 1
                     with self.db as db_session:
                         guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
-                        
+
                     if guild_row:
                         top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
                         if top_role:
@@ -113,7 +114,7 @@ class SetCog(commands.Cog):
                     await interaction.user.add_roles(role)
 
                 embed.color = discord.Colour(new_color_val)
-                
+
                 view = RevertColorView(
                     prev_color_val if 'prev_color_val' in locals() else None,
                     role.id if role is not None else 0,
@@ -139,8 +140,8 @@ class SetCog(commands.Cog):
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
-            logger.info("%s[%s] issued bot command: /set %s", interaction.user.name, interaction.locale, color) 
-            
+            logger.info("%s[%s] issued bot command: /set %s", interaction.user.name, interaction.locale, color)
+
     @set.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):

@@ -1,11 +1,9 @@
 import logging
-from datetime import datetime
 
 import discord
 from discord.ext import commands
 
 from database import model
-from utils.data_loader import load_yml
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +25,7 @@ class JoinListenerCog(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
         logger.info("Bot has been added to guild: %s", guild.name)
-    
+
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         logger.info("Bot has been removed from guild: %s", guild.name)

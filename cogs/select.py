@@ -30,7 +30,7 @@ class SelectCog(commands.Cog):
             with self.db as db_session:
                 query = db_session.select(model.select_class("select"), {"server_id": interaction.guild.id})
             available_colors = []
-             
+
             if query and len(query) > 0:
                 colors_data = query[0]
                 for i in range(1, 11):
@@ -38,7 +38,7 @@ class SelectCog(commands.Cog):
                     color_value = colors_data.get(color_key)
                     if isinstance(color_value, str) and color_value.strip():
                         available_colors.append((i, color_value.strip()))
-                
+
                 color_map = {str(idx): hexv for idx, hexv in available_colors}
 
                 options = [
@@ -49,14 +49,14 @@ class SelectCog(commands.Cog):
                     )
                     for i, (index, color) in enumerate(available_colors, start=1)
                 ]
-                
+
                 if options:
                     color_select = discord.ui.Select(
                         placeholder="Select a color...",
                         options=options,
                         custom_id="color_select"
                     )
-                    
+
                     async def color_select_callback(interaction: discord.Interaction):
                         try:
                             selected_value = interaction.data["values"][0]
@@ -104,13 +104,13 @@ class SelectCog(commands.Cog):
                             logger.exception("Select callback error: %r", e)
                             if not interaction.response.is_done():
                                 await interaction.response.defer()
-                    
+
                     color_select.callback = color_select_callback
                     view.add_item(color_select)
-                    
+
             if not available_colors:
                 embed.title = None
-                embed.add_field(name=f"", value=self.msg['select_no_colors'], inline=False)
+                embed.add_field(name="", value=self.msg['select_no_colors'], inline=False)
                 embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
             else:
                 color_values = [color for _, color in available_colors]
@@ -120,7 +120,7 @@ class SelectCog(commands.Cog):
                 image_bytes.seek(0)
                 embed_file = discord.File(fp=image_bytes, filename="color_select.png")
                 embed.set_image(url="attachment://" + embed_file.filename)
-            
+
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
@@ -142,7 +142,6 @@ class SelectCog(commands.Cog):
             else:
                 await interaction.followup.send(embed=embed, view=view)
             logger.info("%s[%s] issued bot command: /select", interaction.user.name, interaction.locale)
-
 
     @select.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

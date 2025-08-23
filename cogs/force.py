@@ -26,19 +26,19 @@ class ForceCog(commands.Cog):
     @app_commands.describe(username="Username", color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, username: discord.Member, color: str) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        embed: Embed = discord.Embed(title="", description="", color=4539717)
         try:
             await interaction.response.defer(ephemeral=True)
             color = fetch_color_representation(interaction, color)
             color_match = color_parser(color)
 
             role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
-            
+
             if role is None:
                 role_position = 1
                 with self.db as db_session:
                     guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
-                
+
                 if guild_row:
                     top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
                     if top_role:
@@ -52,7 +52,7 @@ class ForceCog(commands.Cog):
             else:
                 if not (role.colour and int(color_match, 16) == role.colour.value):
                     await role.edit(colour=discord.Colour(int(color_match, 16)))
-            
+
             await username.add_roles(role)
             embed.description = self.msg['force_set_set'].format(username.name, color)
             embed.color = discord.Colour(int(color_match, 16))
@@ -78,14 +78,13 @@ class ForceCog(commands.Cog):
             await interaction.followup.send(embed=embed)
             logger.info("%s[%s] issued bot command: /force set %s %s", interaction.user.name, interaction.locale, username.name, color)
 
-
     @group.command(name="remove", description="Remove the color of the user")
     @app_commands.describe(username="Username")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def forceremove(self, interaction: discord.Interaction, username: discord.Member) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        embed: Embed = discord.Embed(title="", description="", color=4539717)
         try:
             await interaction.response.defer(ephemeral=True)
             role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
@@ -106,13 +105,12 @@ class ForceCog(commands.Cog):
             await interaction.followup.send(embed=embed)
             logger.info("%s[%s] issued bot command: /force remove %s", interaction.user.name, interaction.locale, username.name)
 
-
     @group.command(name="purge", description="Remove all color roles (irreversible)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def purge(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        embed: Embed = discord.Embed(title="", description="", color=4539717)
         view = discord.ui.View()
         try:
             await interaction.response.defer(ephemeral=True)
@@ -144,16 +142,15 @@ class ForceCog(commands.Cog):
             logger.info("%s[%s] issued bot command: /force purge", interaction.user.name, interaction.locale)
 
     async def __confirm_callback(self, interaction: discord.Interaction):
-        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        embed: Embed = discord.Embed(title="", description="", color=4539717)
         view = discord.ui.View()
 
         async def del_static_roles():
             with self.db as db_session:
                 db_session.delete(model.select_class("select"), {"server_id": interaction.guild.id})
-                
 
         async def del_individual_roles():
-            pattern = re.compile(f"color-\\d{18,19}")
+            pattern = re.compile(r"color-\d{18,19}")
             for role in interaction.guild.roles:
                 if pattern.match(role.name):
                     role = discord.utils.get(interaction.guild.roles, id=role.id)
@@ -172,8 +169,8 @@ class ForceCog(commands.Cog):
 
         except Exception as e:
             embed.clear_fields()
-            embed.description = f""
-            embed.add_field(name=self.msg['exception'], value=f"", inline=False)
+            embed.description = ""
+            embed.add_field(name=self.msg['exception'], value="", inline=False)
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
         finally:
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")

@@ -4,7 +4,7 @@ import re
 import discord
 
 from utils.data_loader import load_json
-from utils.color_format import hex_regex, rgb_regex, ColorUtils
+from utils.color_format import ColorUtils
 from utils.constants import MAX_COLOR_INPUT_LEN
 
 

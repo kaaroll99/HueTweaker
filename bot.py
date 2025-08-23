@@ -15,6 +15,7 @@ setup_logger()
 logger = logging.getLogger("bot")
 logger.info("Log file has been created.")
 
+
 class MyBot(commands.AutoShardedBot):
     def __init__(self, *, config: Dict[str, Any], db: database.Database, messages: Dict[str, Any], **kwargs):
         super().__init__(**kwargs)
@@ -23,7 +24,7 @@ class MyBot(commands.AutoShardedBot):
         self.db = db
         self.messages = messages
         self._guild_role_locks: Dict[int, asyncio.Lock] = {}
-        self._ready_shards: Set[int] = set() 
+        self._ready_shards: Set[int] = set()
 
     async def load_cogs(self) -> None:
         cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select', 'dev']
@@ -67,16 +68,16 @@ class MyBot(commands.AutoShardedBot):
 
     async def on_shard_disconnect(self, shard_id: int) -> None:
         logger.warning('Shard %d has disconnected from Gateway, attempting to reconnect...', shard_id)
-        
+
     async def on_shard_ready(self, shard_id: int) -> None:
         self._ready_shards.add(shard_id)
         logger.info('Shard %d is ready (%d/%d).', shard_id, len(self._ready_shards), self.shard_count)
         if len(self._ready_shards) == self.shard_count:
             logger.info('All shards ready (%d total).', self.shard_count)
-        
+
     async def on_shard_connect(self, shard_id: int) -> None:
         logger.info('Shard %d has connected to Gateway.', shard_id)
-        
+
 
 async def main():
     config = load_yml('assets/token.yml')
