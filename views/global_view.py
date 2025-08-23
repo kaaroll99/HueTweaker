@@ -11,7 +11,8 @@ class GlobalLayout(discord.ui.LayoutView):
         self.msg = messages
         self.description = description
 
-        container = discord.ui.Container(accent_colour=discord.Color(int(4539717, 16)))
+        container = discord.ui.Container(accent_colour=discord.Color.default())
+        # container = discord.ui.Container(accent_colour=discord.Color(int(4539717, 16)))
         container.add_item(
             discord.ui.TextDisplay(self.description)
         )
