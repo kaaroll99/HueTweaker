@@ -47,7 +47,7 @@ def setup_logger():
         )
 
         base_name = os.path.basename(file_path)
-        root, ext = os.path.splitext(base_name)  
+        root, ext = os.path.splitext(base_name)
 
         def namer(default_name: str) -> str:
             date_part = default_name.split(base_name + '.', 1)[-1]

@@ -21,7 +21,7 @@ async def check_query(user_id: int):
                 else:
                     return False
             else:
-                return True 
+                return True
 
 
 async def is_user_on_cooldown(interaction: discord.Interaction):

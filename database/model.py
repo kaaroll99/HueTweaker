@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, Integer, Text
+from sqlalchemy import Column, BigInteger, Text
 from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
@@ -31,8 +31,8 @@ class Select(Base):
     hex_8 = Column(Text)
     hex_9 = Column(Text)
     hex_10 = Column(Text)
-    
-    
+
+
 def select_class(table_name):
     Select.__tablename__ = table_name
     return Select

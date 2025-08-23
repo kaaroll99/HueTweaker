@@ -21,11 +21,11 @@ class CheckCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        embed: Embed = discord.Embed(title="", description="", color=4539717)
         try:
             await interaction.response.defer(ephemeral=True)
             color = fetch_color_representation(interaction, color)
-            color_utils = ColorUtils(color,find_similar_colors=True)
+            color_utils = ColorUtils(color, find_similar_colors=True)
             output_color = color_utils.color_converter()
             if output_color is None:
                 raise ValueError
@@ -33,18 +33,18 @@ class CheckCog(commands.Cog):
 
             embed.title = self.msg['check_title'].format(output_color['Input'])
 
-            embed.add_field(name=f"<:star:1362879443625971783> Hex:",
+            embed.add_field(name="<:star:1362879443625971783> Hex:",
                             value=f"{output_color['Hex'].upper()}",
                             inline=False)
-            embed.add_field(name=f"<:star:1362879443625971783> RGB:",
+            embed.add_field(name="<:star:1362879443625971783> RGB:",
                             value=f"rgb({output_color['RGB'][0] * 255:.0f}, {output_color['RGB'][1] * 255:.0f},"
                                   f" {output_color['RGB'][2] * 255:.0f})",
                             inline=False)
-            embed.add_field(name=f"<:star:1362879443625971783> HSL:",
+            embed.add_field(name="<:star:1362879443625971783> HSL:",
                             value=f"hsl({output_color['HSL'][0]:.2f}, {output_color['HSL'][1] * 100:.2f}%,"
                                   f" {output_color['HSL'][2] * 100:.2f}%)",
                             inline=False)
-            embed.add_field(name=f"<:star:1362879443625971783> CMYK:",
+            embed.add_field(name="<:star:1362879443625971783> CMYK:",
                             value=f"cmyk({output_color['CMYK'][0] * 100:.2f}%, {output_color['CMYK'][1] * 100:.2f}%,"
                                   f" {output_color['CMYK'][2] * 100:.2f}%, {output_color['CMYK'][3] * 100:.2f}%)",
                             inline=False)

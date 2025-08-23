@@ -5,8 +5,6 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
-from utils.data_loader import load_yml
-
 logger = logging.getLogger(__name__)
 
 
@@ -19,7 +17,7 @@ class DevCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def dev(self, interaction: discord.Interaction, action: str) -> None:
-        embed: Embed = discord.Embed(title=f"{self.bot.user.name}", description=f"",
+        embed: Embed = discord.Embed(title=f"{self.bot.user.name}", description="",
                                      color=4539717, timestamp=datetime.datetime.now())
         await interaction.response.defer(ephemeral=True)
         file = None
@@ -49,11 +47,11 @@ class DevCog(commands.Cog):
                     file = discord.File(csv_file)
                 elif action == "tree":
                     await self.bot.tree.sync()
-                    embed.description = f"Command tree synchronization completed."
+                    embed.description = "Command tree synchronization completed."
                 else:
-                    embed.description = f"Command not found."
+                    embed.description = "Command not found."
             else:
-                embed.description = f"Command for bot developers only."
+                embed.description = "Command for bot developers only."
         except discord.HTTPException as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
@@ -65,12 +63,12 @@ class DevCog(commands.Cog):
         finally:
             embed.set_footer(text=f"{self.bot.user.name} by kaaroll99", icon_url=self.bot.user.avatar)
             embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            
+
             if file:
                 await interaction.followup.send(embed=embed, file=file)
             else:
                 await interaction.followup.send(embed=embed)
-                
+
             logger.warning("%s[%s] issued bot command: /dev %s", interaction.user.name, interaction.locale, action)
 
     # @dev.error
