@@ -1,6 +1,7 @@
 import logging
 import re
 from datetime import datetime, timedelta
+from typing import Tuple, Optional
 
 import discord
 from discord import app_commands, Embed
@@ -23,14 +24,28 @@ class ForceCog(commands.Cog):
     @group.command(name="set", description="Setting the color of the user")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
-    @app_commands.describe(username="Username", color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
+    @app_commands.describe(username="Username",
+                           color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)",
+                           secondary_color="Secondary color for gradient (optional)")
     @app_commands.guild_only()
-    async def forceset(self, interaction: discord.Interaction, username: discord.Member, color: str) -> None:
+    async def forceset(self, interaction: discord.Interaction, username: discord.Member, color: str, secondary_color: str = None) -> None:
         embed: Embed = discord.Embed(title="", description="", color=4539717)
         try:
             await interaction.response.defer(ephemeral=True)
-            color = fetch_color_representation(interaction, color)
-            color_match = color_parser(color)
+            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+
+            primary_hex = color_parser(fetch_color_representation(interaction, color))
+            secondary_hex = color_parser(fetch_color_representation(interaction, secondary_color)) if secondary_color else None
+
+            if primary_hex is None or (secondary_hex is None and secondary_color):
+                embed.description = self.msg['color_format']
+                await interaction.followup.send(embed=embed)
+                logger.info("%s[%s] issued bot command: /set (invalid format)", interaction.user.name, interaction.user.id)
+                return
+
+            primary_val = int(primary_hex, 16)
+            secondary_val = int(secondary_hex, 16) if secondary_hex else None
+            new_colors_val: Tuple[int, Optional[int]] = (primary_val, secondary_val)
 
             role = discord.utils.get(interaction.guild.roles, name=f"color-{username.id}")
 
@@ -38,45 +53,65 @@ class ForceCog(commands.Cog):
                 role_position = 1
                 with self.db as db_session:
                     guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
-
                 if guild_row:
                     top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
                     if top_role:
                         role_position = max(1, top_role.position - 1)
+
                 role = await interaction.guild.create_role(
                     name=f"color-{username.id}",
-                    colour=discord.Colour(int(color_match, 16))
+                    colour=discord.Color(new_colors_val[0]),
+                    secondary_colour=discord.Color(new_colors_val[1]) if new_colors_val[1] is not None else None
                 )
                 if role_position > 1:
                     await role.edit(position=role_position)
-            else:
-                if not (role.colour and int(color_match, 16) == role.colour.value):
-                    await role.edit(colour=discord.Colour(int(color_match, 16)))
 
-            await username.add_roles(role)
-            embed.description = self.msg['force_set_set'].format(username.name, color)
-            embed.color = discord.Colour(int(color_match, 16))
+                display_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
+                embed.description = self.msg['force_set_set'].format(username.name, display_color)
+            else:
+                current_colors_val = (
+                    role.colour.value if role.colour else None,
+                    role.secondary_colour.value if role.secondary_colour else None
+                )
+
+                if current_colors_val != new_colors_val:
+                    await role.edit(
+                        colour=discord.Color(new_colors_val[0]),
+                        secondary_colour=discord.Color(new_colors_val[1]) if new_colors_val[1] is not None else None
+                    )
+                    display_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
+                    embed.description = self.msg['force_set_set'].format(username.name, display_color)
+                else:
+                    embed.description = self.msg['color_same']
+
+            if role and role not in username.roles:
+                await username.add_roles(role)
+
+            embed.color = discord.Color(new_colors_val[0])
+
+            await interaction.followup.send(embed=embed)
 
         except ValueError:
             embed.description = self.msg['color_format']
-
+            await interaction.followup.send(embed=embed, ephemeral=True)
         except discord.HTTPException as e:
             embed.clear_fields()
             if e.code == 50013:
                 embed.description = self.msg['err_50013']
+            elif e.code == 670006:
+                embed.description = self.msg['err_670006']
             else:
                 embed.description = self.msg['err_http'].format(e.code, e.text)
-            logger.critical("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
-
+            await interaction.followup.send(embed=embed, ephemeral=True)
+            logger.error("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
         except Exception as e:
             embed.clear_fields()
             embed.description = self.msg['exception']
+            await interaction.followup.send(embed=embed, ephemeral=True)
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
-
         finally:
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            await interaction.followup.send(embed=embed)
-            logger.info("%s[%s] issued bot command: /force set %s %s", interaction.user.name, interaction.locale, username.name, color)
+            log_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
+            logger.info("%s[%s] issued bot command: /force set %s", interaction.user.name, interaction.locale, log_color)
 
     @group.command(name="remove", description="Remove the color of the user")
     @app_commands.describe(username="Username")
