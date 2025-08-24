@@ -15,14 +15,13 @@ class VoteCog(commands.Cog):
 
     @app_commands.command(name="vote", description="View links to vote")
     async def vote(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title="", description=f"", color=4539717)
+        embed: Embed = discord.Embed(title="", description="", color=4539717)
         try:
-            embed = discord.Embed(title=self.msg['vote_title'].format(self.bot.user.name), description=f"",
-                                   color=4539717, timestamp=datetime.datetime.now())
+            embed = discord.Embed(title=self.msg['vote_title'].format(self.bot.user.name), description="", color=4539717, timestamp=datetime.datetime.now())
             await interaction.response.defer(ephemeral=True)
             embed.description = self.msg['vote_desc']
-            embed.add_field(name=f"", value=self.msg['vote_topgg'], inline=False)
-            embed.add_field(name=f"", value=self.msg['vote_dbl'], inline=False)
+            embed.add_field(name="", value=self.msg['vote_topgg'], inline=False)
+            embed.add_field(name="", value=self.msg['vote_dbl'], inline=False)
 
         except Exception as e:
             embed.clear_fields()

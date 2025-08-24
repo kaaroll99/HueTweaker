@@ -8,8 +8,9 @@ color_same: |
   <:ok:1362879418640498748> **This color is already set.**
 
 
-#revove
+#remove
 color_remove: "<:ok:1362879418640498748> **Color has been removed**"
+color_remove_no_color: "<:warn:1362879461468672130> **No color to remove.**"
 
 #select
 select_set: "<:ok:1362879418640498748> **Your color has been set to the preset: {}**"
@@ -75,8 +76,7 @@ exception: "<:warn:1362879461468672130> **The bot encountered an unexpected erro
 color_format: |
   <:warn:1362879461468672130> **Incorrect color format or the selected user does not have the color set**
 
-  Please use hexadecimal format, e.g. __F5DF4D__
-  or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__
+  Please use hexadecimal format, e.g. __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__
 err_50013: |
   <:warn:1362879461468672130> **The bot does not have permissions to perform this operation.**
 

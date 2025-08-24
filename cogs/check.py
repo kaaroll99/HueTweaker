@@ -3,11 +3,13 @@ from datetime import datetime, timedelta
 from io import BytesIO
 
 import discord
-from discord import app_commands, Embed
+from discord import app_commands
 from discord.ext import commands
 
 from utils.color_format import ColorUtils
 from utils.color_parse import fetch_color_representation
+from views.check import CheckLayout
+from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +23,6 @@ class CheckCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
-        embed: Embed = discord.Embed(title="", description="", color=4539717)
         try:
             await interaction.response.defer(ephemeral=True)
             color = fetch_color_representation(interaction, color)
@@ -31,46 +32,36 @@ class CheckCog(commands.Cog):
                 raise ValueError
             image = color_utils.generate_image(output_color['RGB'])
 
-            embed.title = self.msg['check_title'].format(output_color['Input'])
+            description = self.msg['check_title'].format(output_color['Input'])
+            elements = []
 
-            embed.add_field(name="<:star:1362879443625971783> Hex:",
-                            value=f"{output_color['Hex'].upper()}",
-                            inline=False)
-            embed.add_field(name="<:star:1362879443625971783> RGB:",
-                            value=f"rgb({output_color['RGB'][0] * 255:.0f}, {output_color['RGB'][1] * 255:.0f},"
-                                  f" {output_color['RGB'][2] * 255:.0f})",
-                            inline=False)
-            embed.add_field(name="<:star:1362879443625971783> HSL:",
-                            value=f"hsl({output_color['HSL'][0]:.2f}, {output_color['HSL'][1] * 100:.2f}%,"
-                                  f" {output_color['HSL'][2] * 100:.2f}%)",
-                            inline=False)
-            embed.add_field(name="<:star:1362879443625971783> CMYK:",
-                            value=f"cmyk({output_color['CMYK'][0] * 100:.2f}%, {output_color['CMYK'][1] * 100:.2f}%,"
-                                  f" {output_color['CMYK'][2] * 100:.2f}%, {output_color['CMYK'][3] * 100:.2f}%)",
-                            inline=False)
-            embed.add_field(name=self.msg['check_css'],
-                            value=f"{', '.join(str(x) for x in output_color['Similars'][:5]) if output_color['Similars'] else '-'}",
-                            inline=False)
+            elements.append(("<:star:1362879443625971783> Hex:", output_color['Hex'].upper()))
+            elements.append(("<:star:1362879443625971783> RGB:",
+                             f"rgb({output_color['RGB'][0] * 255:.0f}, {output_color['RGB'][1] * 255:.0f}, {output_color['RGB'][2] * 255:.0f})"))
+            elements.append(("<:star:1362879443625971783> HSL:",
+                            f"hsl({output_color['HSL'][0]:.2f}, {output_color['HSL'][1] * 100:.2f}%,{output_color['HSL'][2] * 100:.2f}%)"))
+            elements.append(("<:star:1362879443625971783> CMYK:",
+                            f"cmyk({output_color['CMYK'][0] * 100:.2f}%, {output_color['CMYK'][1] * 100:.2f}%, {output_color['CMYK'][2] * 100:.2f}%, {output_color['CMYK'][3] * 100:.2f}%)"))
+            elements.append((self.msg['check_css'], f"{', '.join(str(x) for x in output_color['Similars'][:5]) if output_color['Similars'] else '-'}", ""))
 
             image_bytes = BytesIO()
             image.save(image_bytes, format='PNG')
             image_bytes.seek(0)
             file = discord.File(fp=image_bytes, filename="color_fill.png")
+            image_url = "attachment://" + file.filename
 
-            embed.color = int(output_color['Hex'].strip("#"), 16)
-            embed.set_image(url="attachment://" + file.filename)
-            await interaction.followup.send(embed=embed, file=file)
+            view = CheckLayout(messages=self.msg, description=description, image=image_url, elements=elements)
+            await interaction.followup.send(view=view, file=file)
+
         except ValueError:
-            embed.clear_fields()
-            embed.description = self.msg['check_color_format']
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            await interaction.followup.send(embed=embed)
+            view = GlobalLayout(messages=self.msg, description=self.msg['check_color_format'], docs_page="commands/check")
+            await interaction.followup.send(view=view)
 
         except Exception as e:
-            embed.clear_fields()
-            embed.description = self.msg['exception']
+            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/check")
+            await interaction.followup.send(view=view)
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
-            await interaction.followup.send(embed=embed)
+
         finally:
             logger.info("%s[%s] issued bot command: /check %s", interaction.user.name, interaction.locale, color)
 
