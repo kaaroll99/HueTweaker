@@ -27,6 +27,6 @@ async def check_query(user_id: int):
 async def is_user_on_cooldown(interaction: discord.Interaction):
     query = await check_query(interaction.user.id)
     if query:
-        return app_commands.Cooldown(1, 50.0)
+        return app_commands.Cooldown(1, 5.0)
     else:
         return app_commands.Cooldown(1, 30.0)
