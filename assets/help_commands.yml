@@ -16,8 +16,8 @@ set:
     e.g. @kaaroll99). Use the keyword "random" to pick a random color.
 
     ### Parameters:
-      `<color>` - Primary color to set (required).
-      `[secondary_color]` - Secondary color for gradient (optional).
+      <color> - Primary color to set (required).
+      [secondary_color] - Secondary color for gradient (optional).
     ### Accepted color formats:
       - Hex: F5DF4D or #F5DF4D
       - CSS color names: royalblue
@@ -111,11 +111,9 @@ forceset:
     also provide an optional secondary color to create a gradient.
 
     ### Parameters:
-      `<user_name>` - Name of the selected user
-      `<color>` - Primary color to set (required).
-      `[secondary_color]` - Secondary color for gradient (optional).
-
-
+      <user_name> - Name of the selected user
+      <color> - Primary color to set (required).
+      [secondary_color] - Secondary color for gradient (optional).
     ### Notes:
       - If the target user doesn't have a bot-managed color role, the bot will create
         one named `color-<USER_ID>` and assign it to the user.
@@ -134,7 +132,7 @@ forceremove:
     requires administrator privileges.
 
     ### Parameters:
-    `<user_name>` - Name of the selected user
+    <user_name> - Name of the selected user
 
   usage: /force remove <user_name>
   example: /force remove @kaaroll99
@@ -204,8 +202,7 @@ setupselect:
 
     ### Behavior highlights:
       - The list supports up to 10 positions (stored as `hex_1` .. `hex_10` in the DB).
-      - If no colors exist yet you'll see a **Create color list** button; otherwise an
-        **Add/Edit color on list** button is shown.
+      - If no colors exist yet you'll see a **Create color list** button; otherwise an **Add/Edit color on list** button is shown.
       - Editing opens a modal with two fields:
           * Color index (1-10) — position in the `/select` menu (validated)
         * Color value — hex (e.g. `F5DF4D` or `#F5DF4D`) or CSS color name (e.g. `royalblue`)
