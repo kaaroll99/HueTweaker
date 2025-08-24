@@ -10,35 +10,40 @@ help:
 set:
   name: set
   desc: >-
-    Set/change the username color using hex code or CSS color name.
- 
- 
-    `<color>` - Color to set
-    
-  
-    **Color to set:**
-    
-    __Color code__
-    
-    > Set the color hexadecimal format, e.g., __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g., __royalblue__
+    Set or change your username color. You can provide a primary color and an optional
+    secondary color to create a gradient. Colors can be given as a HEX value (with or without
+    a leading '#'), as a CSS color name, or by copying another user's color (mention the user,
+    e.g. @kaaroll99). Use the keyword "random" to pick a random color.
 
-    __Username__
-    
-    > Set the color using the name of the user whose color is to be copied, e.g. __@kaaroll99__. If the selected one does not have a role with color an error will be returned
-
-    __Random color__
-    
-    > Set the color using a random color using __random__
-
-  usage: /set <color>
-  example: /set f5df4d
+    ### Parameters:
+      `<color>` - Primary color to set (required).
+      `[secondary_color]` - Secondary color for gradient (optional).
+    ### Accepted color formats:
+      - Hex: F5DF4D or #F5DF4D
+      - CSS color names: royalblue
+      - Other formats supported by the parser (e.g., rgb(...), hsl(...))
+    ### Username:
+      - Copy color from another user by mentioning them (e.g. @kaaroll99). If the selected user
+        does not have a colored role an error will be returned.
+    ### Notes:
+      - If you don't already have a bot-managed color role, the bot will create one named
+        "color-<YOUR_ID>" and assign it to you.
+      - The command is subject to a cooldown.
+  usage: /set <color> [secondary_color]
+  example: |
+    - /set f5df4d
+    - /set #f5df4d 00ff00
+    - /set royalblue
+    - /set @kaaroll99
+    - /set random
   docs: set
 
 ### REMOVE ###
 remove:
   name: remove
   desc: >-
-    Remove the username color.
+    Remove your username color. The bot will remove/unassign the bot-managed color
+    role from your account. This command only affects roles created and managed by the bot.
 
   usage: /remove
   example: /remove
@@ -48,11 +53,14 @@ remove:
 select:
   name: select
   desc: >-
-    Choose one of the colors configured on your server from the dropdown menu.
-    The command displays a preview of how your name will look with each available color.
-    
-    If no colors are configured on the server, administrators need to set them up 
-    using the `/setup select` command first.
+    Choose one of the static colors configured on your server using a dropdown menu.
+    The command generates a preview image showing your username rendered with each
+    available color so you can see how it will look before applying it.
+
+    ### Notes:
+      - The server must have colors configured (up to 10 positions) using `/setup select`.
+    - The command generates a small PNG preview and sends it along with the selection UI.
+    - A short cooldown applies to prevent spamming (rate-limited per user per server).
 
   usage: /select
   example: /select
@@ -62,35 +70,23 @@ select:
 check:
   name: check
   desc: >-
-    Get color information (HEX, RGB, HSL, CMYK).  
-    
-    
-    `<color>` - Color to set
-    
-    
-    **Color to set:**
+    Get color information and a preview image (HEX, RGB, HSL, CMYK).
 
-    __Color code__
+    ### Accepted input formats:
+      - Hex (with or without `#`): `F5DF4D` or `#F5DF4D`
+    - Functional notation: `rgb(...)`, `hsl(...)`
+    - CSS color names (e.g. `royalblue`)
+    - Mention another user to copy their color (e.g. `@kaaroll99`)
+    - `random` to pick a random color
+    - `random` to pick a random color
 
-    - #f5df4d
-
-    - rgb(245, 223, 77)
-
-    - hsl(52.14, 89.36%, 63.14%)
-
-    - cmyk(0.00%, 8.98%, 68.57%, 3.92%)
-
-    - or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. "royalblue"
-
-    __Username__
-
-    > Set the color using the name of the user whose color is to be copied, e.g. __@kaaroll99__. If the selected one does not have a role with color an error will be returned
-
-    __Random color__
-
-    > Set the color using a random color using __random__
-    
-    > -
+    ### What the command returns:
+      - Conversions: HEX, RGB, HSL, CMYK
+      - A small PNG preview image (`color_fill.png`) showing the color
+      - Up to several similar CSS color names (if available)
+    ### Notes:
+      - Invalid formats will trigger a helpful error message directing to the docs.
+      - A short cooldown is applied per user per server to prevent spam.
   usage: /check <color>
   example: /check \#F5DF4D
   docs: check
@@ -109,31 +105,22 @@ vote:
 forceset:
   name: forceset
   desc: >-
-    Set/change the username color of the specific user using hex code or CSS color name.
-    
-    ⚠️ The command can only be executed by a user with administrator privileges.
-    
-    
-    `<user_name>` - Name of the selected user
-    
-    `<color>` - Color to set
-    
-    
-    **Color to set:**
-    
-    __Color code__
-    
-    > Set the color hexadecimal format, e.g., __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g., __royalblue__
+    Set or change another user's username color. This command is for administrators
+    and accepts the same input formats as `/set`: HEX (with or without `#`), CSS color
+    names, mention a user to copy their color (e.g. `@kaaroll99`), or `random`. You may
+    also provide an optional secondary color to create a gradient.
 
-    __Username__
-    
-    > Set the color using the name of the user whose color is to be copied, e.g. __@kaaroll99__. If the selected one does not have a role with color an error will be returned
+    ### Parameters:
+      `<user_name>` - Name of the selected user
+      `<color>` - Primary color to set (required).
+      `[secondary_color]` - Secondary color for gradient (optional).
 
-    __Random color__
-    
-    > Set the color using a random color using __random__
-    
-    > -
+
+    ### Notes:
+      - If the target user doesn't have a bot-managed color role, the bot will create
+        one named `color-<USER_ID>` and assign it to the user.
+    - Requires administrator privileges to run and the bot must have permission to
+      manage roles.
   usage: /force set <user_name> <color>
   example: /force set @kaaroll99 f5df4d
   docs: force-set
@@ -142,10 +129,11 @@ forceset:
 forceremove:
   name: forceremove
   desc: >-
-    Remove the username color of the specific user.
-    
-    ⚠️ The command can only be executed by a user with administrator privileges.
-    
+    Remove another user's username color. The bot will remove/unassign the bot-managed
+    color role from the selected user and delete that role if it exists. This command
+    requires administrator privileges.
+
+    ### Parameters:
     `<user_name>` - Name of the selected user
 
   usage: /force remove <user_name>
@@ -156,21 +144,17 @@ forceremove:
 forcepurge:
   name: forcepurge
   desc: >-
-    The command allows you to delete all roles with colors (created by HueTweaker) from the server.
-    The user selects which roles he wants to delete:
-    
-    - individual roles
-    
-    - static roles (if configured)
-    
-    - both
-    
-    ⚠️ The effect of the command is irreversible — execution at your own risk
-    
-    ⚠️ The command can only be executed by a user with administrator privileges.
-    
+    Delete HueTweaker-created color roles from the server. The command opens a confirmation
+    dialog where you can choose to remove:
+      - individual user color roles
+    - static roles created for `/select` (if configured)
+    - all color roles
+    - all color roles
 
-    The command uses a regular expression. It will remove all roles that conform to the format: `color-{USER_ID}` e.g., `color-512674615223517205`
+    ### Notes:
+      - This operation is irreversible once confirmed.
+      - Requires administrator privileges.
+      - The command targets roles matching the pattern `color-{USER_ID}` (e.g. `color-512674615223517205`).
 
   usage: /force purge
   example: /force purge
@@ -180,33 +164,30 @@ forcepurge:
 toprole:
   name: setup toprole
   desc: >-
-    Set the top role for color roles. All color roles will be set under the indicated role.
-    Set `@everyone` to reset top role.
-    
-    
+    Set the top role under which HueTweaker will create and place color roles. When a
+    top role is configured, the bot will position all color roles directly below the
+    selected role. Use `@everyone` to reset the top role and restore default placement.
+
+
     ⚠️ The command can only be executed by a user with administrator privileges.
-    
-    
-    ⚠️ **Important:**
-    
-    1. If the role is not indicated, color roles will be created at the bottom, which may cause the color to be obscured by higher roles.
-    
-    2. Top role __cannot be higher__ than the top bot role.
-    
-    
-    💡 **Roles example:**
-    
-    > [Admin]
-    
-    > [Bot] **<- bot higher role**
-    
-    > [colors] **<- bot "top role"**
-    
-    > [color-00...]
-    
-    > [color-00...]
-    
-    
+
+    ### ⚠️ Important:
+      - If no top role is set, color roles will be created at the bottom of the role list,
+        which may cause their color to be hidden by higher roles.
+      - The chosen top role must not be higher than the bot's highest role; the bot cannot
+        move color roles above its own top role. Choose a role that the bot can manage.
+
+    ### What happens when you set a top role:
+      - The bot updates stored configuration for the server and will move existing roles
+        whose names match the pattern `color-<USER_ID>` to sit under the selected top role.
+      - Setting `@everyone` clears the saved top role from the server configuration.
+
+    ### 💡 Roles example:
+      - [Admin]
+      - [Bot]  <- bot higher role
+      - [colors]  <- chosen top role
+      - [color-...]
+
     `<role_name>` - Name of the selected role
 
   usage: /setup toprole <role_name>
@@ -218,19 +199,22 @@ toprole:
 setupselect:
   name: setup select
   desc: >-
-    Configure the colors that will be available for selection using the `/select` command.
-    This command opens an interactive panel where you can add, edit, or remove colors.
-    You can configure up to 10 different colors.
-    
-    
-    When adding or editing a color, you'll need to fill out a form with:
-    - Color index (1-10) - Position of the color in the selection menu
-    - Color value - The color you want to set at that position
-    
-    
-    Colors can be set in hexadecimal format (e.g. __F5DF4D__) or using a [CSS color name](https://huetweaker.gitbook.io/docs/main/colors) (e.g. __royalblue__).
-    
-    ⚠️ The command can only be executed by a user with administrator privileges.
+    Configure the static color list for the `/select` command. This opens an interactive
+    panel where administrators can create the color list or add/edit entries.
+
+    ### Behavior highlights:
+      - The list supports up to 10 positions (stored as `hex_1` .. `hex_10` in the DB).
+      - If no colors exist yet you'll see a **Create color list** button; otherwise an
+        **Add/Edit color on list** button is shown.
+      - Editing opens a modal with two fields:
+          * Color index (1-10) — position in the `/select` menu (validated)
+        * Color value — hex (e.g. `F5DF4D` or `#F5DF4D`) or CSS color name (e.g. `royalblue`)
+      - Leaving the color value empty clears that entry.
+    ### Notes & validation:
+      - Index must be an integer between 1 and 10; invalid input will show a warning
+        and keep the current list unchanged.
+      - Colors are parsed with the same rules as `/set` (hex or CSS names).
+      - Only users with administrator privileges can run this command.
 
   usage: /setup select
   example: /setup select
