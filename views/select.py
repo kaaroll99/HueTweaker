@@ -1,6 +1,8 @@
 import logging
 import discord
 
+from database import model
+
 logger = logging.getLogger(__name__)
 
 
@@ -39,7 +41,7 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
             role_position = 1
             with self.db as db_session:
                 guild_row = db_session.select_one(
-                    self.bot.model.guilds_class("guilds"),
+                    model.guilds_class("guilds"),
                     {"server": interaction.guild.id}
                 )
 

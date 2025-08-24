@@ -113,8 +113,8 @@ class HelpView(discord.ui.LayoutView):
             desc_display = (
                 f"## Details for /{data['name']} command:\n\n"
                 f"{data['desc']}\n\n"
-                f"**{self.msg['com_syntax']}**\n> {data['usage']}\n\n"
-                f"**{self.msg['com_example']}**\n> {data['example']}\n\n"
+                f"**{self.msg['com_syntax']}**\n {data['usage']}\n\n"
+                f"**{self.msg['com_example']}**\n {data['example']}\n\n"
             )
             docs_key = data['docs']
         except Exception as e:
