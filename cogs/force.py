@@ -11,6 +11,7 @@ from utils.color_parse import fetch_color_representation, color_parser
 from views.global_view import GlobalLayout
 from views.set import Layout
 from views.purge import PurgeView
+from views.cooldown import CooldownLayout
 
 logger = logging.getLogger(__name__)
 
@@ -163,11 +164,12 @@ class ForceCog(commands.Cog):
 
         try:
             await interaction.response.defer(ephemeral=True)
+            await interaction.followup.send(view=view)
         except Exception as e:
             view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/force-purge")
+            await interaction.followup.send(view=view)
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
         finally:
-            await interaction.followup.send(view=view)
             logger.info("%s[%s] issued bot command: /force purge", interaction.user.name, interaction.locale)
 
     @forceset.error
@@ -177,7 +179,8 @@ class ForceCog(commands.Cog):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = self.msg["cool_down"].format(int(retry_time.timestamp()))
-            await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
+            view = CooldownLayout(messages=self.msg, description=response)
+            await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
 
         elif isinstance(error, discord.app_commands.errors.MissingPermissions):
             embed: Embed = discord.Embed(title="", description=self.msg['no_permissions'],

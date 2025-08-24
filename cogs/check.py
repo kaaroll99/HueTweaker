@@ -10,6 +10,7 @@ from utils.color_format import ColorUtils
 from utils.color_parse import fetch_color_representation
 from views.check import CheckLayout
 from views.global_view import GlobalLayout
+from views.cooldown import CooldownLayout
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +71,8 @@ class CheckCog(commands.Cog):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = self.msg["cool_down"].format(int(retry_time.timestamp()))
-            await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
+            view = CooldownLayout(messages=self.msg, description=response)
+            await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
 
 
 async def setup(bot: commands.Bot) -> None:

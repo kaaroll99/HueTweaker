@@ -10,6 +10,7 @@ from utils.cooldown_check import is_user_on_cooldown
 
 from views.set import Layout
 from views.global_view import GlobalLayout
+from views.cooldown import CooldownLayout
 
 import logging
 
@@ -134,8 +135,8 @@ class SetCog(commands.Cog):
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = self.msg["cool_down_with_api"].format(int(retry_time.timestamp()))
-            view = GlobalLayout(messages=self.msg, description=response)
+            response = self.msg["cool_down"].format(int(retry_time.timestamp()))
+            view = CooldownLayout(messages=self.msg, description=response)
             await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
 
 

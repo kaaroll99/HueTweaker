@@ -1,16 +1,16 @@
 #set
 color_set: |
-  <:ok:1362879418640498748> **Your color has been set to __{}__**
+  ### <:ok:1362879418640498748> Your color has been set to __{}__
 
   <:star:1362879443625971783> **Now you can set gradients by setting secondary color!** (*required guild feature*) <:star:1362879443625971783>
 
 color_same: |
-  <:ok:1362879418640498748> **This color is already set.**
+  ### <:ok:1362879418640498748> This color is already set
 
 
 #remove
-color_remove: "<:ok:1362879418640498748> **Color has been removed**"
-color_remove_no_color: "<:warn:1362879461468672130> **No color to remove.**"
+color_remove: "### <:ok:1362879418640498748> Color has been removed"
+color_remove_no_color: "### <:warn:1362879461468672130> No color to remove"
 
 #select
 select_set: "<:ok:1362879418640498748> **Your color has been set to the preset: {}**"
@@ -25,19 +25,19 @@ vote_topgg: "<:star:1362879443625971783> [Click here to vote on top.gg](https://
 vote_dbl: "<:star:1362879443625971783> [Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/huetweaker/upvote)"
 
 #check
-check_title: "Details for color: **{}**"
+check_title: "### Details for color: {}"
 check_css: "<:star:1362879443625971783> The most similar CSS colors:"
 
 #force set
 force_set_set: "<:ok:1362879418640498748> **Color has been set for {} to __#{}__**"
 
 #force remove
-force_remove_remove: "<:ok:1362879418640498748> **Color has been removed for {}**"
-force_remove_no_color: "<:warn:1362879461468672130> **The user with the given name did not have the color set.**"
+force_remove_remove: "### <:ok:1362879418640498748> Color has been removed for {}"
+force_remove_no_color: "### <:warn:1362879461468672130> The user with the given name did not have the color set."
 
 #force purge
 purge_confirm: |
-  **Are you sure you want to remove all roles with user colors?**
+  ### Are you sure you want to remove all roles with user colors?
 
   Choose which type of roles you want to remove.
   <:warn:1362879461468672130> **The changes will be irreversible.**
@@ -50,12 +50,12 @@ purge_ok: "<:ok:1362879418640498748> **All roles with colors have been successfu
 
 #setup toprole
 toprole_reset: |
-  <:ok:1362879418640498748> **Top role settings have been reset**
+  ### <:ok:1362879418640498748> Top role settings have been reset
 
   <:bubble:1362879391423533226> Please remember the selected role should be positioned below the bot's highest role.
   Otherwise it will cause errors when setting the username color.
 toprole_set: |
-  <:ok:1362879418640498748> **Top role has been set for __{}__**
+  ### <:ok:1362879418640498748> Top role has been set for __{}__
 
   <:bubble:1362879391423533226> Remember that the selected role should be under the highest role the bot has.
   Otherwise, it will cause errors when setting the username color.
@@ -72,13 +72,13 @@ com_example: "<:star:1362879443625971783> Command example:"
 com_docs: "[See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/{})"
 
 #exceptions
-exception: "<:warn:1362879461468672130> **The bot encountered an unexpected error.**"
+exception: "### <:warn:1362879461468672130> The bot encountered an unexpected error."
 color_format: |
-  <:warn:1362879461468672130> **Incorrect color format or the selected user does not have the color set**
+  ### <:warn:1362879461468672130> Incorrect color format or the selected user does not have the color set
 
   Please use hexadecimal format, e.g. __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__
 err_50013: |
-  <:warn:1362879461468672130> **The bot does not have permissions to perform this operation.**
+  ### <:warn:1362879461468672130> The bot does not have permissions to perform this operation.
 
   Error may have been caused by misconfiguration of top-role bot (`/setup toprole`).
   Notify the server administrator of the occurrence of this error.
@@ -103,8 +103,10 @@ check_color_format: |
   * hsl(272.53, 86.36%, 56.86%)
   * cmyk(36.25%, 79.17%, 0.00%, 5.88%)
   * [CSS color](https://huetweaker.gitbook.io/docs/main/colors)
-cool_down_with_api: "<:warn:1362879461468672130> Please wait a moment. [Vote for the bot to reduce the next cooldown time for 12h](https://top.gg/bot/1209187999934578738/vote). Retry <t:{}:R>"
-cool_down: "<:warn:1362879461468672130> Please wait a moment. You can try again <t:{}:R>."
+cool_down_with_api: "<:warn:1362879461468672130> Please wait a moment. Retry <t:{}:R>"
+cool_down: |
+  **<:warn:1362879461468672130> Please wait a moment.**
+  **You can try again <t:{}:R>.**
 no_permissions: "<:warn:1362879461468672130> You don't have permission to perform this command."
 footer_message: "Support the bot by voting with the /vote command"
 
