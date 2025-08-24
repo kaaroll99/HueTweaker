@@ -183,10 +183,8 @@ class ForceCog(commands.Cog):
             await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
 
         elif isinstance(error, discord.app_commands.errors.MissingPermissions):
-            embed: Embed = discord.Embed(title="", description=self.msg['no_permissions'],
-                                         color=4539717, timestamp=datetime.now())
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            view = GlobalLayout(messages=self.msg, description=self.msg['no_permissions'])
+            await interaction.followup.send(view=view)
 
 
 async def setup(bot: commands.Bot) -> None:
