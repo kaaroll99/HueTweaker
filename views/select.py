@@ -103,13 +103,13 @@ class SelectView(discord.ui.LayoutView):
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
 
         docs_button = discord.ui.Button(
-            label=self.msg.get('invite_button', 'See documentation'),
+            label='See documentation',
             style=discord.ButtonStyle.link,
             emoji="<:docs:1362879505613586643>",
             url=f"https://huetweaker.gitbook.io/docs/{self.docs_page}"
         )
         invite_button = discord.ui.Button(
-            label=self.msg.get('invite_button', 'Add HueTweaker to your server'),
+            label='Add HueTweaker to your server',
             style=discord.ButtonStyle.link,
             emoji="<:star:1362879443625971783>",
             url="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot"
