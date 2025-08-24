@@ -9,6 +9,7 @@ from discord.ui import Button, Modal, TextInput
 
 from database import model
 from utils.color_parse import color_parser
+from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
 
@@ -222,7 +223,6 @@ class SetupCog(commands.Cog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:
-        embed: Embed = discord.Embed(title="", description="", color=4539717)
         try:
             await interaction.response.defer(ephemeral=True)
 
@@ -235,43 +235,37 @@ class SetupCog(commands.Cog):
             if top_role.position == 0:
                 if guild_row:
                     self.db.delete(model.guilds_class("guilds"), {"server": interaction.guild.id})
-                embed.description = self.msg['toprole_reset']
+                description = self.msg['toprole_reset']
             else:
                 if guild_row:
                     self.db.update(model.guilds_class("guilds"), {"server": interaction.guild.id}, {"role": role_name.id})
                 else:
                     self.db.create(model.guilds_class("guilds"), {"server": interaction.guild.id, "role": role_name.id})
 
-                embed.description = self.msg['toprole_set'].format(role_name.name)
+                description = self.msg['toprole_set'].format(role_name.name)
 
                 for role in interaction.guild.roles:
                     if pattern.match(role.name):
                         role = discord.utils.get(interaction.guild.roles, id=role.id)
                         await role.edit(position=max(1, top_role.position - 1))
 
-                for i, static_role in enumerate(interaction.guild.roles, start=1):
-                    if i > 5:
-                        break
-                    role = discord.utils.get(interaction.guild.roles, name=f"color-static-{i}")
-                    if role:
-                        await role.edit(position=top_role.position + 1)
+            view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/setup-toprole")
+            await interaction.followup.send(view=view)
 
         except discord.HTTPException as e:
-            embed.clear_fields()
             if e.code == 50013:
-                embed.description = self.msg['err_50013']
+                err_description = self.msg['err_50013']
             else:
-                embed.description = self.msg['err_http'].format(e.code, e.text)
+                err_description = self.msg['err_http'].format(e.code, e.text)
+            view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/setup-toprole")
             logger.critical("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
 
         except Exception as e:
-            embed.clear_fields()
-            embed.description = self.msg['exception']
+            view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/setup-toprole")
+            await interaction.followup.send(view=view, ephemeral=True)
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            await interaction.followup.send(embed=embed)
             logger.info("%s[%s] issued bot command: /setup toprole", interaction.user.name, interaction.locale)
 
     @toprole.error

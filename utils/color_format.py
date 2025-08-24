@@ -116,7 +116,7 @@ class ColorUtils:
     def generate_image(color):
         rgb_color = np.array(color) * 255
         rgb_color = rgb_color.astype(np.uint8)
-        image_array = np.full((100, 300, 3), rgb_color, dtype=np.uint8)
+        image_array = np.full((50, 300, 3), rgb_color, dtype=np.uint8)
         return Image.fromarray(image_array, 'RGB')
 
     @staticmethod

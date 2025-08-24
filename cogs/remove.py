@@ -2,8 +2,10 @@ import logging
 from datetime import datetime, timedelta
 
 import discord
-from discord import app_commands, Embed
+from discord import app_commands
 from discord.ext import commands
+
+from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
 
@@ -17,23 +19,24 @@ class RemoveCog(commands.Cog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def remove(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title="", description="", color=4539717)
         try:
             await interaction.response.defer(ephemeral=True)
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
             if role is not None:
                 await interaction.user.remove_roles(role)
                 await role.delete()
-            embed.description = self.msg['color_remove']
+                description = self.msg['color_remove']
+            else:
+                description = self.msg['color_remove_no_color']
+            view = GlobalLayout(messages=self.msg, description=description)
+            await interaction.followup.send(view=view)
 
         except Exception as e:
-            embed.clear_fields()
-            embed.description = self.msg['exception']
+            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/remove")
+            await interaction.followup.send(view=view, ephemeral=True)
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            await interaction.followup.send(embed=embed)
             logger.info("%s[%s] issued bot command: /remove", interaction.user.name, interaction.locale)
 
     @remove.error
@@ -41,7 +44,8 @@ class RemoveCog(commands.Cog):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = self.msg["cool_down"].format(int(retry_time.timestamp()))
-            await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
+            view = GlobalLayout(messages=self.msg, description=response)
+            await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
 
 
 async def setup(bot: commands.Bot) -> None:

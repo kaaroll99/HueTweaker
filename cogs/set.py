@@ -106,9 +106,10 @@ class SetCog(commands.Cog):
             await interaction.followup.send(view=view)
 
         except ValueError:
-            err_view = GlobalLayout(messages=self.msg, description=self.msg['color_format'])
-            await interaction.followup.send(view=err_view, ephemeral=True)
+            view = GlobalLayout(messages=self.msg, description=self.msg['color_format'], docs_page="commands/set")
+            await interaction.followup.send(view=view, ephemeral=True)
             logger.info("%s[%s] issued bot command: /set (invalid format)", interaction.user.name, interaction.user.id)
+
         except discord.HTTPException as e:
             if e.code == 50013:
                 err_description = self.msg['err_50013']
@@ -116,11 +117,12 @@ class SetCog(commands.Cog):
                 err_description = self.msg['err_670006']
             else:
                 err_description = self.msg['err_http'].format(e.code, e.text)
-            view = GlobalLayout(messages=self.msg, description=err_description)
+            view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/set")
             await interaction.followup.send(view=view, ephemeral=True)
             logger.error("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
+
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'])
+            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/set")
             await interaction.followup.send(view=view, ephemeral=True)
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
@@ -133,7 +135,8 @@ class SetCog(commands.Cog):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = self.msg["cool_down_with_api"].format(int(retry_time.timestamp()))
-            await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
+            view = GlobalLayout(messages=self.msg, description=response)
+            await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
 
 
 async def setup(bot: commands.Bot) -> None:

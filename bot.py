@@ -55,7 +55,7 @@ class MyBot(commands.AutoShardedBot):
         await self.load_cogs()
         logger.info("Sharding configuration: total shards = %d", self.shard_count or -1)
         logger.info("Syncing command tree...")
-        await self.tree.sync()
+        # await self.tree.sync()
         logger.info("Command tree synced.")
         self.remove_command('help')
         if not self.update_stats_task.is_running():
