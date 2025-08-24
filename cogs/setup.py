@@ -10,6 +10,7 @@ from discord.ui import Button, Modal, TextInput
 from database import model
 from utils.color_parse import color_parser
 from views.global_view import GlobalLayout
+from views.cooldown import CooldownLayout
 
 logger = logging.getLogger(__name__)
 
@@ -274,7 +275,8 @@ class SetupCog(commands.Cog):
         if isinstance(error, app_commands.CommandOnCooldown):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = self.msg["cool_down"].format(int(retry_time.timestamp()))
-            await interaction.response.send_message(response, ephemeral=True, delete_after=error.retry_after)
+            view = CooldownLayout(messages=self.msg, description=response)
+            await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
 
         elif isinstance(error, discord.app_commands.errors.MissingPermissions):
             embed: Embed = discord.Embed(title="", description=self.msg['no_permissions'],

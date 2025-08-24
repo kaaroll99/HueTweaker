@@ -27,7 +27,7 @@ class MyBot(commands.AutoShardedBot):
         self._ready_shards: Set[int] = set()
 
     async def load_cogs(self) -> None:
-        cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'vote', 'select', 'dev']
+        cogs = ['help', 'set', 'remove', 'check', 'force', 'setup', 'joinListener', 'select', 'dev']
         for cog in cogs:
             try:
                 await self.load_extension(f"cogs.{cog}")

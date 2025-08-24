@@ -1,7 +1,7 @@
 import logging
 
 import discord
-from discord import app_commands, Embed
+from discord import app_commands
 from discord.ext import commands
 
 from utils.data_loader import load_yml
@@ -22,12 +22,12 @@ class HelpCog(commands.Cog):
         view = HelpView(messages=self.msg, bot=self.bot, help_data=self.help_data, author_id=interaction.user.id, description=self.msg['help_desc'].format(len(self.bot.guilds)), docs_button=False)
         try:
             await interaction.response.defer(ephemeral=True)
+            await interaction.followup.send(view=view)
         except Exception as e:
             view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/set")
             await interaction.followup.send(view=view, ephemeral=True)
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
         finally:
-            await interaction.followup.send(view=view)
             logger.info("%s[%s] issued bot command: /help", interaction.user.name, interaction.locale)
 
 
