@@ -42,12 +42,11 @@ async def post_with_retry(url: str, headers: dict, data: dict, message: str) -> 
             return result
         if attempt < MAX_RETRIES:
             backoff = min(MAX_BACKOFF, BASE_BACKOFF * (2 ** (attempt - 1)))
-            # jitter
             jitter_factor = 1 + random.uniform(-JITTER, JITTER)
             sleep_for = backoff * jitter_factor
             logging.debug("Retrying %s (attempt %d/%d) in %.2fs", message, attempt + 1, MAX_RETRIES, sleep_for)
             await asyncio.sleep(sleep_for)
-    return result  # last result
+    return result
 
 
 async def api_request(server_count: int, user_count: int) -> None:

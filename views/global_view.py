@@ -17,9 +17,6 @@ class GlobalLayout(discord.ui.LayoutView):
         container.add_item(
             discord.ui.TextDisplay(self.description)
         )
-        # gallery = discord.ui.MediaGallery()
-        # gallery.add_item(media="https://i.imgur.com/rXe4MHa.png")
-        # container.add_item(gallery)
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
 
         docs_button = discord.ui.Button(

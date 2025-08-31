@@ -62,7 +62,7 @@ class MyBot(commands.AutoShardedBot):
             self.update_stats_task.start()
 
     async def on_ready(self) -> None:
-        logger.info(20 * '=' + " Bot is ready. " + 20 * "=")
+        logger.info("%s Bot is ready. %s", "=" * 20, "=" * 20)
 
     async def on_socket_response(self, msg: Dict[str, Any]) -> None:
         if msg.get('t') == 'RESUMED':
@@ -90,8 +90,7 @@ async def main():
 
     logger.info("Local database connect")
     db_instance = database.Database(url=db_url)
-    with db_instance as db_session:
-        db_session.database_init()
+    db_instance.database_init()
 
     intents = discord.Intents.default()
     intents.guilds = True
@@ -110,7 +109,7 @@ async def main():
     )
 
     async with bot:
-        logger.info(20 * '=' + " Starting the bot. " + 20 * "=")
+        logger.info("%s Starting the bot. %s", "=" * 20, "=" * 20)
         await bot.start(token)
 
 

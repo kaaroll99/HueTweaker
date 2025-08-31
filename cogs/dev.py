@@ -1,14 +1,9 @@
 import datetime
 import logging
-# from xml.parsers.expat import model
 
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
-
-from database import model as db_model
-
-from views.test import TestlLayout
 
 logger = logging.getLogger(__name__)
 
@@ -54,15 +49,6 @@ class DevCog(commands.Cog):
                 elif action == "tree":
                     await self.bot.tree.sync()
                     embed.description = "Command tree synchronization completed."
-                else:
-
-                    with self.db as db_session:
-                        query = db_session.select(db_model.select_class("select"), {"server_id": interaction.guild.id})
-                    print(query)
-                    print(type(query))
-
-                    view = TestlLayout(messages=self.msg, description="test", docs_page="commands/set", query=query, db=self.db)
-                    await interaction.followup.send(view=view, ephemeral=True)
             else:
                 embed.description = "Command for bot developers only."
         except discord.HTTPException as e:
@@ -79,18 +65,8 @@ class DevCog(commands.Cog):
 
             if file:
                 await interaction.followup.send(embed=embed, file=file)
-            # else:
-            #     await interaction.followup.send(embed=embed)
 
             logger.warning("%s[%s] issued bot command: /dev %s", interaction.user.name, interaction.locale, action)
-
-    # @dev.error
-    # async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-    #     embed: Embed = discord.Embed(title="",
-    #                                  description=f"This command is only available to the developers of this bot and is used for testing.",
-    #                                  color=4539717)
-    #     embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-    #     await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:

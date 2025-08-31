@@ -1,4 +1,5 @@
 import logging
+
 import discord
 
 from database import model
@@ -39,14 +40,10 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
 
         if role is None:
             role_position = 1
-            with self.db as db_session:
-                guild_row = db_session.select_one(
-                    model.guilds_class("guilds"),
-                    {"server": interaction.guild.id}
-                )
+            guild_obj = self.db.select_one(model.Guilds, {"server": interaction.guild.id})
 
-            if guild_row:
-                top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
+            if guild_obj:
+                top_role = discord.utils.get(interaction.guild.roles, id=guild_obj["role"])
                 if top_role:
                     role_position = max(1, top_role.position - 1)
 

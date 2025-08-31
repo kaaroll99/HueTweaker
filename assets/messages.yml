@@ -2,8 +2,6 @@
 color_set: |
   ### <:ok:1362879418640498748> Your color has been set to __{}__
 
-  <:star:1362879443625971783> **Now you can set gradients by setting secondary color!** (*required guild feature*) <:star:1362879443625971783>
-
 color_same: |
   ### <:ok:1362879418640498748> This color is already set
 
@@ -43,7 +41,7 @@ purge_confirm: |
   <:warn:1362879461468672130> **The changes will be irreversible.**
 bttn_ind: "INDIVIDUAL ROLES"
 bttn_stat: "STATIC ROLES"
-bttn_both: "INDIVIDUAL&STATIC ROLES"
+bttn_both: "ALL ROLES"
 purge_ok: "<:ok:1362879418640498748> **All roles with colors have been successfully removed.**"
 
 #setup select

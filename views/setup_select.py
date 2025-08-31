@@ -1,5 +1,6 @@
 import logging
 import re
+
 import discord
 from discord.ext import commands
 from discord.ui import Button, Modal, TextInput
@@ -32,13 +33,6 @@ class SetupView(discord.ui.LayoutView):
                 color_list += f"**{i}.** -\n"
 
         container.add_item(discord.ui.TextDisplay(color_list))
-
-        # # obrazek
-        # gallery = discord.ui.MediaGallery()
-        # gallery.add_item(media="https://i.imgur.com/rXe4MHa.png")
-        # container.add_item(gallery)
-
-        # separator
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
 
         docs_button = discord.ui.Button(
@@ -68,13 +62,10 @@ class SetupView(discord.ui.LayoutView):
 
     async def create_callback(self, interaction: discord.Interaction):
         try:
-            with self.db as session:
-                query = session.create(model.select_class("select"), {"server_id": interaction.guild.id})
+            select_obj = self.db.select(model.Select, {"server_id": interaction.guild.id})
 
-            if query:
-                with self.db as session:
-                    query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
-                new_colors = query_result[0] if query_result else {}
+            if select_obj:
+                new_colors = select_obj[0] if select_obj else {}
 
                 new_view = SetupView(new_colors, interaction.guild.id, self.bot)
                 await interaction.response.edit_message(view=new_view)
@@ -85,10 +76,9 @@ class SetupView(discord.ui.LayoutView):
 
     async def edit_color_callback(self, interaction: discord.Interaction):
         try:
-            with self.db as session:
-                query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
+            select_obj = self.db.select_one(model.Select, {"server_id": interaction.guild.id})
 
-            colors_data = query_result[0]
+            colors_data = select_obj if select_obj else {}
             available_colors = []
 
             for i in range(1, 11):
@@ -138,29 +128,20 @@ class ColorSelectionModal(Modal):
                 new_color_value = None
             else:
                 new_color_value = color_parser(self.color_input.value)
+            self.db.update(model.Select, {"server_id": interaction.guild.id}, {f"hex_{str(index_value)}": new_color_value})
 
-            with self.db as session:
-                session.update(
-                    model.select_class("select"),
-                    {"server_id": interaction.guild.id},
-                    {f"hex_{str(index_value)}": new_color_value}
-                )
-
-            with self.db as session:
-                query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
-            colors_data = query_result[0] if query_result else {}
+            select_obj = self.db.select(model.Select, {"server_id": interaction.guild.id})
+            colors_data = select_obj[0] if select_obj else {}
 
             new_view = SetupView(colors_data, interaction.guild.id, self.bot)
             await interaction.response.edit_message(view=new_view)
 
         except ValueError:
-            with self.db as session:
-                query_result = session.select(model.select_class("select"), {"server_id": interaction.guild.id})
-            colors_data = query_result[0] if query_result else {}
+            select_obj = self.db.select(model.Select, {"server_id": interaction.guild.id})
+            colors_data = select_obj[0] if select_obj else {}
 
             warn_text = self.msg['color_format']
 
-            # zamiast dwóch embedów – w view dorzucamy dodatkowy TextDisplay
             new_view = SetupView(colors_data, interaction.guild.id, self.bot)
             new_view.add_item(discord.ui.TextDisplay(warn_text))
 

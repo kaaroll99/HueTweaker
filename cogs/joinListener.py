@@ -29,8 +29,8 @@ class JoinListenerCog(commands.Cog):
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         logger.info("Bot has been removed from guild: %s", guild.name)
-        with self.db as db_session:
-            db_session.delete(model.guilds_class("guilds"), {"server": guild.id})
+        self.db.delete(model.Guilds, {"server": guild.id})
+
 
 
 async def setup(bot: commands.Bot) -> None:

@@ -8,9 +8,9 @@ from discord.ext import commands
 
 from database import model
 from utils.color_format import ColorUtils
-from views.select import SelectView
-from views.global_view import GlobalLayout
 from views.cooldown import CooldownLayout
+from views.global_view import GlobalLayout
+from views.select import SelectView
 
 logger = logging.getLogger(__name__)
 
@@ -30,11 +30,10 @@ class SelectCog(commands.Cog):
 
         try:
             await interaction.response.defer(ephemeral=True)
-            with self.db as db_session:
-                query = db_session.select(model.select_class("select"), {"server_id": interaction.guild.id})
+            guild_obj = self.db.select_one(model.Select, {"server_id": interaction.guild.id})
 
-            if query and len(query) > 0:
-                colors_data = query[0]
+            if guild_obj and len(guild_obj) > 0:
+                colors_data = guild_obj
                 for i in range(1, 11):
                     color_key = f"hex_{i}"
                     color_value = colors_data.get(color_key)
@@ -58,6 +57,7 @@ class SelectCog(commands.Cog):
                 await interaction.followup.send(view=view, file=file)
 
         except discord.HTTPException as e:
+            err_description = self.msg['exception']
             if e.code == 50013:
                 err_description = self.msg['err_50013']
             elif e.code == 10062:
