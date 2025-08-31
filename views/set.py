@@ -1,8 +1,7 @@
-
-
 import logging
-import discord
 from typing import Optional, Tuple
+
+import discord
 
 logger = logging.getLogger(__name__)
 

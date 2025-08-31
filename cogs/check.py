@@ -9,8 +9,8 @@ from discord.ext import commands
 from utils.color_format import ColorUtils
 from utils.color_parse import fetch_color_representation
 from views.check import CheckLayout
-from views.global_view import GlobalLayout
 from views.cooldown import CooldownLayout
+from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
 

@@ -1,12 +1,12 @@
 import re
+from functools import lru_cache
 
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from colormath.color_conversions import convert_color
 from colormath.color_objects import sRGBColor, CMYKColor, HSLColor
 
 from utils.data_loader import load_json
-from functools import lru_cache
 
 rgb_pattern = re.compile(r"rgb\((\d+),\s*(\d+),\s*(\d+)\)")
 hsl_pattern = re.compile(r"hsl\((\d+(\.\d+)?),\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$")
@@ -20,10 +20,9 @@ cmyk_regex = re.compile(r"^cmyk\((100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.
 
 @lru_cache(maxsize=1)
 def _load_css_color_cache():
-    """Cache css-color-names.json and provide lowered mapping for O(1) lookup."""
     data = load_json("assets/css-color-names.json")
     lowered = {name.lower(): value for name, value in data.items()}
-    return data, lowered
+    return lowered
 
 
 class ColorUtils:
@@ -36,7 +35,7 @@ class ColorUtils:
 
     def __determine_color_format(self):
         self.color = self.color.strip()
-        data, lowered = _load_css_color_cache()
+        lowered = _load_css_color_cache()
         css_name = re.sub(r"[^A-Za-z]", "", self.color.lower())
         if css_name in lowered:
             self.color = lowered[css_name]
@@ -60,6 +59,7 @@ class ColorUtils:
         if self.color_format is None:
             return None
         try:
+            rgb_color = None
             if self.color_format == "hex":
                 rgb_color = sRGBColor.new_from_rgb_hex(self.color)
             elif self.color_format == "rgb":
@@ -121,8 +121,6 @@ class ColorUtils:
 
     @staticmethod
     def generate_colored_text_grid(text, hex_colors):
-        from PIL import ImageDraw, ImageFont
-
         try:
             font = ImageFont.truetype("assets/gg_sans_mid.ttf", 18)
         except IOError:
@@ -155,7 +153,7 @@ class ColorUtils:
 
     @staticmethod
     def __find_similar_colors(hsl_color, threshold=20):
-        color_dict, lowered = _load_css_color_cache()
+        color_dict = _load_css_color_cache()
         similar_colors = []
         hsl_color_np = np.array(hsl_color)
 

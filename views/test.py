@@ -1,6 +1,8 @@
-import discord
-from database import model
 from typing import Any
+
+import discord
+
+from database import model
 
 
 class SetCountButton(discord.ui.Button):

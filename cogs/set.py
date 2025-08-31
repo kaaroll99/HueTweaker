@@ -1,5 +1,7 @@
+import logging
 from datetime import datetime, timedelta
 from typing import Tuple, Optional
+
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -7,12 +9,9 @@ from discord.ext import commands
 from database import model
 from utils.color_parse import fetch_color_representation, color_parser
 from utils.cooldown_check import is_user_on_cooldown
-
-from views.set import Layout
-from views.global_view import GlobalLayout
 from views.cooldown import CooldownLayout
-
-import logging
+from views.global_view import GlobalLayout
+from views.set import Layout
 
 logger = logging.getLogger(__name__)
 
@@ -55,10 +54,10 @@ class SetCog(commands.Cog):
 
             if role is None:
                 role_position = 1
-                with self.db as db_session:
-                    guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
-                if guild_row:
-                    top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
+                guild_obj = self.db.select_one(model.Guilds, {"server": interaction.guild.id})
+
+                if guild_obj:
+                    top_role = discord.utils.get(interaction.guild.roles, id=guild_obj["role"])
                     if top_role:
                         role_position = max(1, top_role.position - 1)
 

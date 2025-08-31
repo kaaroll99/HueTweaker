@@ -1,113 +1,105 @@
-from sqlalchemy import Table, Column, MetaData, BigInteger, Text
+import logging
+
 from sqlalchemy import create_engine
-from sqlalchemy import insert, select, update, delete, and_
-from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import sessionmaker
 
+from . import model
+
+logger = logging.getLogger(__name__)
 
 class Database:
     def __init__(self, url):
         self.__engine = create_engine(url)
         self.__Session = sessionmaker(autocommit=False, autoflush=False, bind=self.__engine)
 
-    def __enter__(self):
-        self.__session = self.__Session()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.__session.close()
-
     def database_init(self):
-        """Create required tables if they do not exist."""
         if not self.__engine:
-            raise Exception("Database is not connected. Call connect() first.")
-        metadata = MetaData()
-        Table(
-            'guilds', metadata,
-            Column('id', BigInteger, primary_key=True, autoincrement=True),
-            Column('server', BigInteger),
-            Column('role', BigInteger),
-        )
-        Table(
-            'select', metadata,
-            Column('server_id', BigInteger, primary_key=True, nullable=False),
-            Column('hex_1', Text),
-            Column('hex_2', Text),
-            Column('hex_3', Text),
-            Column('hex_4', Text),
-            Column('hex_5', Text),
-            Column('hex_6', Text),
-            Column('hex_7', Text),
-            Column('hex_8', Text),
-            Column('hex_9', Text),
-            Column('hex_10', Text),
-        )
-        metadata.create_all(self.__engine)
+            raise Exception("Database is not connected.")
+        model.Base.metadata.create_all(self.__engine)
         return True
 
-    def select(self, table, parameters=None):
+    @staticmethod
+    def _to_dict(obj):
+        return {c.key: getattr(obj, c.key) for c in obj.__table__.columns}
+
+    def select(self, table_class, parameters=None):
+        """Select multiple records from the database."""
+        session = self.__Session()
         try:
-            if not parameters:
-                query = select(table)
-            else:
-                where_clause = and_(*(getattr(table, k) == v for k, v in parameters.items()))
-                query = select(table).where(where_clause)
-
-            result = self.__session.execute(query)
-            rows = [{column.key: getattr(row, column.key) for column in row.__table__.columns} for row in
-                    result.scalars()]
-            return rows
-
-        except OperationalError:
-            self.__session.rollback()
+            query = session.query(table_class)
+            if parameters:
+                query = query.filter_by(**parameters)
+            results = query.all()
+            return [self._to_dict(r) for r in results]
+        except Exception as e:
+            session.rollback()
+            logger.error("Select error: %s", e)
             return False
+        finally:
+            session.close()
 
-    def select_one(self, table, parameters=None):
+    def select_one(self, table_class, parameters=None):
+        """Select a single record from the database."""
+        session = self.__Session()
         try:
-            if not parameters:
-                query = select(table).limit(1)
-            else:
-                where_clause = and_(*(getattr(table, k) == v for k, v in parameters.items()))
-                query = select(table).where(where_clause).limit(1)
-
-            result = self.__session.execute(query)
-            row_obj = result.scalars().first()
-            if not row_obj:
-                return None
-            return {column.key: getattr(row_obj, column.key) for column in row_obj.__table__.columns}
-        except OperationalError:
-            self.__session.rollback()
+            query = session.query(table_class)
+            if parameters:
+                query = query.filter_by(**parameters)
+            obj = query.first()
+            return self._to_dict(obj) if obj else None
+        except Exception as e:
+            session.rollback()
+            logger.error("Select_one error: %s", e)
             return False
+        finally:
+            session.close()
 
-    def create(self, table, values):
+    def create(self, table_class, values):
+        """Create a new record in the database."""
+        session = self.__Session()
         try:
-            query = insert(table).values(**values)
-            self.__session.execute(query)
-            self.__session.commit()
+            obj = table_class(**values)
+            session.add(obj)
+            session.commit()
             return True
-        except OperationalError:
-            self.__session.rollback()
+        except Exception as e:
+            session.rollback()
+            logger.error("Create error: %s", e)
             return False
+        finally:
+            session.close()
 
-    def update(self, table, criteria, values):
+    def update(self, table_class, criteria, values):
+        """Update a record in the database."""
+        session = self.__Session()
         try:
-            query = (update(table)
-                     .where(and_(*(getattr(table, k) == v for k, v in criteria.items())))
-                     .values(**values))
-            self.__session.execute(query)
-            self.__session.commit()
+            obj = session.query(table_class).filter_by(**criteria).first()
+            if not obj:
+                return False
+            for k, v in values.items():
+                setattr(obj, k, v)
+            session.commit()
             return True
-        except OperationalError:
-            self.__session.rollback()
+        except Exception as e:
+            session.rollback()
+            logger.error("Update error: %s", e)
             return False
+        finally:
+            session.close()
 
-    def delete(self, table, criteria):
+    def delete(self, table_class, criteria):
+        """Delete a record from the database."""
+        session = self.__Session()
         try:
-            where_clause = and_(*(getattr(table, k) == v for k, v in criteria.items()))
-            query = delete(table).where(where_clause)
-            self.__session.execute(query)
-            self.__session.commit()
+            obj = session.query(table_class).filter_by(**criteria).first()
+            if not obj:
+                return False
+            session.delete(obj)
+            session.commit()
             return True
-        except OperationalError:
-            self.__session.rollback()
+        except Exception as e:
+            session.rollback()
+            logger.error("Delete error: %s", e)
             return False
+        finally:
+            session.close()

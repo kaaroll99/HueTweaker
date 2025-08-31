@@ -5,8 +5,8 @@ from discord import app_commands
 from discord.ext import commands
 
 from utils.data_loader import load_yml
-from views.help import HelpView
 from views.global_view import GlobalLayout
+from views.help import HelpView
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +23,12 @@ class HelpCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
             await interaction.followup.send(view=view)
+
         except Exception as e:
             view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/set")
             await interaction.followup.send(view=view, ephemeral=True)
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+
         finally:
             logger.info("%s[%s] issued bot command: /help", interaction.user.name, interaction.locale)
 

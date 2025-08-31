@@ -1,6 +1,8 @@
 import logging
+
 import discord
 from discord.ext import commands
+
 from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
@@ -31,7 +33,7 @@ class HelpSelect(discord.ui.ActionRow['HelpView']):
         ],
     )
     async def select_callback(self, interaction: discord.Interaction, select: discord.ui.Select):
-        await self.view._on_select(interaction, select.values[0])
+        await self.view.on_select(interaction, select.values[0])
 
 
 class HelpView(discord.ui.LayoutView):
@@ -107,7 +109,7 @@ class HelpView(discord.ui.LayoutView):
 
         self.add_item(container)
 
-    async def _on_select(self, interaction: discord.Interaction, selected_key: str):
+    async def on_select(self, interaction: discord.Interaction, selected_key: str):
         try:
             data = self.help_data[selected_key]
             desc_display = (

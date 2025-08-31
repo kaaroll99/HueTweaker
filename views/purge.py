@@ -1,9 +1,10 @@
-import discord
-import re
 import logging
+import re
+
+import discord
+
 from database import model
 from views.global_view import GlobalLayout
-
 
 logger = logging.getLogger(__name__)
 
@@ -52,8 +53,8 @@ class PurgeView(discord.ui.LayoutView):
             return
 
         async def del_static_roles():
-            with self.db as db_session:
-                db_session.delete(model.select_class("select"), {"server_id": interaction.guild.id})
+            self.db.delete(model.Guilds, {"server": interaction.guild.id})
+
 
         async def del_individual_roles():
             pattern = re.compile(r"color-\d{18,19}")

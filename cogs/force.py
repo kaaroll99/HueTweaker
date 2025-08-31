@@ -3,15 +3,15 @@ from datetime import datetime, timedelta
 from typing import Tuple, Optional
 
 import discord
-from discord import app_commands, Embed
+from discord import app_commands
 from discord.ext import commands
 
 from database import model
 from utils.color_parse import fetch_color_representation, color_parser
-from views.global_view import GlobalLayout
-from views.set import Layout
-from views.purge import PurgeView
 from views.cooldown import CooldownLayout
+from views.global_view import GlobalLayout
+from views.purge import PurgeView
+from views.set import Layout
 
 logger = logging.getLogger(__name__)
 
@@ -52,10 +52,9 @@ class ForceCog(commands.Cog):
 
             if role is None:
                 role_position = 1
-                with self.db as db_session:
-                    guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
-                if guild_row:
-                    top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))
+                guild_obj = self.db.select_one(model.Guilds, {"server": interaction.guild.id})
+                if guild_obj:
+                    top_role = discord.utils.get(interaction.guild.roles, id=guild_obj["role"])
                     if top_role:
                         role_position = max(1, top_role.position - 1)
 
@@ -109,6 +108,7 @@ class ForceCog(commands.Cog):
             logger.info("%s[%s] issued bot command: /set (invalid format)", interaction.user.name, interaction.user.id)
 
         except discord.HTTPException as e:
+            err_description = self.msg['exception']
             if e.code == 50013:
                 err_description = self.msg['err_50013']
             elif e.code == 670006:

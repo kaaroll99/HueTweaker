@@ -5,8 +5,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from views.global_view import GlobalLayout
 from views.cooldown import CooldownLayout
+from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
 
