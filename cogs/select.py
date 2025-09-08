@@ -39,11 +39,13 @@ class SelectCog(commands.Cog):
                     color_value = colors_data.get(color_key)
                     if isinstance(color_value, str) and color_value.strip():
                         color_options.append((i, color_value.strip()))
-
                 color_map = {str(idx): hexv for idx, hexv in color_options}
+                print(color_map)
 
-            if not color_options:
+            if not color_options and not color_map:
                 description = self.msg['select_no_colors']
+                view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/select")
+                await interaction.followup.send(view=view)
             else:
                 color_values = [color for _, color in color_options]
                 description = self.msg['available_colors']
