@@ -54,6 +54,7 @@ class PurgeView(discord.ui.LayoutView):
 
         async def del_static_roles():
             self.db.delete(model.Guilds, {"server": interaction.guild.id})
+            self.db.delete(model.Select, {"server_id": interaction.guild.id})
 
 
         async def del_individual_roles():

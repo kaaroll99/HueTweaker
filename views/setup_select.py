@@ -62,7 +62,12 @@ class SetupView(discord.ui.LayoutView):
 
     async def create_callback(self, interaction: discord.Interaction):
         try:
-            select_obj = self.db.select(model.Select, {"server_id": interaction.guild.id})
+            list_obj = self.db.create(model.Select, {"server_id": interaction.guild.id})
+
+            if list_obj:
+                select_obj = self.db.select(model.Select, {"server_id": interaction.guild.id})
+            else:
+                select_obj = None
 
             if select_obj:
                 new_colors = select_obj[0] if select_obj else {}

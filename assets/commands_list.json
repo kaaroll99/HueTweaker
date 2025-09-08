@@ -6,42 +6,38 @@
   },
   {
     "name": "set",
-    "description": "Set/change  the username color using hex code or CSS color name.",
-    "type": 1,
-    "required": true
+    "description": "Set or change your username color. Accepts a primary color and optional secondary color (hex, CSS name, mention another user, or 'random').",
+    "type": 1
   },
   {
     "name": "remove",
-    "description": "Remove the username color.",
-    "type": 1,
-    "required": true
+    "description": "Remove your username color. Removes the bot-managed color role from your account.",
+    "type": 1
   },
   {
     "name": "check",
-    "description": "Get color information (HEX, RGB, HSL, CMYK).",
-    "type": 1,
-    "required": true
+    "description": "Get color information and a preview image (HEX, RGB, HSL, CMYK).",
+    "type": 1
   },
   {
     "name": "force",
-    "description": "Modify the color of specific user.",
+    "description": "Modify another user's username color or remove/purge bot-created color roles (admin only).",
     "options": [
-
       {
         "name": "set",
-        "description": "Set/change  the username color of the specific user using hex code or CSS color name. The command can only be executed by a user with administrator privileges.",
+        "description": "Set or change another user's username color. Accepts hex, CSS color name, mention, or 'random'. Requires administrator privileges.",
         "type": 1,
         "required": true
       },
       {
         "name": "remove",
-        "description": "Remove the username color of the specific user. The command can only be executed by a user with administrator privileges.",
+        "description": "Remove another user's username color. Requires administrator privileges.",
         "type": 1,
         "required": true
       },
       {
         "name": "purge",
-        "description": "The command allows you to delete all roles with colors (created by HueTweaker) from the server.",
+        "description": "Delete HueTweaker-created color roles from the server (individual, static, or all). Requires administrator privileges.",
         "type": 1,
         "required": true
       }
@@ -49,17 +45,17 @@
   },
   {
     "name": "setup",
-    "description": "Setup bot on your server.",
+    "description": "Setup the bot on your server (top role placement and static select list).",
     "options": [
       {
         "name": "toprole",
-        "description": "Set the top role for color roles. All color roles will be set under the indicated role.",
+        "description": "Set the top role under which HueTweaker will create and place color roles. Requires administrator privileges.",
         "type": 1,
         "required": true
       },
       {
         "name": "select",
-        "description": "Setup static colors on server.",
+        "description": "Configure the static color list for the `/select` command (up to 10 positions). Requires administrator privileges.",
         "type": 1,
         "required": true
       }
