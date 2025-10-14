@@ -96,9 +96,7 @@ class SelectView(discord.ui.LayoutView):
             container.add_item(gallery)
 
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
-
         container.add_item(ColorSelect(color_options, color_map, bot.db, bot))
-
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
 
         docs_button = discord.ui.Button(

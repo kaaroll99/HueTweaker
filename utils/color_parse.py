@@ -36,3 +36,14 @@ def color_parser(color):
     if result is not None:
         return result["Hex"].lstrip("#")
     return None
+
+
+def check_black(primary_hex, secondary_hex):
+    is_black = False
+    if primary_hex == "000000":
+        is_black = True
+        primary_hex = "000001"
+    if secondary_hex == "000000":
+        is_black = True
+        secondary_hex = "000001"
+    return primary_hex, secondary_hex, is_black

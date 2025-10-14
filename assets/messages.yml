@@ -2,6 +2,9 @@
 color_set: |
   ### <:ok:1362879418640498748> Your color has been set to __{}__
 
+color_set_black: |
+  ### <:ok:1362879418640498748> Your color has been set to __{}__. However, due to Discord's limitations, the value has been modified.
+
 color_same: |
   ### <:ok:1362879418640498748> This color is already set
 
@@ -28,6 +31,7 @@ check_css: "<:star:1362879443625971783> The most similar CSS colors:"
 
 #force set
 force_set_set: "<:ok:1362879418640498748> **Color has been set for {} to __#{}__**"
+force_set_black: "<:ok:1362879418640498748> **Color has been set for {} to __#{}__**. However, due to Discord's limitations, the value has been modified."
 
 #force remove
 force_remove_remove: "### <:ok:1362879418640498748> Color has been removed for {}"

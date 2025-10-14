@@ -40,7 +40,6 @@ class SelectCog(commands.Cog):
                     if isinstance(color_value, str) and color_value.strip():
                         color_options.append((i, color_value.strip()))
                 color_map = {str(idx): hexv for idx, hexv in color_options}
-                print(color_map)
 
             if not color_options and not color_map:
                 description = self.msg['select_no_colors']
