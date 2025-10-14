@@ -7,7 +7,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from database import model
-from utils.color_parse import fetch_color_representation, color_parser
+from utils.color_parse import fetch_color_representation, color_parser, check_black
 from views.cooldown import CooldownLayout
 from views.global_view import GlobalLayout
 from views.purge import PurgeView
@@ -40,6 +40,7 @@ class ForceCog(commands.Cog):
 
             primary_hex = color_parser(fetch_color_representation(interaction, color))
             secondary_hex = color_parser(fetch_color_representation(interaction, secondary_color)) if secondary_color else None
+            primary_hex, secondary_hex, is_black = check_black(primary_hex, secondary_hex)
 
             if primary_hex is None or (secondary_hex is None and secondary_color):
                 raise ValueError
@@ -67,7 +68,10 @@ class ForceCog(commands.Cog):
                     await role.edit(position=role_position)
 
                 display_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
-                description = self.msg['force_set_set'].format(username.name, display_color)
+                if is_black:
+                    description = self.msg['force_set_black'].format(display_color)
+                else:
+                    description = self.msg['force_set_set'].format(username.name, display_color)
             else:
                 current_colors_val = (
                     role.color.value if role.color else None,
@@ -81,7 +85,10 @@ class ForceCog(commands.Cog):
                         secondary_color=discord.Color(new_colors_val[1]) if new_colors_val[1] is not None else None
                     )
                     display_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
-                    description = self.msg['force_set_set'].format(username.name, display_color)
+                    if is_black:
+                        description = self.msg['force_set_black'].format(display_color)
+                    else:
+                        description = self.msg['force_set_set'].format(username.name, display_color)
                 else:
                     description = self.msg['color_same']
                     undo_lock = True
