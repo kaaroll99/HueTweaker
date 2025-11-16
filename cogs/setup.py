@@ -50,7 +50,7 @@ class SetupCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            pattern = re.compile(r"color-\\d{18,19}")
+            pattern = re.compile(r"color-\d{18,19}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
 
             guild_obj = self.db.select_one(model.Guilds, {"server": interaction.guild.id})
