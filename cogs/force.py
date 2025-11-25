@@ -7,6 +7,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from database import model
+from utils.history_manager import update_history
 from utils.color_parse import fetch_color_representation, color_parser, check_black
 from views.cooldown import CooldownLayout
 from views.global_view import GlobalLayout
@@ -72,6 +73,7 @@ class ForceCog(commands.Cog):
                     description = self.msg['force_set_black'].format(display_color)
                 else:
                     description = self.msg['force_set_set'].format(username.name, display_color)
+                update_history(self.db, username.id, interaction.guild.id, primary_val)
             else:
                 current_colors_val = (
                     role.color.value if role.color else None,
@@ -89,6 +91,7 @@ class ForceCog(commands.Cog):
                         description = self.msg['force_set_black'].format(display_color)
                     else:
                         description = self.msg['force_set_set'].format(username.name, display_color)
+                    update_history(self.db, username.id, interaction.guild.id, primary_val)
                 else:
                     description = self.msg['color_same']
                     undo_lock = True

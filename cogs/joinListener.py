@@ -19,6 +19,9 @@ class JoinListenerCog(commands.Cog):
             role = discord.utils.get(member.guild.roles, name=f"color-{member.id}")
             if role is not None:
                 await role.delete()
+
+            self.db.delete(model.history_class("history"), {"user_id": member.id, "guild_id": member.guild.id})
+
         except discord.HTTPException:
             pass
 
@@ -30,6 +33,7 @@ class JoinListenerCog(commands.Cog):
     async def on_guild_remove(self, guild):
         logger.info("Bot has been removed from guild: %s", guild.name)
         self.db.delete(model.Guilds, {"server": guild.id})
+        self.db.delete_all(model.history_class("history"), {"guild_id": guild.id})
 
 
 

@@ -9,6 +9,7 @@ from discord.ext import commands
 from database import model
 from utils.color_parse import fetch_color_representation, color_parser, check_black
 from utils.cooldown_check import is_user_on_cooldown
+from utils.history_manager import update_history
 from views.cooldown import CooldownLayout
 from views.global_view import GlobalLayout
 from views.set import Layout
@@ -37,6 +38,7 @@ class SetCog(commands.Cog):
         description = ""
         undo_lock = False
         prev_colors: Optional[Tuple[Optional[int], Optional[int]]] = None
+
         try:
             await interaction.response.defer(ephemeral=True)
 
@@ -76,6 +78,7 @@ class SetCog(commands.Cog):
                     description = self.msg['color_set_black'].format(display_color)
                 else:
                     description = self.msg['color_set'].format(display_color)
+                update_history(self.db, interaction.user.id, interaction.guild.id, primary_val)
             else:
                 current_colors_val = (
                     role.color.value if role.color else None,
@@ -93,6 +96,7 @@ class SetCog(commands.Cog):
                         description = self.msg['color_set_black'].format(display_color)
                     else:
                         description = self.msg['color_set'].format(display_color)
+                    update_history(self.db, interaction.user.id, interaction.guild.id, primary_val)
                 else:
                     description = self.msg['color_same']
                     undo_lock = True

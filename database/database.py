@@ -103,3 +103,18 @@ class Database:
             return False
         finally:
             session.close()
+
+    def delete_all(self, table_class, criteria):
+        """Delete all records matching the criteria from the database."""
+        session = self.__Session()
+        try:
+            query = session.query(table_class).filter_by(**criteria)
+            count = query.delete(synchronize_session=False)
+            session.commit()
+            return count
+        except Exception as e:
+            session.rollback()
+            logger.error("Delete_all error: %s", e)
+            return False
+        finally:
+            session.close()
