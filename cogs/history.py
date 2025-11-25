@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Tuple, Optional
 
 from io import BytesIO
 import discord
@@ -9,16 +8,11 @@ from discord.ext import commands
 
 from database import model
 from utils.color_format import ColorUtils
-from utils.cooldown_check import is_user_on_cooldown
 from views.cooldown import CooldownLayout
 from views.global_view import GlobalLayout
 from views.history import HistoryView
 
 logger = logging.getLogger(__name__)
-
-
-async def dynamic_cooldown(interaction: discord.Interaction):
-    return await is_user_on_cooldown(interaction)
 
 
 class HistoryCog(commands.Cog):
@@ -28,7 +22,7 @@ class HistoryCog(commands.Cog):
         self.msg = bot.messages
 
     @app_commands.command(name="history", description="View your color change history on server")
-    @app_commands.checks.dynamic_cooldown(dynamic_cooldown, key=lambda i: (i.guild_id, i.user.id))
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def history(self, interaction: discord.Interaction) -> None:
         try:
