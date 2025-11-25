@@ -4,8 +4,6 @@ import discord
 
 from database import model
 
-from utils.history_manager import update_history
-
 logger = logging.getLogger(__name__)
 
 
@@ -62,7 +60,6 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
                 await role.edit(colour=discord.Colour(new_val))
             if role not in interaction.user.roles:
                 await interaction.user.add_roles(role, reason="Static color selection")
-            update_history(self.db, interaction.user.id, interaction.guild.id, new_val)
 
         except Exception as e:
             logger.error("Failed to edit role: %s", e)
@@ -77,8 +74,8 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
             await interaction.response.defer()
 
 
-class SelectView(discord.ui.LayoutView):
-    def __init__(self, messages, description, bot, color_options, color_map, file=None, docs_page: str = ""):
+class HistoryView(discord.ui.LayoutView):
+    def __init__(self, messages, description, bot, file=None, docs_page: str = ""):
         super().__init__()
         self.msg = messages
         self.description = description
@@ -87,7 +84,7 @@ class SelectView(discord.ui.LayoutView):
         self.docs_page = docs_page
 
         container = discord.ui.Container(accent_colour=discord.Color(0xFCF5AB))
-        container.add_item(discord.ui.TextDisplay(f"### {self.description}"))
+        container.add_item(discord.ui.TextDisplay(f"{self.description}"))
 
         if self.file:
             gallery = discord.ui.MediaGallery()
@@ -99,7 +96,6 @@ class SelectView(discord.ui.LayoutView):
             container.add_item(gallery)
 
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
-        container.add_item(ColorSelect(color_options, color_map, bot.db, bot))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
 
         docs_button = discord.ui.Button(

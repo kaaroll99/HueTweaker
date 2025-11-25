@@ -132,3 +132,13 @@ setup_select_form_pl_index: "1"
 setup_select_form_index: "Index number to edit, e.g. 1, 2..., 10"
 setup_select_form_pl_color: "F5DF4D or royalblue"
 setup_select_form_color: "Color to set or leave blank to remove"
+
+
+#history
+history_title: |
+  **<:star:1362879443625971783> Color history:**
+
+  <:bubble:1362879391423533226> The history is ordered from the newest.
+  <:bubble:1362879391423533226> The history is updated after every `/set` or `/select` command.
+
+history_no_history: "### <:warn:1362879461468672130> No color history found."

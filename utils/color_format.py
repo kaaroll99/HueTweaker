@@ -152,6 +152,38 @@ class ColorUtils:
         return image
 
     @staticmethod
+    def generate_int_colors_grid(int_colors):
+        try:
+            font = ImageFont.truetype("assets/gg_sans_mid.ttf", 18)
+        except IOError:
+            font = ImageFont.load_default()
+
+        padding = 10
+        line_height = 30
+        height = (len(int_colors) * line_height) + padding * 2
+        width = 400
+
+        image = Image.new('RGBA', (width, height), (50, 51, 57, 255))
+        draw = ImageDraw.Draw(image)
+
+        for i, int_color in enumerate(int_colors):
+            hex_color = f"#{int_color:06X}"
+
+            r = (int_color >> 16) & 255
+            g = (int_color >> 8) & 255
+            b = int_color & 255
+
+            numbered_text = f"{i + 1}. {hex_color}"
+
+            draw.text(
+                (padding * 1.5, padding + i * line_height),
+                numbered_text,
+                fill=(r, g, b, 255),
+                font=font
+            )
+        return image
+
+    @staticmethod
     def __find_similar_colors(hsl_color, threshold=20):
         color_dict = _load_css_color_cache()
         similar_colors = []
