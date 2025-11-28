@@ -87,13 +87,13 @@ class Database:
                 stmt = select(table_class).filter_by(**criteria)
                 result = await session.execute(stmt)
                 obj = result.scalars().first()
-                
+
                 if not obj:
                     return False
-                
+
                 for k, v in values.items():
                     setattr(obj, k, v)
-                
+
                 await session.commit()
                 return True
             except Exception as e:
@@ -108,10 +108,10 @@ class Database:
                 stmt = select(table_class).filter_by(**criteria)
                 result = await session.execute(stmt)
                 obj = result.scalars().first()
-                
+
                 if not obj:
                     return False
-                
+
                 await session.delete(obj)
                 await session.commit()
                 return True
