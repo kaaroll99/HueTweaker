@@ -11,13 +11,6 @@ logger = logging.getLogger(__name__)
 
 class Database:
     def __init__(self, url):
-        # Automatically switch to async driver if standard mysql/postgresql url is provided
-        if url.startswith("mysql://"):
-            url = url.replace("mysql://", "mysql+aiomysql://")
-        elif url.startswith("postgresql://"):
-             url = url.replace("postgresql://", "postgresql+asyncpg://")
-        elif url.startswith("sqlite://") and "aiosqlite" not in url:
-             url = url.replace("sqlite://", "sqlite+aiosqlite://")
 
         self.__engine = create_async_engine(url)
         self.__Session = sessionmaker(
