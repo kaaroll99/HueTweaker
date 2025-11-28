@@ -63,6 +63,7 @@ class SetCog(commands.Cog):
                 if top_role:
                     role_position = max(1, top_role.position - 1)
 
+            role_updated = False
             if role is None:
                 role = await interaction.guild.create_role(
                     name=f"color-{interaction.user.id}",
@@ -71,14 +72,7 @@ class SetCog(commands.Cog):
                 )
                 if role_position > 1:
                     await role.edit(position=role_position)
-
-                display_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
-                if is_black:
-                    description = self.msg['color_set_black'].format(display_color)
-                else:
-                    description = self.msg['color_set'].format(display_color)
-
-                update_history(self.db, interaction.user.id, interaction.guild.id, primary_val)
+                role_updated = True
 
             else:
                 current_colors_val = (
@@ -93,15 +87,18 @@ class SetCog(commands.Cog):
                         secondary_color=discord.Color(new_colors_val[1]) if new_colors_val[1] is not None else None,
                         position=role_position
                     )
-                    display_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
-                    if is_black:
-                        description = self.msg['color_set_black'].format(display_color)
-                    else:
-                        description = self.msg['color_set'].format(display_color)
-                    update_history(self.db, interaction.user.id, interaction.guild.id, primary_val)
+                    role_updated = True
                 else:
                     description = self.msg['color_same']
                     undo_lock = True
+
+            if role_updated:
+                display_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
+                if is_black:
+                    description = self.msg['color_set_black'].format(display_color)
+                else:
+                    description = self.msg['color_set'].format(display_color)
+                update_history(self.db, interaction.user.id, interaction.guild.id, primary_val)
 
             if role and role not in interaction.user.roles:
                 await interaction.user.add_roles(role)
