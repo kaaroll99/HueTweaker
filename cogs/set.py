@@ -56,15 +56,14 @@ class SetCog(commands.Cog):
 
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
 
+            role_position = 1
+            guild_obj = self.db.select_one(model.Guilds, {"server": interaction.guild.id})
+            if guild_obj:
+                top_role = discord.utils.get(interaction.guild.roles, id=guild_obj["role"])
+                if top_role:
+                    role_position = max(1, top_role.position - 1)
+
             if role is None:
-                role_position = 1
-                guild_obj = self.db.select_one(model.Guilds, {"server": interaction.guild.id})
-
-                if guild_obj:
-                    top_role = discord.utils.get(interaction.guild.roles, id=guild_obj["role"])
-                    if top_role:
-                        role_position = max(1, top_role.position - 1)
-
                 role = await interaction.guild.create_role(
                     name=f"color-{interaction.user.id}",
                     color=discord.Color(new_colors_val[0]),
@@ -78,7 +77,9 @@ class SetCog(commands.Cog):
                     description = self.msg['color_set_black'].format(display_color)
                 else:
                     description = self.msg['color_set'].format(display_color)
+
                 update_history(self.db, interaction.user.id, interaction.guild.id, primary_val)
+
             else:
                 current_colors_val = (
                     role.color.value if role.color else None,
@@ -89,7 +90,8 @@ class SetCog(commands.Cog):
                     prev_colors = current_colors_val
                     await role.edit(
                         color=discord.Color(new_colors_val[0]),
-                        secondary_color=discord.Color(new_colors_val[1]) if new_colors_val[1] is not None else None
+                        secondary_color=discord.Color(new_colors_val[1]) if new_colors_val[1] is not None else None,
+                        position=role_position
                     )
                     display_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
                     if is_black:
