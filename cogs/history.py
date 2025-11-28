@@ -28,7 +28,7 @@ class HistoryCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            data = self.db.select(model.history_class("history"), {"user_id": interaction.user.id, "guild_id": interaction.guild.id})
+            data = await self.db.select(model.history_class("history"), {"user_id": interaction.user.id, "guild_id": interaction.guild.id})
 
             colors = []
             if data:

@@ -16,8 +16,7 @@ class SetCountButton(discord.ui.Button):
 
         if role is None:
             role_position = 1
-            with self.db as db_session:
-                guild_row = db_session.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
+            guild_row = await self.db.select_one(model.guilds_class("guilds"), {"server": interaction.guild.id})
 
             if guild_row:
                 top_role = discord.utils.get(interaction.guild.roles, id=guild_row.get("role", None))

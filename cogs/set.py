@@ -57,7 +57,7 @@ class SetCog(commands.Cog):
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
 
             role_position = 1
-            guild_obj = self.db.select_one(model.Guilds, {"server": interaction.guild.id})
+            guild_obj = await self.db.select_one(model.Guilds, {"server": interaction.guild.id})
             if guild_obj:
                 top_role = discord.utils.get(interaction.guild.roles, id=guild_obj["role"])
                 if top_role:
@@ -98,7 +98,7 @@ class SetCog(commands.Cog):
                     description = self.msg['color_set_black'].format(display_color)
                 else:
                     description = self.msg['color_set'].format(display_color)
-                update_history(self.db, interaction.user.id, interaction.guild.id, primary_val)
+                await update_history(self.db, interaction.user.id, interaction.guild.id, primary_val)
 
             if role and role not in interaction.user.roles:
                 await interaction.user.add_roles(role)

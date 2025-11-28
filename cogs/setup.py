@@ -27,7 +27,7 @@ class SetupCog(commands.Cog):
     async def select(self, interaction: discord.Interaction) -> None:
         try:
             await interaction.response.defer(ephemeral=True)
-            select_obj = self.db.select_one(model.Select, {"server_id": interaction.guild.id})
+            select_obj = await self.db.select_one(model.Select, {"server_id": interaction.guild.id})
 
             colors_data = select_obj if select_obj else {}
 
@@ -53,16 +53,16 @@ class SetupCog(commands.Cog):
             pattern = re.compile(r"color-\d{18,19}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
 
-            guild_obj = self.db.select_one(model.Guilds, {"server": interaction.guild.id})
+            guild_obj = await self.db.select_one(model.Guilds, {"server": interaction.guild.id})
             if top_role.position == 0:
                 if guild_obj:
-                    self.db.delete(model.Guilds, {"server": interaction.guild.id})
+                    await self.db.delete(model.Guilds, {"server": interaction.guild.id})
                 description = self.msg['toprole_reset']
             else:
                 if guild_obj:
-                    self.db.update(model.Guilds, {"server": interaction.guild.id}, {"role": role_name.id})
+                    await self.db.update(model.Guilds, {"server": interaction.guild.id}, {"role": role_name.id})
                 else:
-                    self.db.create(model.Guilds, {"server": interaction.guild.id, "role": role_name.id})
+                    await self.db.create(model.Guilds, {"server": interaction.guild.id, "role": role_name.id})
 
                 description = self.msg['toprole_set'].format(role_name.name)
 

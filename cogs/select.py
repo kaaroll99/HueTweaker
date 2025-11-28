@@ -30,7 +30,7 @@ class SelectCog(commands.Cog):
 
         try:
             await interaction.response.defer(ephemeral=True)
-            guild_obj = self.db.select_one(model.Select, {"server_id": interaction.guild.id})
+            guild_obj = await self.db.select_one(model.Select, {"server_id": interaction.guild.id})
 
             if guild_obj and len(guild_obj) > 0:
                 colors_data = guild_obj

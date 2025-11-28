@@ -90,7 +90,7 @@ async def main():
 
     logger.info("Local database connect")
     db_instance = database.Database(url=db_url)
-    db_instance.database_init()
+    await db_instance.database_init()
 
     intents = discord.Intents.default()
     intents.guilds = True
