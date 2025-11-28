@@ -12,3 +12,5 @@ PyMySQL
 python-dotenv
 colorlog
 aiohttp
+aiomysql
+aiosqlite

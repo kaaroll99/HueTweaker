@@ -1,8 +1,8 @@
 from database import model
 
-def update_history(db, user_id, guild_id, color):
+async def update_history(db, user_id, guild_id, color):
     history_cls = model.history_class("history")
-    history = db.select_one(history_cls, {"user_id": user_id, "guild_id": guild_id})
+    history = await db.select_one(history_cls, {"user_id": user_id, "guild_id": guild_id})
 
     if history:
         new_values = {
@@ -12,7 +12,7 @@ def update_history(db, user_id, guild_id, color):
             "color_4": history.get("color_3"),
             "color_5": history.get("color_4")
         }
-        db.update(history_cls, {"user_id": user_id, "guild_id": guild_id}, new_values)
+        await db.update(history_cls, {"user_id": user_id, "guild_id": guild_id}, new_values)
     else:
         new_values = {
             "user_id": user_id,
@@ -23,4 +23,4 @@ def update_history(db, user_id, guild_id, color):
             "color_4": None,
             "color_5": None
         }
-        db.create(history_cls, new_values)
+        await db.create(history_cls, new_values)

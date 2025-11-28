@@ -40,7 +40,7 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
 
         if role is None:
             role_position = 1
-            guild_obj = self.db.select_one(model.Guilds, {"server": interaction.guild.id})
+            guild_obj = await self.db.select_one(model.Guilds, {"server": interaction.guild.id})
 
             if guild_obj:
                 top_role = discord.utils.get(interaction.guild.roles, id=guild_obj["role"])

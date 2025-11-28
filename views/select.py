@@ -42,7 +42,7 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
 
         if role is None:
             role_position = 1
-            guild_obj = self.db.select_one(model.Guilds, {"server": interaction.guild.id})
+            guild_obj = await self.db.select_one(model.Guilds, {"server": interaction.guild.id})
 
             if guild_obj:
                 top_role = discord.utils.get(interaction.guild.roles, id=guild_obj["role"])
@@ -62,7 +62,7 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
                 await role.edit(colour=discord.Colour(new_val))
             if role not in interaction.user.roles:
                 await interaction.user.add_roles(role, reason="Static color selection")
-            update_history(self.db, interaction.user.id, interaction.guild.id, new_val)
+            await update_history(self.db, interaction.user.id, interaction.guild.id, new_val)
 
         except Exception as e:
             logger.error("Failed to edit role: %s", e)

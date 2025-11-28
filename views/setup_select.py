@@ -62,10 +62,10 @@ class SetupView(discord.ui.LayoutView):
 
     async def create_callback(self, interaction: discord.Interaction):
         try:
-            list_obj = self.db.create(model.Select, {"server_id": interaction.guild.id})
+            list_obj = await self.db.create(model.Select, {"server_id": interaction.guild.id})
 
             if list_obj:
-                select_obj = self.db.select(model.Select, {"server_id": interaction.guild.id})
+                select_obj = await self.db.select(model.Select, {"server_id": interaction.guild.id})
             else:
                 select_obj = None
 
@@ -81,7 +81,7 @@ class SetupView(discord.ui.LayoutView):
 
     async def edit_color_callback(self, interaction: discord.Interaction):
         try:
-            select_obj = self.db.select_one(model.Select, {"server_id": interaction.guild.id})
+            select_obj = await self.db.select_one(model.Select, {"server_id": interaction.guild.id})
 
             colors_data = select_obj if select_obj else {}
             available_colors = []
@@ -133,16 +133,16 @@ class ColorSelectionModal(Modal):
                 new_color_value = None
             else:
                 new_color_value = color_parser(self.color_input.value)
-            self.db.update(model.Select, {"server_id": interaction.guild.id}, {f"hex_{str(index_value)}": new_color_value})
+            await self.db.update(model.Select, {"server_id": interaction.guild.id}, {f"hex_{str(index_value)}": new_color_value})
 
-            select_obj = self.db.select(model.Select, {"server_id": interaction.guild.id})
+            select_obj = await self.db.select(model.Select, {"server_id": interaction.guild.id})
             colors_data = select_obj[0] if select_obj else {}
 
             new_view = SetupView(colors_data, interaction.guild.id, self.bot)
             await interaction.response.edit_message(view=new_view)
 
         except ValueError:
-            select_obj = self.db.select(model.Select, {"server_id": interaction.guild.id})
+            select_obj = await self.db.select(model.Select, {"server_id": interaction.guild.id})
             colors_data = select_obj[0] if select_obj else {}
 
             warn_text = self.msg['color_format']
