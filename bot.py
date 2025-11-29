@@ -115,6 +115,13 @@ async def main():
 
 if __name__ == "__main__":
     try:
+        import uvloop
+        uvloop.install()
+        logger.info("uvloop installed.")
+    except ImportError:
+        pass
+
+    try:
         asyncio.run(main())
     except KeyboardInterrupt:
         logger.warning("Bot has been terminated from console line")
