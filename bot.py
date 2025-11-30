@@ -117,7 +117,7 @@ if __name__ == "__main__":
     try:
         import uvloop
         uvloop.install()
-        logger.info("uvloop installed.")
+        logger.info("Bot will use uvloop")
     except ImportError:
         pass
 
