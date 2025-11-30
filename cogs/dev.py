@@ -49,6 +49,25 @@ class DevCog(commands.Cog):
                 elif action == "tree":
                     await self.bot.tree.sync()
                     embed.description = "Command tree synchronization completed."
+                elif action == "stats":
+                    import resource
+                    import sys
+
+                    api_latency = round(self.bot.latency * 1000, 2)
+                    embed.add_field(name=":turtle: API Latency", value=f"{api_latency} ms", inline=False)
+
+                    if self.bot.latencies:
+                        shards_info = [f"Shard {shard_id}: {round(lat * 1000, 2)} ms" for shard_id, lat in self.bot.latencies]
+                        embed.add_field(name=":turtle: Shards Latency", value="\n".join(shards_info), inline=False)
+
+                    usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+                    if sys.platform == "darwin":
+                        usage_mb = usage / 1024 / 1024
+                    else:
+                        usage_mb = usage / 1024
+
+                    embed.add_field(name=":brain: Max RAM Usage", value=f"{usage_mb:.2f} MB", inline=False)
+                    embed.description = "Bot Statistics"
             else:
                 embed.description = "Command for bot developers only."
         except discord.HTTPException as e:
@@ -65,6 +84,8 @@ class DevCog(commands.Cog):
 
             if file:
                 await interaction.followup.send(embed=embed, file=file)
+            else:
+                await interaction.followup.send(embed=embed)
 
             logger.warning("%s[%s] issued bot command: /dev %s", interaction.user.name, interaction.locale, action)
 
