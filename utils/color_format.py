@@ -152,6 +152,67 @@ class ColorUtils:
         return image
 
     @staticmethod
+    def generate_preview_image(text, color_int, secondary_color_int=None):
+        try:
+            font = ImageFont.truetype("assets/gg_sans_mid.ttf", 18)
+        except IOError:
+            font = ImageFont.load_default()
+
+        padding = 10
+        line_height = 30
+        height = line_height + padding * 2
+        width = 400
+
+        image = Image.new('RGBA', (width, height), (50, 51, 57, 255))
+
+        if secondary_color_int is None:
+            draw = ImageDraw.Draw(image)
+            r = (color_int >> 16) & 255
+            g = (color_int >> 8) & 255
+            b = color_int & 255
+
+            draw.text(
+                (padding * 1.5, padding),
+                text,
+                fill=(r, g, b, 255),
+                font=font
+            )
+        else:
+            mask = Image.new('L', (width, height), 0)
+            draw_mask = ImageDraw.Draw(mask)
+            draw_mask.text((padding * 1.5, padding), text, font=font, fill=255)
+
+            bbox = mask.getbbox()
+            if bbox:
+                text_start = bbox[0]
+                text_end = bbox[2]
+                text_width = text_end - text_start
+            else:
+                text_start = 0
+                text_end = width
+                text_width = 0
+
+            c1 = np.array([(color_int >> 16) & 255, (color_int >> 8) & 255, color_int & 255])
+            c2 = np.array([(secondary_color_int >> 16) & 255, (secondary_color_int >> 8) & 255, secondary_color_int & 255])
+
+            gradient_arr = np.zeros((height, width, 3), dtype=np.uint8)
+
+            if text_width > 0:
+                steps = text_end - text_start
+                gradient_row = np.linspace(c1, c2, steps, dtype=np.uint8)
+
+                gradient_arr[:, :text_start] = c1
+                gradient_arr[:, text_start:text_end] = gradient_row
+                gradient_arr[:, text_end:] = c2
+            else:
+                gradient_arr[:, :] = c1
+
+            gradient_img = Image.fromarray(gradient_arr, 'RGB')
+            image.paste(gradient_img, (0, 0), mask)
+
+        return image
+
+    @staticmethod
     def generate_int_colors_grid(int_colors):
         try:
             font = ImageFont.truetype("assets/gg_sans_mid.ttf", 18)

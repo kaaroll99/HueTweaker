@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 from typing import Tuple, Optional
+from io import BytesIO
 
 import discord
 from discord import app_commands
@@ -8,11 +9,12 @@ from discord.ext import commands
 
 from database import model
 from utils.color_parse import fetch_color_representation, color_parser, check_black
+from utils.color_format import ColorUtils
 from utils.cooldown_check import is_user_on_cooldown
 from utils.history_manager import update_history
 from views.cooldown import CooldownLayout
 from views.global_view import GlobalLayout
-from views.set import Layout
+from views.set import Layout, ConfirmationView
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +55,31 @@ class SetCog(commands.Cog):
             primary_val = int(primary_hex, 16)
             secondary_val = int(secondary_hex, 16) if secondary_hex else None
             new_colors_val: Tuple[int, Optional[int]] = (primary_val, secondary_val)
+
+            image = ColorUtils.generate_preview_image(interaction.user.display_name, primary_val, secondary_val)
+            image_bytes = BytesIO()
+            image.save(image_bytes, format='PNG')
+            image_bytes.seek(0)
+            file = discord.File(fp=image_bytes, filename="color_preview.png")
+            image_url = "attachment://" + file.filename
+
+            view = ConfirmationView(
+                interaction.user.id,
+                self.msg.get('confirm_color'),
+                discord.Color(new_colors_val[0]),
+                image_url)
+            await interaction.edit_original_response(content=None, attachments=[file], view=view)
+
+            await view.wait()
+
+            if view.value is None:
+                timeout_view = GlobalLayout(self.msg, self.msg.get('timeout', "Timed out."), "commands/set")
+                await interaction.edit_original_response(content=None, view=timeout_view, attachments=[])
+                return
+            elif view.value is False:
+                cancel_view = GlobalLayout(self.msg, self.msg.get('cancelled', "Cancelled."), "commands/set")
+                await interaction.edit_original_response(content=None, view=cancel_view, attachments=[])
+                return
 
             role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
 
@@ -114,7 +141,7 @@ class SetCog(commands.Cog):
                 undo_lock=undo_lock
             )
 
-            await interaction.followup.send(view=view)
+            await interaction.edit_original_response(content=None, view=view, attachments=[])
 
         except ValueError:
             view = GlobalLayout(messages=self.msg, description=self.msg['color_format'], docs_page="commands/set")

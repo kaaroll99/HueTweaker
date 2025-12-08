@@ -3,7 +3,7 @@ color_set: |
   ### <:ok:1362879418640498748> Your color has been set to __{}__
 
 color_set_black: |
-  ### <:ok:1362879418640498748> Your color has been set to __{}__. However, due to Discord's limitations, the value has been modified.
+  ### <:ok:1362879418640498748> Your color has been set to __{}__. However, due to Discord's limitations, the value has been modified to #000001.
 
 color_same: |
   ### <:ok:1362879418640498748> This color is already set
@@ -88,7 +88,7 @@ err_50013: |
   <:bubble:1362879391423533226> Use the `/help` command to learn how to properly configure top role.
 
 err_670006: |
-  <:warn:1362879461468672130> **This server does not have username color gradients enabled (required guild feature is missing).**
+  <:warn:1362879461468672130> **This server does not have username color gradients enabled (required Nitro boost feature is missing).**
 
   Please contact server administrators or ensure that the server has the necessary features enabled.
 
@@ -142,3 +142,7 @@ history_title: |
   <:bubble:1362879391423533226> The history is updated after every `/set` or `/select` command.
 
 history_no_history: "### <:warn:1362879461468672130> No color history found."
+
+confirm_color: "### <:bubble:1362879391423533226> Please confirm your color selection:"
+cancelled: "### <:warn:1362879461468672130> Action has been cancelled. Colors were not changed."
+timeout: "### <:warn:1362879461468672130> Action timed out. Please try again."
