@@ -54,9 +54,8 @@ class MyBot(commands.AutoShardedBot):
     async def setup_hook(self) -> None:
         await self.load_cogs()
         logger.info("Sharding configuration: total shards = %d", self.shard_count or -1)
-        # logger.info("Syncing command tree...")
-        # await self.tree.sync()
-        # logger.info("Command tree synced.")
+        logger.info("SKIPPING SYNC - Manual sync required via /dev tree")
+        # self.tree.sync() removed to prevent rate limits
         self.remove_command('help')
         if not self.update_stats_task.is_running():
             self.update_stats_task.start()
@@ -105,7 +104,8 @@ async def main():
         status=discord.Status.online,
         config=config,
         db=db_instance,
-        messages=messages
+        messages=messages,
+        chunk_guilds_at_startup=False
     )
 
     async with bot:
