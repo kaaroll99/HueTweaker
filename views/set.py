@@ -91,3 +91,57 @@ class Layout(discord.ui.LayoutView):
         except discord.HTTPException as e:
             await interaction.response.send_message("Failed to revert color.", ephemeral=True)
             logger.critical("%s[%s] HTTP exception while reverting color: %s", interaction.user.name, interaction.locale, e)
+
+
+class ConfirmationView(discord.ui.LayoutView):
+    def __init__(self, author_id, text, color=discord.Color.default(), image_url=None):
+        super().__init__(timeout=60)
+        self.author_id = author_id
+        self.value = None
+
+        container = discord.ui.Container(accent_colour=color)
+        container.add_item(discord.ui.TextDisplay(text))
+        container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
+
+        if image_url:
+            gallery = discord.ui.MediaGallery()
+            gallery.add_item(media=image_url)
+            container.add_item(gallery)
+
+        confirm_btn = discord.ui.Button(
+            label="Accept",
+            emoji="<:ok:1362879418640498748>",
+            style=discord.ButtonStyle.green)
+        cancel_btn = discord.ui.Button(
+            label="Cancel",
+            emoji="<:back:1408056926121627679>",
+            style=discord.ButtonStyle.red)
+        invite_button = discord.ui.Button(
+            label='Add HueTweaker to your server',
+            style=discord.ButtonStyle.link,
+            emoji="<:star:1362879443625971783>",
+            url="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot"
+        )
+        confirm_btn.callback = self._on_confirm
+        cancel_btn.callback = self._on_cancel
+
+        container.add_item(discord.ui.ActionRow(confirm_btn, cancel_btn, invite_button))
+        self.add_item(container)
+
+    async def _on_confirm(self, interaction: discord.Interaction):
+        if interaction.user.id != self.author_id:
+            await interaction.response.send_message("This is not your confirmation.", ephemeral=True)
+            return
+
+        await interaction.response.defer()
+        self.value = True
+        self.stop()
+
+    async def _on_cancel(self, interaction: discord.Interaction):
+        if interaction.user.id != self.author_id:
+            await interaction.response.send_message("This is not your confirmation.", ephemeral=True)
+            return
+
+        await interaction.response.defer()
+        self.value = False
+        self.stop()
