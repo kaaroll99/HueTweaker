@@ -45,3 +45,7 @@ done
 
 printf "%s\n" "${lines[@]}" | sort -t'|' -k2,2nr
 echo "--------------------------------"
+
+echo "Top 5 języków klientów:"
+grep "issued bot command" $LOGPATTERN 2>/dev/null | sed -n 's/.*\[\(.*\)\] issued bot command.*/\1/p' | sort | uniq -c | sort -nr | head -n 5 | awk '{print $2 " - " $1}'
+echo "--------------------------------"
