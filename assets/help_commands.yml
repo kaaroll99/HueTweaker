@@ -15,6 +15,8 @@ set:
     a leading '#'), as a CSS color name, or by copying another user's color (mention the user,
     e.g. @kaaroll99). Use the keyword "random" to pick a random color.
 
+    The command generates a preview image and asks for confirmation before applying the color.
+
     ### Parameters:
       <color> - Primary color to set (required).
       [secondary_color] - Secondary color for gradient (optional).
@@ -48,6 +50,17 @@ remove:
   usage: /remove
   example: /remove
   docs: remove
+
+### HISTORY ###
+history:
+  name: history
+  desc: >-
+    View your color change history on the server. You can see your last 5 colors and
+    easily re-apply one of them using the dropdown menu.
+
+  usage: /history
+  example: /history
+  docs: history
 
 ### SELECT ###
 select:
