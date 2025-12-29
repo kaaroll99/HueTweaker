@@ -4,9 +4,9 @@ import re
 import discord
 
 from utils.color_format import ColorUtils
-from utils.constants import MAX_COLOR_INPUT_LEN
 from utils.data_loader import load_json
 
+MAX_COLOR_INPUT_LEN = 32
 
 def fetch_color_representation(interaction, color):
     if len(color) > MAX_COLOR_INPUT_LEN:
