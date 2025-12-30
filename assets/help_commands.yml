@@ -104,6 +104,18 @@ check:
   example: /check \#F5DF4D
   docs: check
 
+### HISTORY ###
+history:
+  name: history
+  desc: >-
+    View your color change history on the server. The command displays the last 5 colors
+    you have used. It also generates a small PNG preview image showing your username
+    rendered with each of those colors.
+
+  usage: /history
+  example: /history
+  docs: history
+
 ### VOTE ###
 vote:
   name: vote
