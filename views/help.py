@@ -25,13 +25,11 @@ class HelpSelect(discord.ui.ActionRow['HelpView']):
             discord.SelectOption(label="/select", value="select", emoji="⭐"),
             discord.SelectOption(label="/history", value="history", emoji="📜"),
             discord.SelectOption(label="/check", value="check", emoji="🔍"),
-            discord.SelectOption(label="/history", value="history", emoji="📜"),
             discord.SelectOption(label="/force set", value="forceset", emoji="⚙️"),
             discord.SelectOption(label="/force remove", value="forceremove", emoji="🔄"),
             discord.SelectOption(label="/force purge", value="forcepurge", emoji="💥"),
             discord.SelectOption(label="/setup toprole", value="toprole", emoji="💫"),
-            discord.SelectOption(label="/setup select", value="setupselect", emoji="💫"),
-            discord.SelectOption(label="/vote", value="vote", emoji="🗳️"),
+            discord.SelectOption(label="/setup select", value="setupselect", emoji="💫")
         ],
     )
     async def select_callback(self, interaction: discord.Interaction, select: discord.ui.Select):
