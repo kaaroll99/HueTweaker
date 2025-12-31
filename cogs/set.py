@@ -157,7 +157,7 @@ class SetCog(commands.Cog):
                 err_description = self.msg['err_http'].format(e.code, e.text)
             view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/set")
             await interaction.followup.send(view=view, ephemeral=True)
-            logger.error("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
+            logger.warning("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
 
         except Exception as e:
             view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/set")

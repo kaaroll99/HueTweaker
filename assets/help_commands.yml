@@ -51,17 +51,6 @@ remove:
   example: /remove
   docs: remove
 
-### HISTORY ###
-history:
-  name: history
-  desc: >-
-    View your color change history on the server. You can see your last 5 colors and
-    easily re-apply one of them using the dropdown menu.
-
-  usage: /history
-  example: /history
-  docs: history
-
 ### SELECT ###
 select:
   name: select
