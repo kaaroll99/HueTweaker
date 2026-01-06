@@ -35,14 +35,15 @@ class MyBot(commands.AutoShardedBot):
             except Exception:
                 logger.exception("Failed to load extension %s", cog)
 
-    @tasks.loop(hours=12)
+    @tasks.loop(hours=8)
     async def update_stats_task(self) -> None:
         try:
             if str(self.config.get('SYSTEM')).upper() == 'DEV':
                 logger.debug("DEV mode detected - skipping stats API post")
                 return
             server_count = len(self.guilds)
-            user_count = sum((guild.member_count or 0) for guild in self.guilds)
+            # user_count = sum((guild.member_count or 0) for guild in self.guilds)
+            user_count = 0
             await api_request(server_count, user_count)
         except Exception:
             logger.exception("update_stats_task error")
