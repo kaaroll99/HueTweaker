@@ -26,22 +26,23 @@ class PurgeView(discord.ui.LayoutView):
             style=discord.ButtonStyle.green,
             custom_id="individual_roles"
         )
-        stat_btn = discord.ui.Button(
-            label=self.msg['bttn_stat'],
-            style=discord.ButtonStyle.green,
-            custom_id="static_roles"
-        )
-        both_btn = discord.ui.Button(
-            label=self.msg['bttn_both'],
-            style=discord.ButtonStyle.green,
-            custom_id="both"
-        )
+        # stat_btn = discord.ui.Button(
+        #     label=self.msg['bttn_stat'],
+        #     style=discord.ButtonStyle.green,
+        #     custom_id="static_roles"
+        # )
+        # both_btn = discord.ui.Button(
+        #     label=self.msg['bttn_both'],
+        #     style=discord.ButtonStyle.green,
+        #     custom_id="both"
+        # )
 
         ind_btn.callback = self._on_confirm
-        stat_btn.callback = self._on_confirm
-        both_btn.callback = self._on_confirm
+        # stat_btn.callback = self._on_confirm
+        # both_btn.callback = self._on_confirm
 
-        container.add_item(discord.ui.ActionRow(ind_btn, stat_btn, both_btn))
+        # container.add_item(discord.ui.ActionRow(ind_btn, stat_btn, both_btn))
+        container.add_item(discord.ui.ActionRow(ind_btn))
         self.add_item(container)
 
     async def _on_confirm(self, interaction: discord.Interaction):

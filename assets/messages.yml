@@ -41,9 +41,9 @@ force_remove_no_color: "### <:warn:1362879461468672130> The user with the given 
 purge_confirm: |
   ### Are you sure you want to remove all roles with user colors?
 
-  Choose which type of roles you want to remove.
+
   <:warn:1362879461468672130> **The changes will be irreversible.**
-bttn_ind: "INDIVIDUAL ROLES"
+bttn_ind: "CONFIRM"
 bttn_stat: "STATIC ROLES"
 bttn_both: "ALL ROLES"
 purge_ok: "<:ok:1362879418640498748> **All roles with colors have been successfully removed.**"
