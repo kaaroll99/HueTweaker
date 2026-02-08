@@ -111,7 +111,7 @@ class ForceCog(commands.Cog):
             )
 
             await interaction.followup.send(view=view)
-
+        # discord.app_commands.errors.MissingPermissions: You are missing Administrator permission(s) to run this command.
         except ValueError:
             view = GlobalLayout(messages=self.msg, description=self.msg['color_format'], docs_page="commands/force-set")
             await interaction.followup.send(view=view, ephemeral=True)
@@ -190,11 +190,17 @@ class ForceCog(commands.Cog):
             retry_time = datetime.now() + timedelta(seconds=error.retry_after)
             response = self.msg["cool_down"].format(int(retry_time.timestamp()))
             view = CooldownLayout(messages=self.msg, description=response)
-            await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
+            if interaction.response.is_done():
+                await interaction.followup.send(view=view, ephemeral=True, delete_after=error.retry_after)
+            else:
+                await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
 
-        elif isinstance(error, discord.app_commands.errors.MissingPermissions):
+        elif isinstance(error, app_commands.MissingPermissions):
             view = GlobalLayout(messages=self.msg, description=self.msg['no_permissions'])
-            await interaction.followup.send(view=view)
+            if interaction.response.is_done():
+                await interaction.followup.send(view=view, ephemeral=True)
+            else:
+                await interaction.response.send_message(view=view, ephemeral=True)
 
 
 async def setup(bot: commands.Bot) -> None:
