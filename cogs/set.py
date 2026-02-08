@@ -34,7 +34,8 @@ class SetCog(commands.Cog):
         color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)",
         secondary_color="Secondary color for gradient (optional)"
     )
-    @app_commands.checks.dynamic_cooldown(dynamic_cooldown, key=lambda i: (i.guild_id, i.user.id))
+    # @app_commands.checks.dynamic_cooldown(dynamic_cooldown, key=lambda i: (i.guild_id, i.user.id))
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def set(self, interaction: discord.Interaction, color: str, secondary_color: str = None) -> None:
         description = ""
