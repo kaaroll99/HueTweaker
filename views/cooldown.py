@@ -22,12 +22,12 @@ class CooldownLayout(discord.ui.LayoutView):
 
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
 
-        vote_button = discord.ui.Button(
-            label="Vote for the bot to reduce the next cooldown time for 12h",
-            style=discord.ButtonStyle.link,
-            emoji="<:star:1362879443625971783>",
-            url="https://top.gg/bot/1209187999934578738/vote"
-        )
-        container.add_item(discord.ui.ActionRow(vote_button))
+        # vote_button = discord.ui.Button(
+        #     label="Vote for the bot to reduce the next cooldown time for 12h",
+        #     style=discord.ButtonStyle.link,
+        #     emoji="<:star:1362879443625971783>",
+        #     url="https://top.gg/bot/1209187999934578738/vote"
+        # )
+        # container.add_item(discord.ui.ActionRow(vote_button))
 
         self.add_item(container)
