@@ -2,7 +2,6 @@ from database import model
 
 
 async def update_history(db, user_id: int, guild_id: int, color: int) -> None:
-    """Push a new color onto the user's history stack (max 5, FIFO)."""
     history = await db.select_one(model.History, {"user_id": user_id, "guild_id": guild_id})
 
     if history:

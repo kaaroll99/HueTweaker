@@ -1,5 +1,3 @@
-"""Centralized constants for the HueTweaker bot."""
-
 BOT_ID = 1209187999934578738
 DEV_GUILD_ID = 1135688599917056160
 
@@ -13,6 +11,5 @@ INVITE_URL = (
 )
 SUPPORT_SERVER_URL = "https://discord.gg/tYdK4pD6ks"
 
-# Color role name pattern
 COLOR_ROLE_PREFIX = "color-"
 COLOR_ROLE_PATTERN = r"color-\d{18,19}"

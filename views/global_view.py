@@ -3,10 +3,7 @@ import discord
 from constants import ACCENT_COLOR, DOCS_BASE_URL, INVITE_URL
 
 
-# ── Reusable button factories ─────────────────────────────────────────
-
 def make_invite_button() -> discord.ui.Button:
-    """Standard 'Add HueTweaker to your server' link button."""
     return discord.ui.Button(
         label="Add HueTweaker to your server",
         style=discord.ButtonStyle.link,
@@ -16,7 +13,6 @@ def make_invite_button() -> discord.ui.Button:
 
 
 def make_docs_button(page: str = "", label: str = "See documentation") -> discord.ui.Button:
-    """Standard documentation link button."""
     return discord.ui.Button(
         label=label,
         style=discord.ButtonStyle.link,
@@ -24,8 +20,6 @@ def make_docs_button(page: str = "", label: str = "See documentation") -> discor
         url=f"{DOCS_BASE_URL}/{page}",
     )
 
-
-# ── GlobalLayout ──────────────────────────────────────────────────────
 
 class GlobalLayout(discord.ui.LayoutView):
     def __init__(

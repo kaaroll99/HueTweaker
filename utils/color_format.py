@@ -27,7 +27,6 @@ def _load_css_color_cache() -> dict[str, str]:
 
 @lru_cache(maxsize=1)
 def _load_css_hsl_cache() -> dict[str, np.ndarray]:
-    """Pre-compute HSL values for all CSS colors (avoids re-conversion per /check call)."""
     color_dict = _load_css_color_cache()
     result = {}
     for name, hex_val in color_dict.items():
@@ -39,7 +38,6 @@ def _load_css_hsl_cache() -> dict[str, np.ndarray]:
 
 @lru_cache(maxsize=1)
 def _get_font(size: int = 18) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
-    """Load and cache the font to avoid repeated disk I/O."""
     try:
         return ImageFont.truetype("assets/gg_sans_mid.ttf", size)
     except IOError:
@@ -47,7 +45,6 @@ def _get_font(size: int = 18) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
 
 
 def _int_to_rgb(color_int: int) -> tuple[int, int, int]:
-    """Extract (r, g, b) from an integer color value."""
     return (color_int >> 16) & 255, (color_int >> 8) & 255, color_int & 255
 
 
@@ -147,7 +144,6 @@ class ColorUtils:
 
     @staticmethod
     def to_bytes(image: Image.Image) -> BytesIO:
-        """Convert a PIL Image to a seeked BytesIO buffer (PNG)."""
         buf = BytesIO()
         image.save(buf, format='PNG')
         buf.seek(0)

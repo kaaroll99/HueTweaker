@@ -41,16 +41,3 @@ class History(Base):
     color_3: Mapped[int | None] = mapped_column(BigInteger, default=None)
     color_4: Mapped[int | None] = mapped_column(BigInteger, default=None)
     color_5: Mapped[int | None] = mapped_column(BigInteger, default=None)
-
-
-# Legacy aliases for backward compatibility (data_import.py, test.py)
-def guilds_class(table_name: str = "guilds"):
-    return Guilds
-
-
-def select_class(table_name: str = "select"):
-    return Select
-
-
-def history_class(table_name: str = "history"):
-    return History
