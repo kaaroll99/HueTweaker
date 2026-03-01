@@ -1,56 +1,56 @@
-from sqlalchemy import Column, BigInteger, Text
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import BigInteger, Integer, Text
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Guilds(Base):
     __tablename__ = 'guilds'
-    __table_args__ = {'extend_existing': True}
-    id = Column('id', BigInteger, primary_key=True, autoincrement=True)
-    server = Column('server', BigInteger)
-    role = Column('role', BigInteger)
 
-
-def guilds_class(table_name):
-    Guilds.__tablename__ = table_name
-    return Guilds
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    server: Mapped[int] = mapped_column(BigInteger)
+    role: Mapped[int] = mapped_column(BigInteger)
 
 
 class Select(Base):
     __tablename__ = 'select'
-    __table_args__ = {'extend_existing': True}
-    server_id = Column(BigInteger, primary_key=True, nullable=False)
-    hex_1 = Column(Text)
-    hex_2 = Column(Text)
-    hex_3 = Column(Text)
-    hex_4 = Column(Text)
-    hex_5 = Column(Text)
-    hex_6 = Column(Text)
-    hex_7 = Column(Text)
-    hex_8 = Column(Text)
-    hex_9 = Column(Text)
-    hex_10 = Column(Text)
 
-
-def select_class(table_name):
-    Select.__tablename__ = table_name
-    return Select
+    server_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, nullable=False)
+    hex_1: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_2: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_3: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_4: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_5: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_6: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_7: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_8: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_9: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_10: Mapped[str | None] = mapped_column(Text, default=None)
 
 
 class History(Base):
     __tablename__ = 'history'
-    __table_args__ = {'extend_existing': True}
-    id = Column('id', BigInteger, primary_key=True, autoincrement=True)
-    user_id = Column('user_id', BigInteger)
-    guild_id = Column('guild_id', BigInteger)
-    color_1 = Column('color_1', BigInteger)
-    color_2 = Column('color_2', BigInteger)
-    color_3 = Column('color_3', BigInteger)
-    color_4 = Column('color_4', BigInteger)
-    color_5 = Column('color_5', BigInteger)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(BigInteger)
+    guild_id: Mapped[int] = mapped_column(BigInteger)
+    color_1: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    color_2: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    color_3: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    color_4: Mapped[int | None] = mapped_column(BigInteger, default=None)
+    color_5: Mapped[int | None] = mapped_column(BigInteger, default=None)
 
 
-def history_class(table_name):
-    History.__tablename__ = table_name
+# Legacy aliases for backward compatibility (data_import.py, test.py)
+def guilds_class(table_name: str = "guilds"):
+    return Guilds
+
+
+def select_class(table_name: str = "select"):
+    return Select
+
+
+def history_class(table_name: str = "history"):
     return History

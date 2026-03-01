@@ -5,8 +5,10 @@ import discord
 from discord.ext import commands
 from discord.ui import Button, Modal, TextInput
 
+from constants import ACCENT_COLOR
 from database import model
 from utils.color_parse import color_parser
+from views.global_view import make_docs_button
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ class SetupView(discord.ui.LayoutView):
         self.db = bot.db
         self.msg = bot.messages
 
-        container = discord.ui.Container(accent_colour=discord.Color(0xFCF5AB))
+        container = discord.ui.Container(accent_colour=discord.Color(ACCENT_COLOR))
 
         container.add_item(discord.ui.TextDisplay(self.msg['setup_select_embed_desc']))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
@@ -35,12 +37,7 @@ class SetupView(discord.ui.LayoutView):
         container.add_item(discord.ui.TextDisplay(color_list))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
 
-        docs_button = discord.ui.Button(
-            label="See documentation",
-            style=discord.ButtonStyle.link,
-            emoji="<:docs:1362879505613586643>",
-            url="https://huetweaker.gitbook.io/docs/commands/setup-select"
-        )
+        docs_button = make_docs_button("commands/setup-select")
         if not any(self.colors_data.values()):
             create_button = Button(
                 label="Create color list",

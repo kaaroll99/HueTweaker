@@ -1,5 +1,6 @@
 import re
 from functools import lru_cache
+from io import BytesIO
 
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
@@ -19,10 +20,35 @@ cmyk_regex = re.compile(r"^cmyk\((100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.
 
 
 @lru_cache(maxsize=1)
-def _load_css_color_cache():
+def _load_css_color_cache() -> dict[str, str]:
     data = load_json("assets/css-color-names.json")
-    lowered = {name.lower(): value for name, value in data.items()}
-    return lowered
+    return {name.lower(): value for name, value in data.items()}
+
+
+@lru_cache(maxsize=1)
+def _load_css_hsl_cache() -> dict[str, np.ndarray]:
+    """Pre-compute HSL values for all CSS colors (avoids re-conversion per /check call)."""
+    color_dict = _load_css_color_cache()
+    result = {}
+    for name, hex_val in color_dict.items():
+        rgb_color = sRGBColor.new_from_rgb_hex(hex_val)
+        hsl = np.array(convert_color(rgb_color, HSLColor).get_value_tuple())
+        result[name] = hsl
+    return result
+
+
+@lru_cache(maxsize=1)
+def _get_font(size: int = 18) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
+    """Load and cache the font to avoid repeated disk I/O."""
+    try:
+        return ImageFont.truetype("assets/gg_sans_mid.ttf", size)
+    except IOError:
+        return ImageFont.load_default()
+
+
+def _int_to_rgb(color_int: int) -> tuple[int, int, int]:
+    """Extract (r, g, b) from an integer color value."""
+    return (color_int >> 16) & 255, (color_int >> 8) & 255, color_int & 255
 
 
 class ColorUtils:
@@ -120,11 +146,16 @@ class ColorUtils:
         return Image.fromarray(image_array, 'RGB')
 
     @staticmethod
+    def to_bytes(image: Image.Image) -> BytesIO:
+        """Convert a PIL Image to a seeked BytesIO buffer (PNG)."""
+        buf = BytesIO()
+        image.save(buf, format='PNG')
+        buf.seek(0)
+        return buf
+
+    @staticmethod
     def generate_colored_text_grid(text, hex_colors):
-        try:
-            font = ImageFont.truetype("assets/gg_sans_mid.ttf", 18)
-        except IOError:
-            font = ImageFont.load_default()
+        font = _get_font()
 
         padding = 10
         line_height = 30
@@ -136,27 +167,19 @@ class ColorUtils:
 
         for i, hex_color in enumerate(hex_colors):
             hex_color = hex_color.lstrip('#')
-
-            r = int(hex_color[0:2], 16)
-            g = int(hex_color[2:4], 16)
-            b = int(hex_color[4:6], 16)
-
-            numbered_text = f"{i + 1}. {text}"
+            r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
 
             draw.text(
                 (padding * 1.5, padding + i * line_height),
-                numbered_text,
+                f"{i + 1}. {text}",
                 fill=(r, g, b, 255),
-                font=font
+                font=font,
             )
         return image
 
     @staticmethod
     def generate_preview_image(text, color_int, secondary_color_int=None):
-        try:
-            font = ImageFont.truetype("assets/gg_sans_mid.ttf", 18)
-        except IOError:
-            font = ImageFont.load_default()
+        font = _get_font()
 
         padding = 10
         line_height = 30
@@ -167,15 +190,13 @@ class ColorUtils:
 
         if secondary_color_int is None:
             draw = ImageDraw.Draw(image)
-            r = (color_int >> 16) & 255
-            g = (color_int >> 8) & 255
-            b = color_int & 255
+            r, g, b = _int_to_rgb(color_int)
 
             draw.text(
                 (padding * 1.5, padding),
                 text,
                 fill=(r, g, b, 255),
-                font=font
+                font=font,
             )
         else:
             mask = Image.new('L', (width, height), 0)
@@ -192,8 +213,8 @@ class ColorUtils:
                 text_end = width
                 text_width = 0
 
-            c1 = np.array([(color_int >> 16) & 255, (color_int >> 8) & 255, color_int & 255])
-            c2 = np.array([(secondary_color_int >> 16) & 255, (secondary_color_int >> 8) & 255, secondary_color_int & 255])
+            c1 = np.array(_int_to_rgb(color_int))
+            c2 = np.array(_int_to_rgb(secondary_color_int))
 
             gradient_arr = np.zeros((height, width, 3), dtype=np.uint8)
 
@@ -214,10 +235,7 @@ class ColorUtils:
 
     @staticmethod
     def generate_int_colors_grid(int_colors):
-        try:
-            font = ImageFont.truetype("assets/gg_sans_mid.ttf", 18)
-        except IOError:
-            font = ImageFont.load_default()
+        font = _get_font()
 
         padding = 10
         line_height = 30
@@ -229,30 +247,23 @@ class ColorUtils:
 
         for i, int_color in enumerate(int_colors):
             hex_color = f"#{int_color:06X}"
-
-            r = (int_color >> 16) & 255
-            g = (int_color >> 8) & 255
-            b = int_color & 255
-
-            numbered_text = f"{i + 1}. {hex_color}"
+            r, g, b = _int_to_rgb(int_color)
 
             draw.text(
                 (padding * 1.5, padding + i * line_height),
-                numbered_text,
+                f"{i + 1}. {hex_color}",
                 fill=(r, g, b, 255),
-                font=font
+                font=font,
             )
         return image
 
     @staticmethod
     def __find_similar_colors(hsl_color, threshold=20):
-        color_dict = _load_css_color_cache()
-        similar_colors = []
+        hsl_cache = _load_css_hsl_cache()
         hsl_color_np = np.array(hsl_color)
+        similar_colors = []
 
-        for color_name, color_hex in color_dict.items():
-            rgb_color = sRGBColor.new_from_rgb_hex(color_hex)
-            compare_hsl = np.array(convert_color(rgb_color, HSLColor).get_value_tuple())
+        for color_name, compare_hsl in hsl_cache.items():
             distance = np.sum((hsl_color_np - compare_hsl) ** 2)
             if distance <= threshold:
                 similar_colors.append((color_name, distance))

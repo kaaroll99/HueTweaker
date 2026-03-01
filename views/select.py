@@ -2,9 +2,10 @@ import logging
 
 import discord
 
-from database import model
-
+from constants import ACCENT_COLOR, BANNER_URL
 from utils.history_manager import update_history
+from utils.role_manager import create_or_update_color_role, assign_role_if_missing
+from views.global_view import make_docs_button, make_invite_button
 
 logger = logging.getLogger(__name__)
 
@@ -38,30 +39,12 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
         if not color:
             return
 
-        role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
-
-        if role is None:
-            role_position = 1
-            guild_obj = await self.db.select_one(model.Guilds, {"server": interaction.guild.id})
-
-            if guild_obj:
-                top_role = discord.utils.get(interaction.guild.roles, id=guild_obj["role"])
-                if top_role:
-                    role_position = max(1, top_role.position - 1)
-
-            role = await interaction.guild.create_role(
-                name=f"color-{interaction.user.id}",
-                colour=discord.Colour(int(color, 16))
-            )
-            if role_position > 1:
-                await role.edit(position=role_position)
-
         try:
             new_val = int(color, 16)
-            if not role.colour or role.colour.value != new_val:
-                await role.edit(colour=discord.Colour(new_val))
-            if role not in interaction.user.roles:
-                await interaction.user.add_roles(role, reason="Static color selection")
+            role, _, _ = await create_or_update_color_role(
+                interaction.guild, interaction.user.id, new_val, None, self.db
+            )
+            await assign_role_if_missing(interaction.user, role)
             await update_history(self.db, interaction.user.id, interaction.guild.id, new_val)
 
         except Exception as e:
@@ -86,34 +69,20 @@ class SelectView(discord.ui.LayoutView):
         self.file = file
         self.docs_page = docs_page
 
-        container = discord.ui.Container(accent_colour=discord.Color(0xFCF5AB))
+        container = discord.ui.Container(accent_colour=discord.Color(ACCENT_COLOR))
         container.add_item(discord.ui.TextDisplay(f"### {self.description}"))
 
+        gallery = discord.ui.MediaGallery()
         if self.file:
-            gallery = discord.ui.MediaGallery()
             gallery.add_item(media="attachment://" + self.file.filename)
-            container.add_item(gallery)
         else:
-            gallery = discord.ui.MediaGallery()
-            gallery.add_item(media="https://i.imgur.com/rXe4MHa.png")
-            container.add_item(gallery)
+            gallery.add_item(media=BANNER_URL)
+        container.add_item(gallery)
 
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
         container.add_item(ColorSelect(color_options, color_map, bot.db, bot))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
 
-        docs_button = discord.ui.Button(
-            label='See documentation',
-            style=discord.ButtonStyle.link,
-            emoji="<:docs:1362879505613586643>",
-            url=f"https://huetweaker.gitbook.io/docs/{self.docs_page}"
-        )
-        invite_button = discord.ui.Button(
-            label='Add HueTweaker to your server',
-            style=discord.ButtonStyle.link,
-            emoji="<:star:1362879443625971783>",
-            url="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot"
-        )
-        container.add_item(discord.ui.ActionRow(docs_button, invite_button))
+        container.add_item(discord.ui.ActionRow(make_docs_button(self.docs_page), make_invite_button()))
 
         self.add_item(container)

@@ -4,6 +4,7 @@ import random
 
 import aiohttp
 
+from constants import BOT_ID
 from utils.data_loader import load_json, load_yml
 
 token_file = load_yml('assets/token.yml')
@@ -55,7 +56,7 @@ async def api_request(server_count: int, user_count: int) -> None:
 
     # top.gg
     tasks.append(asyncio.create_task(post_with_retry(
-        'https://top.gg/api/bots/1209187999934578738/stats',
+        f'https://top.gg/api/bots/{BOT_ID}/stats',
         {
             'Authorization': token_file['TOP_GG_TOKEN'],
             'Content-Type': 'application/json'
@@ -66,7 +67,7 @@ async def api_request(server_count: int, user_count: int) -> None:
 
     # discordlist.gg
     tasks.append(asyncio.create_task(post_with_retry(
-        'https://api.discordlist.gg/v0/bots/1209187999934578738/guilds',
+        f'https://api.discordlist.gg/v0/bots/{BOT_ID}/guilds',
         {
             'Authorization': f"Bearer {token_file['DISCORDLIST_GG_TOKEN']}",
             'Content-Type': 'application/json; charset=utf-8'
@@ -77,7 +78,7 @@ async def api_request(server_count: int, user_count: int) -> None:
 
     # discordbotlist.com stats
     tasks.append(asyncio.create_task(post_with_retry(
-        'https://discordbotlist.com/api/v1/bots/1209187999934578738/stats',
+        f'https://discordbotlist.com/api/v1/bots/{BOT_ID}/stats',
         {
             'Content-Type': 'application/json',
             'Authorization': token_file['DISCORDBOTLIST_TOKEN']
@@ -88,7 +89,7 @@ async def api_request(server_count: int, user_count: int) -> None:
 
     # discordbotlist.com commands list
     tasks.append(asyncio.create_task(post_with_retry(
-        'https://discordbotlist.com/api/v1/bots/1209187999934578738/commands',
+        f'https://discordbotlist.com/api/v1/bots/{BOT_ID}/commands',
         {
             'Authorization': token_file['DISCORDBOTLIST_TOKEN'],
             'Content-Type': 'application/json'

@@ -3,7 +3,8 @@ import logging
 import discord
 from discord.ext import commands
 
-from views.global_view import GlobalLayout
+from constants import ACCENT_COLOR, BANNER_URL, DOCS_BASE_URL, SUPPORT_SERVER_URL
+from views.global_view import GlobalLayout, make_invite_button
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +30,7 @@ class HelpSelect(discord.ui.ActionRow['HelpView']):
             discord.SelectOption(label="/force remove", value="forceremove", emoji="🔄"),
             discord.SelectOption(label="/force purge", value="forcepurge", emoji="💥"),
             discord.SelectOption(label="/setup toprole", value="toprole", emoji="💫"),
-            discord.SelectOption(label="/setup select", value="setupselect", emoji="💫")
+            discord.SelectOption(label="/setup select", value="setupselect", emoji="💫"),
         ],
     )
     async def select_callback(self, interaction: discord.Interaction, select: discord.ui.Select):
@@ -45,7 +46,7 @@ class HelpView(discord.ui.LayoutView):
         author_id: int,
         description: str | None = None,
         docs_button: bool = False,
-        docs_key: str | None = None
+        docs_key: str | None = None,
     ):
         super().__init__()
         self.msg = messages
@@ -57,54 +58,46 @@ class HelpView(discord.ui.LayoutView):
 
         self.description = description or self.msg['help_desc'].format(len(bot.guilds))
 
-        self.desc_display = discord.ui.TextDisplay(self.description)
-        container = discord.ui.Container(accent_colour=discord.Color(0xFCF5AB))
-        container.add_item(self.desc_display)
+        container = discord.ui.Container(accent_colour=discord.Color(ACCENT_COLOR))
+        container.add_item(discord.ui.TextDisplay(self.description))
 
         if self.docs_button:
             docs_button_body = discord.ui.Button(
                 label="See details of the command in the documentation",
                 style=discord.ButtonStyle.link,
                 emoji="<:docs:1362879505613586643>",
-                url=f"https://huetweaker.gitbook.io/docs/commands/{self.docs_key}"
+                url=f"{DOCS_BASE_URL}/commands/{self.docs_key}",
             )
             container.add_item(discord.ui.ActionRow(docs_button_body))
 
         gallery = discord.ui.MediaGallery()
-        gallery.add_item(media="https://i.imgur.com/rXe4MHa.png")
+        gallery.add_item(media=BANNER_URL)
         container.add_item(gallery)
 
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
-
         container.add_item(HelpSelect(help_data, messages))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
 
-        invite_button = discord.ui.Button(
-            label='Add HueTweaker to your server',
-            style=discord.ButtonStyle.link,
-            emoji="<:star:1362879443625971783>",
-            url="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot"
-        )
         support_button = discord.ui.Button(
             label="Join support server",
             style=discord.ButtonStyle.url,
             emoji="<:bubble:1362879391423533226>",
-            url="https://discord.gg/tYdK4pD6ks"
+            url=SUPPORT_SERVER_URL,
         )
         privacy_button = discord.ui.Button(
             label="Privacy Policy",
             style=discord.ButtonStyle.url,
             emoji="<:docs:1362879505613586643>",
-            url="https://huetweaker.gitbook.io/docs/main/privacy-policy"
+            url=f"{DOCS_BASE_URL}/main/privacy-policy",
         )
         terms_button = discord.ui.Button(
             label="Terms of Service",
             style=discord.ButtonStyle.url,
             emoji="<:docs:1362879505613586643>",
-            url="https://huetweaker.gitbook.io/docs/main/terms-of-service"
+            url=f"{DOCS_BASE_URL}/main/terms-of-service",
         )
 
-        container.add_item(discord.ui.ActionRow(invite_button, support_button))
+        container.add_item(discord.ui.ActionRow(make_invite_button(), support_button))
         container.add_item(discord.ui.ActionRow(privacy_button, terms_button))
 
         self.add_item(container)
@@ -124,6 +117,11 @@ class HelpView(discord.ui.LayoutView):
             view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/help")
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
             await interaction.response.edit_message(view=view)
+            return
 
-        new_view = HelpView(messages=self.msg, bot=self.bot, help_data=self.help_data, author_id=self.author_id, description=desc_display, docs_button=True, docs_key=docs_key)
+        new_view = HelpView(
+            messages=self.msg, bot=self.bot, help_data=self.help_data,
+            author_id=self.author_id, description=desc_display,
+            docs_button=True, docs_key=docs_key,
+        )
         await interaction.response.edit_message(view=new_view)

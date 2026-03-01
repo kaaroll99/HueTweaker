@@ -1,23 +1,22 @@
 import logging
 import re
-from datetime import datetime, timedelta
 
 import discord
-from discord import app_commands, Embed
+from discord import app_commands
 from discord.ext import commands
 
+from cogs._base import BaseCog
+from constants import COLOR_ROLE_PATTERN
 from database import model
-from views.cooldown import CooldownLayout
 from views.global_view import GlobalLayout
 from views.setup_select import SetupView
 
 logger = logging.getLogger(__name__)
 
-class SetupCog(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
-        self.bot = bot
-        self.db = bot.db
-        self.msg = bot.messages
+_color_role_re = re.compile(COLOR_ROLE_PATTERN)
+
+
+class SetupCog(BaseCog):
 
     group = app_commands.Group(name="setup", description="Setup bot on your server")
 
@@ -50,7 +49,6 @@ class SetupCog(commands.Cog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            pattern = re.compile(r"color-\d{18,19}")
             top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
 
             guild_obj = await self.db.select_one(model.Guilds, {"server": interaction.guild.id})
@@ -67,8 +65,7 @@ class SetupCog(commands.Cog):
                 description = self.msg['toprole_set'].format(role_name.name)
 
                 for role in interaction.guild.roles:
-                    if pattern.match(role.name):
-                        role = discord.utils.get(interaction.guild.roles, id=role.id)
+                    if _color_role_re.match(role.name):
                         await role.edit(position=max(1, top_role.position - 1))
 
             view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/setup-toprole")
@@ -94,16 +91,9 @@ class SetupCog(commands.Cog):
     @select.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
-            retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = self.msg["cool_down"].format(int(retry_time.timestamp()))
-            view = CooldownLayout(messages=self.msg, description=response)
-            await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
-
-        elif isinstance(error, discord.app_commands.errors.MissingPermissions):
-            embed: Embed = discord.Embed(title="", description=self.msg['no_permissions'],
-                                         color=4539717, timestamp=datetime.now())
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+            await self.handle_cooldown_error(interaction, error)
+        elif isinstance(error, app_commands.MissingPermissions):
+            await self.handle_permission_error(interaction)
 
 
 async def setup(bot: commands.Bot) -> None:

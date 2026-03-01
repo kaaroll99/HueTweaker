@@ -3,6 +3,8 @@ from typing import Optional, Tuple
 
 import discord
 
+from views.global_view import make_invite_button
+
 logger = logging.getLogger(__name__)
 
 
@@ -16,7 +18,7 @@ class Layout(discord.ui.LayoutView):
         role_id: Optional[int] = None,
         author_id: Optional[int] = None,
         description: str = "",
-        undo_lock: bool = False
+        undo_lock: bool = False,
     ):
         super().__init__()
         self.msg = messages
@@ -29,25 +31,17 @@ class Layout(discord.ui.LayoutView):
         self.undo_lock = undo_lock
 
         container = discord.ui.Container(accent_colour=self.color)
-        container.add_item(
-            discord.ui.TextDisplay(self.description)
-        )
+        container.add_item(discord.ui.TextDisplay(self.description))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
 
         revert_btn = discord.ui.Button(
             label=self.msg.get('revert_button', 'Revert'),
             style=discord.ButtonStyle.secondary,
             emoji="<:back:1408056926121627679>",
-            disabled=self.undo_lock
+            disabled=self.undo_lock,
         )
         revert_btn.callback = self._on_revert
-        invite_button = discord.ui.Button(
-            label='Add HueTweaker to your server',
-            style=discord.ButtonStyle.link,
-            emoji="<:star:1362879443625971783>",
-            url="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot"
-        )
-        container.add_item(discord.ui.ActionRow(revert_btn, invite_button))
+        container.add_item(discord.ui.ActionRow(revert_btn, make_invite_button()))
 
         self.add_item(container)
 
@@ -111,21 +105,17 @@ class ConfirmationView(discord.ui.LayoutView):
         confirm_btn = discord.ui.Button(
             label="Accept",
             emoji="<:ok:1362879418640498748>",
-            style=discord.ButtonStyle.green)
+            style=discord.ButtonStyle.green,
+        )
         cancel_btn = discord.ui.Button(
             label="Cancel",
             emoji="<:back:1408056926121627679>",
-            style=discord.ButtonStyle.red)
-        invite_button = discord.ui.Button(
-            label='Add HueTweaker to your server',
-            style=discord.ButtonStyle.link,
-            emoji="<:star:1362879443625971783>",
-            url="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&permissions=1099981745184&scope=bot"
+            style=discord.ButtonStyle.red,
         )
         confirm_btn.callback = self._on_confirm
         cancel_btn.callback = self._on_cancel
 
-        container.add_item(discord.ui.ActionRow(confirm_btn, cancel_btn, invite_button))
+        container.add_item(discord.ui.ActionRow(confirm_btn, cancel_btn, make_invite_button()))
         self.add_item(container)
 
     async def _on_confirm(self, interaction: discord.Interaction):

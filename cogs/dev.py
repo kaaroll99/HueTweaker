@@ -5,6 +5,8 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
+from constants import BANNER_URL, DEV_GUILD_ID
+
 logger = logging.getLogger(__name__)
 
 
@@ -23,7 +25,7 @@ class DevCog(commands.Cog):
         await interaction.response.defer(ephemeral=True)
         file = None
         try:
-            if interaction.guild_id == 1135688599917056160:
+            if interaction.guild_id == DEV_GUILD_ID:
                 if action == "report":
                     import csv
                     csv_file = 'guilds_info.csv'
@@ -80,7 +82,7 @@ class DevCog(commands.Cog):
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
         finally:
             embed.set_footer(text=f"{self.bot.user.name} by kaaroll99", icon_url=self.bot.user.avatar)
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+            embed.set_image(url=BANNER_URL)
 
             if file:
                 await interaction.followup.send(embed=embed, file=file)

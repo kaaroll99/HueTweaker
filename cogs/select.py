@@ -1,25 +1,19 @@
 import logging
-from datetime import datetime, timedelta
-from io import BytesIO
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
+from cogs._base import BaseCog
 from database import model
 from utils.color_format import ColorUtils
-from views.cooldown import CooldownLayout
 from views.global_view import GlobalLayout
 from views.select import SelectView
 
 logger = logging.getLogger(__name__)
 
 
-class SelectCog(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
-        self.bot = bot
-        self.db = bot.db
-        self.msg = bot.messages
+class SelectCog(BaseCog):
 
     @app_commands.command(name="select", description="Choose one of the static colors on the server")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
@@ -49,24 +43,16 @@ class SelectCog(commands.Cog):
                 color_values = [color for _, color in color_options]
                 description = self.msg['available_colors']
                 image = ColorUtils.generate_colored_text_grid(interaction.user.name, color_values)
-                image_bytes = BytesIO()
-                image.save(image_bytes, format='PNG')
-                image_bytes.seek(0)
-                file = discord.File(fp=image_bytes, filename="color_select.png")
+                file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_select.png")
 
                 view = SelectView(self.msg, description, self.bot, color_options, color_map, file)
                 await interaction.followup.send(view=view, file=file)
 
         except discord.HTTPException as e:
-            err_description = self.msg['exception']
-            if e.code == 50013:
-                err_description = self.msg['err_50013']
-            elif e.code == 10062:
-                pass
-            else:
-                err_description = self.msg['err_http'].format(e.code, e.text)
-            view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/select")
-            await interaction.followup.send(view=view, ephemeral=True)
+            err_description = self.get_http_error_description(e) if e.code != 10062 else None
+            if err_description:
+                view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/select")
+                await interaction.followup.send(view=view, ephemeral=True)
             logger.error("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
 
         except Exception as e:
@@ -80,10 +66,7 @@ class SelectCog(commands.Cog):
     @select.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
-            retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = self.msg["cool_down"].format(int(retry_time.timestamp()))
-            view = CooldownLayout(messages=self.msg, description=response)
-            await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
+            await self.handle_cooldown_error(interaction, error)
 
 
 async def setup(bot: commands.Bot) -> None:

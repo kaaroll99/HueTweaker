@@ -1,24 +1,19 @@
 import logging
-from datetime import datetime, timedelta
-from io import BytesIO
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
+from cogs._base import BaseCog
 from utils.color_format import ColorUtils
 from utils.color_parse import fetch_color_representation
 from views.check import CheckLayout
-from views.cooldown import CooldownLayout
 from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
 
 
-class CheckCog(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
-        self.bot = bot
-        self.msg = bot.messages
+class CheckCog(BaseCog):
 
     @app_commands.command(name="check", description="Check color information (HEX, RGB, HSL, CMYK)")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
@@ -45,10 +40,7 @@ class CheckCog(commands.Cog):
                             f"cmyk({output_color['CMYK'][0] * 100:.2f}%, {output_color['CMYK'][1] * 100:.2f}%, {output_color['CMYK'][2] * 100:.2f}%, {output_color['CMYK'][3] * 100:.2f}%)"))
             elements.append((self.msg['check_css'], f"{', '.join(str(x) for x in output_color['Similars'][:5]) if output_color['Similars'] else '-'}", ""))
 
-            image_bytes = BytesIO()
-            image.save(image_bytes, format='PNG')
-            image_bytes.seek(0)
-            file = discord.File(fp=image_bytes, filename="color_fill.png")
+            file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_fill.png")
             image_url = "attachment://" + file.filename
 
             view = CheckLayout(messages=self.msg, description=description, image=image_url, elements=elements)
@@ -69,10 +61,7 @@ class CheckCog(commands.Cog):
     @check.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
-            retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = self.msg["cool_down"].format(int(retry_time.timestamp()))
-            view = CooldownLayout(messages=self.msg, description=response)
-            await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
+            await self.handle_cooldown_error(interaction, error)
 
 
 async def setup(bot: commands.Bot) -> None:

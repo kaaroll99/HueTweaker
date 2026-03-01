@@ -3,10 +3,13 @@ import re
 
 import discord
 
+from constants import ACCENT_COLOR, COLOR_ROLE_PATTERN
 from database import model
 from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
+
+_color_role_re = re.compile(COLOR_ROLE_PATTERN)
 
 
 class PurgeView(discord.ui.LayoutView):
@@ -17,7 +20,7 @@ class PurgeView(discord.ui.LayoutView):
         self.db = db
         self.description = description
 
-        container = discord.ui.Container(accent_colour=discord.Color(0xFCF5AB))
+        container = discord.ui.Container(accent_colour=discord.Color(ACCENT_COLOR))
         container.add_item(discord.ui.TextDisplay(self.description))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
 
@@ -59,10 +62,8 @@ class PurgeView(discord.ui.LayoutView):
 
 
         async def del_individual_roles():
-            pattern = re.compile(r"color-\d{18,19}")
             for role in interaction.guild.roles:
-                if pattern.match(role.name):
-                    role = discord.utils.get(interaction.guild.roles, id=role.id)
+                if _color_role_re.match(role.name):
                     await role.delete()
 
         try:

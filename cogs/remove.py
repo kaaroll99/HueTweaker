@@ -1,20 +1,17 @@
 import logging
-from datetime import datetime, timedelta
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
-from views.cooldown import CooldownLayout
+from cogs._base import BaseCog
+from constants import COLOR_ROLE_PREFIX
 from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
 
 
-class RemoveCog(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
-        self.bot = bot
-        self.msg = bot.messages
+class RemoveCog(BaseCog):
 
     @app_commands.command(name="remove", description="Remove the color")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
@@ -22,7 +19,7 @@ class RemoveCog(commands.Cog):
     async def remove(self, interaction: discord.Interaction) -> None:
         try:
             await interaction.response.defer(ephemeral=True)
-            role = discord.utils.get(interaction.guild.roles, name=f"color-{interaction.user.id}")
+            role = discord.utils.get(interaction.guild.roles, name=f"{COLOR_ROLE_PREFIX}{interaction.user.id}")
             if role is not None:
                 await interaction.user.remove_roles(role)
                 await role.delete()
@@ -43,10 +40,7 @@ class RemoveCog(commands.Cog):
     @remove.error
     async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
-            retry_time = datetime.now() + timedelta(seconds=error.retry_after)
-            response = self.msg["cool_down"].format(int(retry_time.timestamp()))
-            view = CooldownLayout(messages=self.msg, description=response)
-            await interaction.response.send_message(view=view, ephemeral=True, delete_after=error.retry_after)
+            await self.handle_cooldown_error(interaction, error)
 
 
 async def setup(bot: commands.Bot) -> None:
