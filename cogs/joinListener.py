@@ -3,6 +3,7 @@ import logging
 import discord
 from discord.ext import commands
 
+from constants import COLOR_ROLE_PREFIX
 from database import model
 
 logger = logging.getLogger(__name__)
@@ -16,11 +17,11 @@ class JoinListenerCog(commands.Cog):
     @commands.Cog.listener()
     async def on_member_remove(self, member):
         try:
-            role = discord.utils.get(member.guild.roles, name=f"color-{member.id}")
+            role = discord.utils.get(member.guild.roles, name=f"{COLOR_ROLE_PREFIX}{member.id}")
             if role is not None:
                 await role.delete()
 
-            await self.db.delete(model.history_class("history"), {"user_id": member.id, "guild_id": member.guild.id})
+            await self.db.delete(model.History, {"user_id": member.id, "guild_id": member.guild.id})
 
         except discord.HTTPException:
             pass
@@ -33,7 +34,7 @@ class JoinListenerCog(commands.Cog):
     async def on_guild_remove(self, guild):
         logger.info("Bot has been removed from guild: %s", guild.name)
         await self.db.delete(model.Guilds, {"server": guild.id})
-        await self.db.delete_all(model.history_class("history"), {"guild_id": guild.id})
+        await self.db.delete_all(model.History, {"guild_id": guild.id})
 
 
 

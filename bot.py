@@ -64,9 +64,8 @@ class MyBot(commands.AutoShardedBot):
     async def on_ready(self) -> None:
         logger.info("%s Bot is ready. %s", "=" * 20, "=" * 20)
 
-    async def on_socket_response(self, msg: Dict[str, Any]) -> None:
-        if msg.get('t') == 'RESUMED':
-            logger.info('Shard connection resumed.')
+    async def on_resumed(self) -> None:
+        logger.info('Shard connection resumed.')
 
     async def on_shard_disconnect(self, shard_id: int) -> None:
         logger.warning('Shard %d has disconnected from Gateway, attempting to reconnect...', shard_id)
@@ -111,7 +110,11 @@ async def main():
 
     async with bot:
         logger.info("%s Starting the bot. %s", "=" * 20, "=" * 20)
-        await bot.start(token)
+        try:
+            await bot.start(token)
+        finally:
+            await db_instance.close()
+            logger.info("Database connection closed.")
 
 
 if __name__ == "__main__":

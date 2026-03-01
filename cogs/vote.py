@@ -2,8 +2,10 @@ import datetime
 import logging
 
 import discord
-from discord import app_commands, Embed
+from discord import app_commands
 from discord.ext import commands
+
+from constants import BANNER_URL
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +17,13 @@ class VoteCog(commands.Cog):
 
     @app_commands.command(name="vote", description="View links to vote")
     async def vote(self, interaction: discord.Interaction) -> None:
-        embed: Embed = discord.Embed(title="", description="", color=4539717)
+        embed = discord.Embed(
+            title=self.msg['vote_title'].format(self.bot.user.name),
+            description="",
+            color=4539717,
+            timestamp=datetime.datetime.now(),
+        )
         try:
-            embed = discord.Embed(title=self.msg['vote_title'].format(self.bot.user.name), description="", color=4539717, timestamp=datetime.datetime.now())
             await interaction.response.defer(ephemeral=True)
             embed.description = self.msg['vote_desc']
             embed.add_field(name="", value=self.msg['vote_topgg'], inline=False)
@@ -29,7 +35,7 @@ class VoteCog(commands.Cog):
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.locale, e)
         finally:
             embed.set_footer(text=f"{self.bot.user.name} by kaaroll99", icon_url=self.bot.user.avatar)
-            embed.set_image(url="https://i.imgur.com/rXe4MHa.png")
+            embed.set_image(url=BANNER_URL)
             await interaction.followup.send(embed=embed)
             logger.info("%s[%s] issued bot command: /vote", interaction.user.name, interaction.user.id)
 

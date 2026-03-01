@@ -1,54 +1,55 @@
 import logging
+from typing import Any
 
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.future import select
-from sqlalchemy import delete
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy import select, delete
 
 from . import model
 
 logger = logging.getLogger(__name__)
 
-class Database:
-    def __init__(self, url):
 
-        self.__engine = create_async_engine(url)
-        self.__Session = sessionmaker(
-            bind=self.__engine,
+class Database:
+    def __init__(self, url: str, pool_size: int = 5, max_overflow: int = 10):
+        self._engine = create_async_engine(
+            url,
+            pool_size=pool_size,
+            max_overflow=max_overflow,
+        )
+        self._session_factory = async_sessionmaker(
+            bind=self._engine,
             class_=AsyncSession,
             expire_on_commit=False,
-            autocommit=False,
-            autoflush=False
         )
 
-    async def database_init(self):
-        if not self.__engine:
-            raise Exception("Database is not connected.")
-        async with self.__engine.begin() as conn:
+    async def database_init(self) -> None:
+        async with self._engine.begin() as conn:
             await conn.run_sync(model.Base.metadata.create_all)
-        return True
+
+    async def close(self) -> None:
+        """Dispose of the connection pool."""
+        await self._engine.dispose()
 
     @staticmethod
-    def _to_dict(obj):
+    def _to_dict(obj: Any) -> dict:
         return {c.key: getattr(obj, c.key) for c in obj.__table__.columns}
 
-    async def select(self, table_class, parameters=None):
+    async def select(self, table_class, parameters: dict | None = None) -> list[dict] | bool:
         """Select multiple records from the database."""
-        async with self.__Session() as session:
+        async with self._session_factory() as session:
             try:
                 stmt = select(table_class)
                 if parameters:
                     stmt = stmt.filter_by(**parameters)
                 result = await session.execute(stmt)
-                results = result.scalars().all()
-                return [self._to_dict(r) for r in results]
+                return [self._to_dict(r) for r in result.scalars().all()]
             except Exception as e:
                 logger.error("Select error: %s", e)
                 return False
 
-    async def select_one(self, table_class, parameters=None):
+    async def select_one(self, table_class, parameters: dict | None = None) -> dict | None | bool:
         """Select a single record from the database."""
-        async with self.__Session() as session:
+        async with self._session_factory() as session:
             try:
                 stmt = select(table_class)
                 if parameters:
@@ -60,12 +61,11 @@ class Database:
                 logger.error("Select_one error: %s", e)
                 return False
 
-    async def create(self, table_class, values):
+    async def create(self, table_class, values: dict) -> bool:
         """Create a new record in the database."""
-        async with self.__Session() as session:
+        async with self._session_factory() as session:
             try:
-                obj = table_class(**values)
-                session.add(obj)
+                session.add(table_class(**values))
                 await session.commit()
                 return True
             except Exception as e:
@@ -73,20 +73,17 @@ class Database:
                 logger.error("Create error: %s", e)
                 return False
 
-    async def update(self, table_class, criteria, values):
+    async def update(self, table_class, criteria: dict, values: dict) -> bool:
         """Update a record in the database."""
-        async with self.__Session() as session:
+        async with self._session_factory() as session:
             try:
                 stmt = select(table_class).filter_by(**criteria)
                 result = await session.execute(stmt)
                 obj = result.scalars().first()
-
                 if not obj:
                     return False
-
                 for k, v in values.items():
                     setattr(obj, k, v)
-
                 await session.commit()
                 return True
             except Exception as e:
@@ -94,28 +91,22 @@ class Database:
                 logger.error("Update error: %s", e)
                 return False
 
-    async def delete(self, table_class, criteria):
-        """Delete a record from the database."""
-        async with self.__Session() as session:
+    async def delete(self, table_class, criteria: dict) -> bool:
+        """Delete records matching criteria (single-query, no SELECT)."""
+        async with self._session_factory() as session:
             try:
-                stmt = select(table_class).filter_by(**criteria)
+                stmt = delete(table_class).filter_by(**criteria)
                 result = await session.execute(stmt)
-                obj = result.scalars().first()
-
-                if not obj:
-                    return False
-
-                await session.delete(obj)
                 await session.commit()
-                return True
+                return result.rowcount > 0
             except Exception as e:
                 await session.rollback()
                 logger.error("Delete error: %s", e)
                 return False
 
-    async def delete_all(self, table_class, criteria):
+    async def delete_all(self, table_class, criteria: dict) -> int | bool:
         """Delete all records matching the criteria from the database."""
-        async with self.__Session() as session:
+        async with self._session_factory() as session:
             try:
                 stmt = delete(table_class).filter_by(**criteria)
                 result = await session.execute(stmt)
