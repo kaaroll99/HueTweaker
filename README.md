@@ -17,11 +17,9 @@
 
 🖌️ **Custom username colors** - Personalize your identity with any HEX code or CSS color name. Enhance your profile with unique gradients* to truly stand out.
 
-🗂️ **Interactive color presets** - Browse up to 10 server-configured colors via a visual dropdown menu
+🗂️ **Interactive color presets** - Browse up to 10 server-configured colors via a visual dropdown menu.
 
 ⚙️ **Full admin control** - Manage user colors, purge roles, and configure hierarchy with specialized tools. Powerful features designed to keep your server organized.
-
-💫 **Commands to configure the bot on the server.**
 
 ![user_cmds](https://i.imgur.com/OCvLYDj.png)
 
