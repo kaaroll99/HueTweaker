@@ -16,7 +16,6 @@ JITTER = 0.3
 
 
 async def post_data(url: str, headers: dict, data: dict, message: str = "server count") -> dict:
-    """Single HTTP POST with timeout and error handling (no retries)."""
     try:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=headers, json=data, timeout=aiohttp.ClientTimeout(total=10)) as response:
@@ -36,7 +35,6 @@ async def post_data(url: str, headers: dict, data: dict, message: str = "server 
 
 
 async def post_with_retry(url: str, headers: dict, data: dict, message: str) -> dict:
-    """POST with exponential backoff + jitter. Returns final attempt result."""
     for attempt in range(1, MAX_RETRIES + 1):
         result = await post_data(url, headers, data, message)
         if result.get("success"):
@@ -51,7 +49,6 @@ async def post_with_retry(url: str, headers: dict, data: dict, message: str) -> 
 
 
 async def api_request(server_count: int, user_count: int) -> None:
-    """Send stats to external listing APIs with isolation of failures."""
     tasks = []
 
     # top.gg

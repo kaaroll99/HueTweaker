@@ -9,7 +9,6 @@ token_file = load_yml('assets/token.yml')
 
 
 async def check_query(user_id: int) -> bool:
-    """Check if a user has voted on top.gg."""
     url = f'https://top.gg/api/bots/{BOT_ID}/check?userId={user_id}'
     headers = {'Authorization': token_file['TOP_GG_TOKEN']}
     async with aiohttp.ClientSession() as session:
@@ -21,6 +20,5 @@ async def check_query(user_id: int) -> bool:
 
 
 async def is_user_on_cooldown(interaction: discord.Interaction) -> app_commands.Cooldown:
-    """Return a shorter cooldown for users who have voted."""
     voted = await check_query(interaction.user.id)
     return app_commands.Cooldown(1, 5.0) if voted else app_commands.Cooldown(1, 30.0)

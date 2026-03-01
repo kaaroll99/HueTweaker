@@ -42,7 +42,6 @@ class MyBot(commands.AutoShardedBot):
                 logger.debug("DEV mode detected - skipping stats API post")
                 return
             server_count = len(self.guilds)
-            # user_count = sum((guild.member_count or 0) for guild in self.guilds)
             user_count = 0
             await api_request(server_count, user_count)
         except Exception:
@@ -56,7 +55,6 @@ class MyBot(commands.AutoShardedBot):
         await self.load_cogs()
         logger.info("Sharding configuration: total shards = %d", self.shard_count or -1)
         logger.warning("Skipping sync- Manual sync required via /dev tree")
-        # self.tree.sync() removed to prevent rate limits
         self.remove_command('help')
         if not self.update_stats_task.is_running():
             self.update_stats_task.start()

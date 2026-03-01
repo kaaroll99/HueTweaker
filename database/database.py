@@ -27,7 +27,6 @@ class Database:
             await conn.run_sync(model.Base.metadata.create_all)
 
     async def close(self) -> None:
-        """Dispose of the connection pool."""
         await self._engine.dispose()
 
     @staticmethod
@@ -35,7 +34,6 @@ class Database:
         return {c.key: getattr(obj, c.key) for c in obj.__table__.columns}
 
     async def select(self, table_class, parameters: dict | None = None) -> list[dict] | bool:
-        """Select multiple records from the database."""
         async with self._session_factory() as session:
             try:
                 stmt = select(table_class)
@@ -48,7 +46,6 @@ class Database:
                 return False
 
     async def select_one(self, table_class, parameters: dict | None = None) -> dict | None | bool:
-        """Select a single record from the database."""
         async with self._session_factory() as session:
             try:
                 stmt = select(table_class)
@@ -62,7 +59,6 @@ class Database:
                 return False
 
     async def create(self, table_class, values: dict) -> bool:
-        """Create a new record in the database."""
         async with self._session_factory() as session:
             try:
                 session.add(table_class(**values))
@@ -74,7 +70,6 @@ class Database:
                 return False
 
     async def update(self, table_class, criteria: dict, values: dict) -> bool:
-        """Update a record in the database."""
         async with self._session_factory() as session:
             try:
                 stmt = select(table_class).filter_by(**criteria)
@@ -92,7 +87,6 @@ class Database:
                 return False
 
     async def delete(self, table_class, criteria: dict) -> bool:
-        """Delete records matching criteria (single-query, no SELECT)."""
         async with self._session_factory() as session:
             try:
                 stmt = delete(table_class).filter_by(**criteria)
@@ -105,7 +99,6 @@ class Database:
                 return False
 
     async def delete_all(self, table_class, criteria: dict) -> int | bool:
-        """Delete all records matching the criteria from the database."""
         async with self._session_factory() as session:
             try:
                 stmt = delete(table_class).filter_by(**criteria)

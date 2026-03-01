@@ -1,5 +1,3 @@
-"""Shared role management utilities to eliminate duplication across cogs and views."""
-
 import logging
 from typing import Optional, Tuple
 
@@ -12,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 
 async def get_role_position(db, guild: discord.Guild) -> int:
-    """Determine the correct position for a color role based on the configured top role."""
     guild_obj = await db.select_one(model.Guilds, {"server": guild.id})
     if guild_obj:
         top_role = discord.utils.get(guild.roles, id=guild_obj["role"])
@@ -22,7 +19,6 @@ async def get_role_position(db, guild: discord.Guild) -> int:
 
 
 def get_color_role(guild: discord.Guild, user_id: int) -> Optional[discord.Role]:
-    """Find the color role for a given user in a guild."""
     return discord.utils.get(guild.roles, name=f"{COLOR_ROLE_PREFIX}{user_id}")
 
 
@@ -33,15 +29,6 @@ async def create_or_update_color_role(
     secondary_val: Optional[int],
     db,
 ) -> Tuple[discord.Role, bool, Optional[Tuple[Optional[int], Optional[int]]]]:
-    """
-    Ensure a color role exists for the user with the given colors.
-
-    Returns:
-        (role, was_updated, prev_colors)
-        - role: the discord.Role object
-        - was_updated: True if a change was made
-        - prev_colors: tuple of previous (primary, secondary) values, or None
-    """
     role = get_color_role(guild, user_id)
     role_position = await get_role_position(db, guild)
     new_colors = (primary_val, secondary_val)
@@ -74,6 +61,5 @@ async def create_or_update_color_role(
 
 
 async def assign_role_if_missing(member: discord.Member, role: discord.Role, reason: str = "HueTweaker color role") -> None:
-    """Add the role to the member only if they don't already have it."""
     if role not in member.roles:
         await member.add_roles(role, reason=reason)
