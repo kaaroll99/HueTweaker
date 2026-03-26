@@ -5,7 +5,7 @@ if [ -z "$1" ]; then
   exit 1
 fi
 
-LOGPATTERN="logs/$1*"
+LOGPATTERN="logs/history/$1*"
 COMMANDS=(
   "/"
   "/set"
