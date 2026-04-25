@@ -1,5 +1,5 @@
 import logging
-from typing import Optional, Tuple
+from typing import Optional, Tuple, cast
 
 import discord
 
@@ -66,6 +66,31 @@ async def get_role_position(
     return min(role_position, max_manageable_position)
 
 
+async def move_role_to_position(
+    guild: discord.Guild,
+    role: discord.Role,
+    position: int,
+    reason: str = "HueTweaker color role placement",
+) -> None:
+    if role.is_default() or role.position == position:
+        return
+
+    roles = sorted(await guild.fetch_roles())
+    change_range = range(min(role.position, position), max(role.position, position) + 1)
+    roles_in_range = [item for item in roles[1:] if item.position in change_range and item.id != role.id]
+
+    if role.position > position:
+        ordered_roles = [role, *roles_in_range]
+    else:
+        ordered_roles = [*roles_in_range, role]
+
+    payload = {item: next_position for item, next_position in zip(ordered_roles, change_range)}
+    await guild.edit_role_positions(
+        cast(dict[discord.abc.Snowflake, int], payload),
+        reason=reason,
+    )
+
+
 def get_color_role(guild: discord.Guild, user_id: int) -> Optional[discord.Role]:
     return discord.utils.get(guild.roles, name=f"{COLOR_ROLE_PREFIX}{user_id}")
 
@@ -90,7 +115,7 @@ async def create_or_update_color_role(
             secondary_color=discord.Color(secondary_val) if secondary_val is not None else None,
         )
         if role.position != role_position:
-            await guild.edit_role_positions({role: role_position}, reason="HueTweaker color role placement")
+            await move_role_to_position(guild, role, role_position)
         return role, True, None
 
     current_colors = (
@@ -111,7 +136,7 @@ async def create_or_update_color_role(
             if updated_role is not None:
                 role = updated_role
         if position_changed:
-            await guild.edit_role_positions({role: role_position}, reason="HueTweaker color role placement")
+            await move_role_to_position(guild, role, role_position)
         return role, True, prev_colors
 
     return role, False, None
