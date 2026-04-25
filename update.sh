@@ -13,8 +13,3 @@ if [ "$continue_run" = "y" ]; then
 else
     echo "Cancelled"
 fi
-
-
-
-
-
