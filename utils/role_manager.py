@@ -1,12 +1,9 @@
-import logging
 from typing import Optional, Tuple, cast
 
 import discord
 
 from constants import COLOR_ROLE_PREFIX
 from database import model
-
-logger = logging.getLogger(__name__)
 
 TOPROLE_MODE_AUTO = "auto"
 TOPROLE_MODE_CUSTOM = "custom"
@@ -102,13 +99,20 @@ async def move_role_to_position(
     if current_role.position == position:
         return
 
-    change_range = range(min(current_role.position, position), max(current_role.position, position) + 1)
-    roles_in_range = [item for item in roles[1:] if item.position in change_range and item.id != current_role.id]
-
     if current_role.position > position:
+        roles_in_range = [
+            item for item in roles[1:]
+            if position <= item.position < current_role.position and item.id != current_role.id
+        ]
         ordered_roles = [current_role, *roles_in_range]
+        change_range = range(position, current_role.position + 1)
     else:
+        roles_in_range = [
+            item for item in roles[1:]
+            if current_role.position < item.position <= position and item.id != current_role.id
+        ]
         ordered_roles = [*roles_in_range, current_role]
+        change_range = range(current_role.position, position + 1)
 
     payload = {item: next_position for item, next_position in zip(ordered_roles, change_range)}
     await guild.edit_role_positions(
@@ -172,6 +176,11 @@ async def create_or_update_color_role(
     if live_role.position != role_position:
         await move_role_to_position(guild, live_role, role_position)
         role_updated = True
+
+        refreshed_roles = await guild.fetch_roles()
+        refreshed_role = discord.utils.get(refreshed_roles, id=live_role.id)
+        if refreshed_role is not None:
+            live_role = refreshed_role
 
     return live_role, role_updated, prev_colors
 
