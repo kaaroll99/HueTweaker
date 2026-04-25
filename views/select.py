@@ -42,7 +42,12 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
         try:
             new_val = int(color, 16)
             role, _, _ = await create_or_update_color_role(
-                interaction.guild, interaction.user.id, new_val, None, self.db
+                interaction.guild,
+                interaction.user.id,
+                new_val,
+                None,
+                self.db,
+                self.bot.user.id,
             )
             await assign_role_if_missing(interaction.user, role)
             await update_history(self.db, interaction.user.id, interaction.guild.id, new_val)

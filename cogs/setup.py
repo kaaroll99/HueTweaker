@@ -102,11 +102,20 @@ class SetupCog(BaseCog):
             else:
                 description = self.msg['toprole_custom'].format(role_name.name)
 
-            role_position = await get_role_position(self.db, interaction.guild)
+            roles = await interaction.guild.fetch_roles()
+            role_position = await get_role_position(
+                self.db,
+                interaction.guild,
+                interaction.client.user.id,
+                roles=roles,
+            )
 
-            for role in interaction.guild.roles:
+            for role in roles:
                 if _color_role_re.match(role.name) and role.position != role_position:
-                    await role.edit(position=role_position)
+                    await interaction.guild.edit_role_positions(
+                        {role: role_position},
+                        reason="HueTweaker color role placement",
+                    )
 
             view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/setup-toprole")
             await interaction.followup.send(view=view)

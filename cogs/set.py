@@ -30,12 +30,18 @@ class SetCog(BaseCog):
     )
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
-    async def set(self, interaction: discord.Interaction, color: str, secondary_color: str = None) -> None:
+    async def set(self, interaction: discord.Interaction, color: str, secondary_color: Optional[str] = None) -> None:
         description = ""
         undo_lock = False
         prev_colors: Optional[Tuple[Optional[int], Optional[int]]] = None
 
         try:
+            guild = interaction.guild
+            member = interaction.user if isinstance(interaction.user, discord.Member) else None
+            bot_user = interaction.client.user
+            if guild is None or member is None or bot_user is None:
+                raise RuntimeError("Guild interaction context is unavailable")
+
             await interaction.response.defer(ephemeral=True)
 
             primary_hex = color_parser(fetch_color_representation(interaction, color))
@@ -55,7 +61,7 @@ class SetCog(BaseCog):
             image_url = "attachment://" + file.filename
 
             view = ConfirmationView(
-                interaction.user.id,
+                member.id,
                 self.msg.get('confirm_color'),
                 discord.Color(new_colors_val[0]),
                 image_url)
@@ -73,7 +79,12 @@ class SetCog(BaseCog):
                 return
 
             role, role_updated, prev_colors = await create_or_update_color_role(
-                interaction.guild, interaction.user.id, primary_val, secondary_val, self.db
+                guild,
+                member.id,
+                primary_val,
+                secondary_val,
+                self.db,
+                bot_user.id,
             )
 
             if not role_updated:
@@ -85,9 +96,9 @@ class SetCog(BaseCog):
                     description = self.msg['color_set_black'].format(display_color)
                 else:
                     description = self.msg['color_set'].format(display_color)
-                await update_history(self.db, interaction.user.id, interaction.guild.id, primary_val)
+                await update_history(self.db, member.id, guild.id, primary_val)
 
-            await assign_role_if_missing(interaction.user, role)
+            await assign_role_if_missing(member, role)
 
             view = Layout(
                 messages=self.msg,
@@ -95,7 +106,7 @@ class SetCog(BaseCog):
                 display_color=f"{color}" + (f", {secondary_color}" if secondary_color else ""),
                 prev_colors=prev_colors,
                 role_id=role.id if role else None,
-                author_id=interaction.user.id,
+                author_id=member.id,
                 description=description,
                 undo_lock=undo_lock
             )

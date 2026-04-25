@@ -25,25 +25,40 @@ def get_toprole_mode(guild_obj: Optional[dict]) -> str:
     return TOPROLE_MODE_CUSTOM if guild_obj.get("role") else TOPROLE_MODE_OFF
 
 
-def get_max_manageable_role_position(guild: discord.Guild) -> int:
-    bot_member = guild.me
+async def get_bot_member(guild: discord.Guild, bot_user_id: int) -> Optional[discord.Member]:
+    try:
+        return await guild.fetch_member(bot_user_id)
+    except (discord.Forbidden, discord.HTTPException, discord.NotFound):
+        return None
+
+
+async def get_max_manageable_role_position(guild: discord.Guild, bot_user_id: int) -> int:
+    bot_member = await get_bot_member(guild, bot_user_id)
     if bot_member is None or bot_member.top_role.is_default():
         return 1
 
     return max(1, bot_member.top_role.position - 1)
 
 
-async def get_role_position(db, guild: discord.Guild) -> int:
+async def get_role_position(
+    db,
+    guild: discord.Guild,
+    bot_user_id: int,
+    roles: Optional[list[discord.Role]] = None,
+) -> int:
     guild_obj = await db.select_one(model.Guilds, {"server": guild.id})
     mode = get_toprole_mode(guild_obj)
     if mode == TOPROLE_MODE_OFF:
         return 1
 
-    max_manageable_position = get_max_manageable_role_position(guild)
+    max_manageable_position = await get_max_manageable_role_position(guild, bot_user_id)
     if mode == TOPROLE_MODE_AUTO:
         return max_manageable_position
 
-    top_role = guild.get_role(guild_obj.get("role", 0)) if isinstance(guild_obj, dict) else None
+    if roles is None:
+        roles = await guild.fetch_roles()
+
+    top_role = discord.utils.get(roles, id=guild_obj.get("role", 0)) if isinstance(guild_obj, dict) else None
     if top_role is None or top_role.is_default():
         return 1
 
@@ -61,9 +76,11 @@ async def create_or_update_color_role(
     primary_val: int,
     secondary_val: Optional[int],
     db,
+    bot_user_id: int,
 ) -> Tuple[discord.Role, bool, Optional[Tuple[Optional[int], Optional[int]]]]:
-    role = get_color_role(guild, user_id)
-    role_position = await get_role_position(db, guild)
+    roles = await guild.fetch_roles()
+    role = discord.utils.get(roles, name=f"{COLOR_ROLE_PREFIX}{user_id}")
+    role_position = await get_role_position(db, guild, bot_user_id, roles=roles)
     new_colors = (primary_val, secondary_val)
 
     if role is None:
@@ -73,7 +90,7 @@ async def create_or_update_color_role(
             secondary_color=discord.Color(secondary_val) if secondary_val is not None else None,
         )
         if role.position != role_position:
-            await role.edit(position=role_position)
+            await guild.edit_role_positions({role: role_position}, reason="HueTweaker color role placement")
         return role, True, None
 
     current_colors = (
@@ -85,15 +102,16 @@ async def create_or_update_color_role(
 
     if colors_changed or position_changed:
         prev_colors = current_colors if colors_changed else None
-        edit_kwargs = {}
 
         if colors_changed:
-            edit_kwargs["color"] = discord.Color(primary_val)
-            edit_kwargs["secondary_color"] = discord.Color(secondary_val) if secondary_val is not None else None
+            updated_role = await role.edit(
+                color=discord.Color(primary_val),
+                secondary_color=discord.Color(secondary_val) if secondary_val is not None else None,
+            )
+            if updated_role is not None:
+                role = updated_role
         if position_changed:
-            edit_kwargs["position"] = role_position
-
-        await role.edit(**edit_kwargs)
+            await guild.edit_role_positions({role: role_position}, reason="HueTweaker color role placement")
         return role, True, prev_colors
 
     return role, False, None
