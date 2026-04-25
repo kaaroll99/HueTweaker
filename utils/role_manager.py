@@ -86,17 +86,29 @@ async def move_role_to_position(
     position: int,
     reason: str = "HueTweaker color role placement",
 ) -> None:
-    if role.is_default() or role.position == position:
+    if role.is_default():
         return
 
     roles = sorted(await guild.fetch_roles())
-    change_range = range(min(role.position, position), max(role.position, position) + 1)
-    roles_in_range = [item for item in roles[1:] if item.position in change_range and item.id != role.id]
+    current_role = discord.utils.get(roles, id=role.id)
+    if current_role is None:
+        try:
+            current_role = await guild.fetch_role(role.id)
+            roles.append(current_role)
+            roles = sorted(roles)
+        except (discord.NotFound, discord.HTTPException):
+            current_role = role
 
-    if role.position > position:
-        ordered_roles = [role, *roles_in_range]
+    if current_role.position == position:
+        return
+
+    change_range = range(min(current_role.position, position), max(current_role.position, position) + 1)
+    roles_in_range = [item for item in roles[1:] if item.position in change_range and item.id != current_role.id]
+
+    if current_role.position > position:
+        ordered_roles = [current_role, *roles_in_range]
     else:
-        ordered_roles = [*roles_in_range, role]
+        ordered_roles = [*roles_in_range, current_role]
 
     payload = {item: next_position for item, next_position in zip(ordered_roles, change_range)}
     await guild.edit_role_positions(
@@ -128,8 +140,7 @@ async def create_or_update_color_role(
             color=discord.Color(primary_val),
             secondary_color=discord.Color(secondary_val) if secondary_val is not None else None,
         )
-        if role.position != role_position:
-            await move_role_to_position(guild, role, role_position)
+        await move_role_to_position(guild, role, role_position)
         return role, True, None
 
     current_colors = (
