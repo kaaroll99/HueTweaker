@@ -13,6 +13,7 @@ from utils.role_manager import (
     TOPROLE_MODE_CUSTOM,
     TOPROLE_MODE_OFF,
     get_role_position,
+    move_role_to_position,
 )
 from views.global_view import GlobalLayout
 from views.setup_select import SetupView
@@ -112,10 +113,7 @@ class SetupCog(BaseCog):
 
             for role in roles:
                 if _color_role_re.match(role.name) and role.position != role_position:
-                    await interaction.guild.edit_role_positions(
-                        {role: role_position},
-                        reason="HueTweaker color role placement",
-                    )
+                    await move_role_to_position(interaction.guild, role, role_position)
 
             view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/setup-toprole")
             await interaction.followup.send(view=view)
