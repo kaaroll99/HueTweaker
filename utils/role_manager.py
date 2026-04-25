@@ -131,8 +131,9 @@ async def create_or_update_color_role(
 ) -> Tuple[discord.Role, bool, Optional[Tuple[Optional[int], Optional[int]]]]:
     roles = await guild.fetch_roles()
     role = discord.utils.get(roles, name=f"{COLOR_ROLE_PREFIX}{user_id}")
-    role_position = await get_role_position(db, guild, bot_user_id, roles=roles)
     new_colors = (primary_val, secondary_val)
+    role_updated = False
+    prev_colors: Optional[Tuple[Optional[int], Optional[int]]] = None
 
     if role is None:
         role = await guild.create_role(
@@ -140,31 +141,39 @@ async def create_or_update_color_role(
             color=discord.Color(primary_val),
             secondary_color=discord.Color(secondary_val) if secondary_val is not None else None,
         )
-        await move_role_to_position(guild, role, role_position)
-        return role, True, None
-
-    current_colors = (
-        role.color.value if role.color else None,
-        role.secondary_color.value if role.secondary_color else None,
-    )
-    position_changed = role.position != role_position
-    colors_changed = current_colors != new_colors
-
-    if colors_changed or position_changed:
-        prev_colors = current_colors if colors_changed else None
+        role_updated = True
+    else:
+        current_colors = (
+            role.color.value if role.color else None,
+            role.secondary_color.value if role.secondary_color else None,
+        )
+        colors_changed = current_colors != new_colors
 
         if colors_changed:
+            prev_colors = current_colors
             updated_role = await role.edit(
                 color=discord.Color(primary_val),
                 secondary_color=discord.Color(secondary_val) if secondary_val is not None else None,
             )
             if updated_role is not None:
                 role = updated_role
-        if position_changed:
-            await move_role_to_position(guild, role, role_position)
-        return role, True, prev_colors
+            role_updated = True
 
-    return role, False, None
+    roles = await guild.fetch_roles()
+    live_role = discord.utils.get(roles, id=role.id)
+    if live_role is None:
+        try:
+            live_role = await guild.fetch_role(role.id)
+            roles.append(live_role)
+        except (discord.NotFound, discord.HTTPException):
+            live_role = role
+
+    role_position = await get_role_position(db, guild, bot_user_id, roles=roles)
+    if live_role.position != role_position:
+        await move_role_to_position(guild, live_role, role_position)
+        role_updated = True
+
+    return live_role, role_updated, prev_colors
 
 
 async def assign_role_if_missing(member: discord.Member, role: discord.Role, reason: str = "HueTweaker color role") -> None:
