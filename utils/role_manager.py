@@ -8,23 +8,46 @@ from database import model
 
 logger = logging.getLogger(__name__)
 
+TOPROLE_MODE_AUTO = "auto"
+TOPROLE_MODE_CUSTOM = "custom"
+TOPROLE_MODE_OFF = "off"
+TOPROLE_MODES = {TOPROLE_MODE_AUTO, TOPROLE_MODE_CUSTOM, TOPROLE_MODE_OFF}
+
+
+def get_toprole_mode(guild_obj: Optional[dict]) -> str:
+    if not isinstance(guild_obj, dict):
+        return TOPROLE_MODE_OFF
+
+    mode = guild_obj.get("mode")
+    if mode in TOPROLE_MODES:
+        return mode
+
+    return TOPROLE_MODE_CUSTOM if guild_obj.get("role") else TOPROLE_MODE_OFF
+
+
+def get_max_manageable_role_position(guild: discord.Guild) -> int:
+    bot_member = guild.me
+    if bot_member is None or bot_member.top_role.is_default():
+        return 1
+
+    return max(1, bot_member.top_role.position - 1)
+
 
 async def get_role_position(db, guild: discord.Guild) -> int:
     guild_obj = await db.select_one(model.Guilds, {"server": guild.id})
-    if not guild_obj:
+    mode = get_toprole_mode(guild_obj)
+    if mode == TOPROLE_MODE_OFF:
         return 1
 
-    top_role = guild.get_role(guild_obj["role"])
+    max_manageable_position = get_max_manageable_role_position(guild)
+    if mode == TOPROLE_MODE_AUTO:
+        return max_manageable_position
+
+    top_role = guild.get_role(guild_obj.get("role", 0)) if isinstance(guild_obj, dict) else None
     if top_role is None or top_role.is_default():
         return 1
 
     role_position = max(1, top_role.position - 1)
-    bot_member = guild.me
-
-    if bot_member is None or bot_member.top_role.is_default():
-        return role_position
-
-    max_manageable_position = max(1, bot_member.top_role.position - 1)
     return min(role_position, max_manageable_position)
 
 

@@ -51,16 +51,23 @@ purge_ok: "<:ok:1362879418640498748> **All roles with colors have been successfu
 #setup select
 
 #setup toprole
-toprole_reset: |
-  ### <:ok:1362879418640498748> Top role settings have been reset
+toprole_off: |
+  ### <:ok:1362879418640498748> Color role placement has been set to __off__
 
-  <:bubble:1362879391423533226> Please remember the selected role should be positioned below the bot's highest role.
-  Otherwise it will cause errors when setting the username color.
-toprole_set: |
-  ### <:ok:1362879418640498748> Top role has been set for __{}__
+  <:bubble:1362879391423533226> HueTweaker will keep color roles at the bottom of the role list.
+toprole_auto: |
+  ### <:ok:1362879418640498748> Color role placement has been set to __auto__
 
-  <:bubble:1362879391423533226> Remember that the selected role should be under the highest role the bot has.
-  Otherwise, it will cause errors when setting the username color.
+  <:bubble:1362879391423533226> HueTweaker will move color roles as high as the bot can manage.
+toprole_custom: |
+  ### <:ok:1362879418640498748> Color role placement has been set to __custom__ under __{}__
+
+  <:bubble:1362879391423533226> HueTweaker will place color roles below the selected role,
+  but never above the bot's highest manageable role.
+toprole_custom_missing: |
+  ### <:warn:1362879461468672130> Custom mode requires a role.
+
+  Please run `/setup toprole custom <role_name>`.
 
 #help
 help_choose: "Choose a command from the list..."

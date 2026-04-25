@@ -8,13 +8,23 @@ from discord.ext import commands
 from cogs._base import BaseCog
 from constants import COLOR_ROLE_PATTERN
 from database import model
-from utils.role_manager import get_role_position
+from utils.role_manager import (
+    TOPROLE_MODE_AUTO,
+    TOPROLE_MODE_CUSTOM,
+    TOPROLE_MODE_OFF,
+    get_role_position,
+)
 from views.global_view import GlobalLayout
 from views.setup_select import SetupView
 
 logger = logging.getLogger(__name__)
 
 _color_role_re = re.compile(COLOR_ROLE_PATTERN)
+_toprole_mode_choices = [
+    app_commands.Choice(name="auto", value=TOPROLE_MODE_AUTO),
+    app_commands.Choice(name="custom", value=TOPROLE_MODE_CUSTOM),
+    app_commands.Choice(name="off", value=TOPROLE_MODE_OFF),
+]
 
 
 class SetupCog(BaseCog):
@@ -42,33 +52,61 @@ class SetupCog(BaseCog):
         finally:
             logger.info("%s[%s] issued bot command: /setup select", interaction.user.name, interaction.locale)
 
-    @group.command(name="toprole", description="Setup top role for color roles")
-    @app_commands.describe(role_name="Role name")
+    @group.command(name="toprole", description="Configure color role placement for HueTweaker")
+    @app_commands.describe(
+        mode="Role placement mode: auto, custom, or off",
+        role_name="Reference role used only in custom mode",
+    )
+    @app_commands.choices(mode=_toprole_mode_choices)
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
-    async def toprole(self, interaction: discord.Interaction, role_name: discord.Role) -> None:
+    async def toprole(
+        self,
+        interaction: discord.Interaction,
+        mode: app_commands.Choice[str],
+        role_name: discord.Role | None = None,
+    ) -> None:
         try:
             await interaction.response.defer(ephemeral=True)
 
-            top_role = discord.utils.get(interaction.guild.roles, id=role_name.id)
+            selected_mode = mode.value
+            if selected_mode == TOPROLE_MODE_CUSTOM and role_name is None:
+                view = GlobalLayout(
+                    messages=self.msg,
+                    description=self.msg['toprole_custom_missing'],
+                    docs_page="commands/setup-toprole"
+                )
+                await interaction.followup.send(view=view, ephemeral=True)
+                return
+
+            if role_name is not None and role_name.is_default():
+                selected_mode = TOPROLE_MODE_OFF
+                role_name = None
 
             guild_obj = await self.db.select_one(model.Guilds, {"server": interaction.guild.id})
-            if top_role.position == 0:
-                if guild_obj:
-                    await self.db.delete(model.Guilds, {"server": interaction.guild.id})
-                description = self.msg['toprole_reset']
+
+            values = {
+                "mode": selected_mode,
+                "role": role_name.id if selected_mode == TOPROLE_MODE_CUSTOM and role_name is not None else 0,
+            }
+
+            if guild_obj:
+                await self.db.update(model.Guilds, {"server": interaction.guild.id}, values)
             else:
-                if guild_obj:
-                    await self.db.update(model.Guilds, {"server": interaction.guild.id}, {"role": role_name.id})
-                else:
-                    await self.db.create(model.Guilds, {"server": interaction.guild.id, "role": role_name.id})
+                await self.db.create(model.Guilds, {"server": interaction.guild.id, **values})
 
-                description = self.msg['toprole_set'].format(role_name.name)
-                role_position = await get_role_position(self.db, interaction.guild)
+            if selected_mode == TOPROLE_MODE_AUTO:
+                description = self.msg['toprole_auto']
+            elif selected_mode == TOPROLE_MODE_OFF:
+                description = self.msg['toprole_off']
+            else:
+                description = self.msg['toprole_custom'].format(role_name.name)
 
-                for role in interaction.guild.roles:
-                    if _color_role_re.match(role.name) and role.position != role_position:
-                        await role.edit(position=role_position)
+            role_position = await get_role_position(self.db, interaction.guild)
+
+            for role in interaction.guild.roles:
+                if _color_role_re.match(role.name) and role.position != role_position:
+                    await role.edit(position=role_position)
 
             view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/setup-toprole")
             await interaction.followup.send(view=view)

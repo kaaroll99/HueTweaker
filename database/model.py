@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, Integer, Text
+from sqlalchemy import BigInteger, Integer, String, Text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -11,7 +11,8 @@ class Guilds(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     server: Mapped[int] = mapped_column(BigInteger)
-    role: Mapped[int] = mapped_column(BigInteger)
+    role: Mapped[int] = mapped_column(BigInteger, default=0)
+    mode: Mapped[str] = mapped_column(String(16), default='off')
 
 
 class Select(Base):

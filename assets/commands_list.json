@@ -49,7 +49,7 @@
     "options": [
       {
         "name": "toprole",
-        "description": "Set the top role under which HueTweaker will create and place color roles. Requires administrator privileges.",
+        "description": "Configure color role placement: auto, off, or custom under a selected role. Requires administrator privileges.",
         "type": 1,
         "required": true
       },

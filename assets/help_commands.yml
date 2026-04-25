@@ -176,23 +176,25 @@ forcepurge:
 toprole:
   name: setup toprole
   desc: >-
-    Set the top role under which HueTweaker will create and place color roles. When a
-    top role is configured, the bot will position all color roles directly below the
-    selected role. Use `@everyone` to reset the top role and restore default placement.
+    Configure how HueTweaker positions color roles on the server.
+    The command supports three modes:
+      - `auto` moves color roles as high as the bot can manage.
+      - `off` moves color roles to the bottom of the role list.
+      - `custom` keeps color roles directly below the selected role.
+
+    The `[role_name]` parameter is only used with `custom`.
 
 
     ⚠️ The command can only be executed by a user with administrator privileges.
 
     ### ⚠️ Important:
-      - If no top role is set, color roles will be created at the bottom of the role list,
-        which may cause their color to be hidden by higher roles.
-      - The chosen top role must not be higher than the bot's highest role; the bot cannot
-        move color roles above its own top role. Choose a role that the bot can manage.
+      - In `custom`, the chosen role is respected only up to the bot's own hierarchy.
+      - If the selected role is higher than the bot can manage, HueTweaker will place the
+        color roles as high as possible instead.
 
-    ### What happens when you set a top role:
-      - The bot updates stored configuration for the server and will move existing roles
-        whose names match the pattern `color-<USER_ID>` to sit under the selected top role.
-      - Setting `@everyone` clears the saved top role from the server configuration.
+    ### What happens when you update the mode:
+      - The bot stores the selected mode for the server.
+      - Existing roles matching `color-<USER_ID>` are moved immediately to the new target position.
 
     ### 💡 Roles example:
       - [Admin]
@@ -200,10 +202,14 @@ toprole:
       - [colors]  <- chosen top role
       - [color-...]
 
-    `<role_name>` - Name of the selected role
+    `<mode>` - One of: `auto`, `custom`, `off`
+    `[role_name]` - Role used only with `custom`
 
-  usage: /setup toprole <role_name>
-  example: /setup toprole @colors
+  usage: /setup toprole <mode> [role_name]
+  example: |
+    - /setup toprole auto
+    - /setup toprole off
+    - /setup toprole custom @colors
   docs: setup-toprole
 
 ### SETUP SELECT ###

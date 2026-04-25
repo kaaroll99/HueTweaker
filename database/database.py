@@ -2,7 +2,7 @@ import logging
 from typing import Any
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
-from sqlalchemy import select, delete
+from sqlalchemy import delete, inspect, select, text
 
 from . import model
 
@@ -25,6 +25,22 @@ class Database:
     async def database_init(self) -> None:
         async with self._engine.begin() as conn:
             await conn.run_sync(model.Base.metadata.create_all)
+            await self._migrate_guilds_table(conn)
+
+    async def _migrate_guilds_table(self, conn) -> None:
+        guild_columns = await conn.run_sync(
+            lambda sync_conn: {column["name"] for column in inspect(sync_conn).get_columns("guilds")}
+        )
+
+        if "mode" not in guild_columns:
+            await conn.execute(
+                text("ALTER TABLE guilds ADD COLUMN mode VARCHAR(16) NOT NULL DEFAULT 'custom'")
+            )
+            logger.info("Applied schema migration for guilds.mode")
+
+        await conn.execute(
+            text("UPDATE guilds SET mode = 'custom' WHERE mode IS NULL OR TRIM(mode) = ''")
+        )
 
     async def close(self) -> None:
         await self._engine.dispose()
