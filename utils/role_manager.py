@@ -32,12 +32,26 @@ async def get_bot_member(guild: discord.Guild, bot_user_id: int) -> Optional[dis
         return None
 
 
-async def get_max_manageable_role_position(guild: discord.Guild, bot_user_id: int) -> int:
+async def get_max_manageable_role_position(
+    guild: discord.Guild,
+    bot_user_id: int,
+    roles: Optional[list[discord.Role]] = None,
+) -> int:
     bot_member = await get_bot_member(guild, bot_user_id)
-    if bot_member is None or bot_member.top_role.is_default():
+    if bot_member is None:
         return 1
 
-    return max(1, bot_member.top_role.position - 1)
+    if roles is None:
+        roles = await guild.fetch_roles()
+
+    role_lookup = {role.id: role for role in roles}
+    bot_role_ids = getattr(bot_member, "_roles", ())
+    bot_roles = [role_lookup[role_id] for role_id in bot_role_ids if role_id in role_lookup]
+    if not bot_roles:
+        return 1
+
+    top_role = max(bot_roles)
+    return max(1, top_role.position - 1)
 
 
 async def get_role_position(
@@ -51,12 +65,12 @@ async def get_role_position(
     if mode == TOPROLE_MODE_OFF:
         return 1
 
-    max_manageable_position = await get_max_manageable_role_position(guild, bot_user_id)
-    if mode == TOPROLE_MODE_AUTO:
-        return max_manageable_position
-
     if roles is None:
         roles = await guild.fetch_roles()
+
+    max_manageable_position = await get_max_manageable_role_position(guild, bot_user_id, roles=roles)
+    if mode == TOPROLE_MODE_AUTO:
+        return max_manageable_position
 
     top_role = discord.utils.get(roles, id=guild_obj.get("role", 0)) if isinstance(guild_obj, dict) else None
     if top_role is None or top_role.is_default():
