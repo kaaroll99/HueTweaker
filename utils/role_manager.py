@@ -11,11 +11,21 @@ logger = logging.getLogger(__name__)
 
 async def get_role_position(db, guild: discord.Guild) -> int:
     guild_obj = await db.select_one(model.Guilds, {"server": guild.id})
-    if guild_obj:
-        top_role = discord.utils.get(guild.roles, id=guild_obj["role"])
-        if top_role:
-            return max(1, top_role.position - 1)
-    return 1
+    if not guild_obj:
+        return 1
+
+    top_role = guild.get_role(guild_obj["role"])
+    if top_role is None or top_role.is_default():
+        return 1
+
+    role_position = max(1, top_role.position - 1)
+    bot_member = guild.me
+
+    if bot_member is None or bot_member.top_role.is_default():
+        return role_position
+
+    max_manageable_position = max(1, bot_member.top_role.position - 1)
+    return min(role_position, max_manageable_position)
 
 
 def get_color_role(guild: discord.Guild, user_id: int) -> Optional[discord.Role]:
@@ -39,7 +49,7 @@ async def create_or_update_color_role(
             color=discord.Color(primary_val),
             secondary_color=discord.Color(secondary_val) if secondary_val is not None else None,
         )
-        if role_position > 1:
+        if role.position != role_position:
             await role.edit(position=role_position)
         return role, True, None
 
@@ -47,14 +57,20 @@ async def create_or_update_color_role(
         role.color.value if role.color else None,
         role.secondary_color.value if role.secondary_color else None,
     )
+    position_changed = role.position != role_position
+    colors_changed = current_colors != new_colors
 
-    if current_colors != new_colors:
-        prev_colors = current_colors
-        await role.edit(
-            color=discord.Color(primary_val),
-            secondary_color=discord.Color(secondary_val) if secondary_val is not None else None,
-            position=role_position,
-        )
+    if colors_changed or position_changed:
+        prev_colors = current_colors if colors_changed else None
+        edit_kwargs = {}
+
+        if colors_changed:
+            edit_kwargs["color"] = discord.Color(primary_val)
+            edit_kwargs["secondary_color"] = discord.Color(secondary_val) if secondary_val is not None else None
+        if position_changed:
+            edit_kwargs["position"] = role_position
+
+        await role.edit(**edit_kwargs)
         return role, True, prev_colors
 
     return role, False, None

@@ -8,6 +8,7 @@ from discord.ext import commands
 from cogs._base import BaseCog
 from constants import COLOR_ROLE_PATTERN
 from database import model
+from utils.role_manager import get_role_position
 from views.global_view import GlobalLayout
 from views.setup_select import SetupView
 
@@ -63,10 +64,11 @@ class SetupCog(BaseCog):
                     await self.db.create(model.Guilds, {"server": interaction.guild.id, "role": role_name.id})
 
                 description = self.msg['toprole_set'].format(role_name.name)
+                role_position = await get_role_position(self.db, interaction.guild)
 
                 for role in interaction.guild.roles:
-                    if _color_role_re.match(role.name):
-                        await role.edit(position=max(1, top_role.position - 1))
+                    if _color_role_re.match(role.name) and role.position != role_position:
+                        await role.edit(position=role_position)
 
             view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/setup-toprole")
             await interaction.followup.send(view=view)
@@ -77,6 +79,7 @@ class SetupCog(BaseCog):
             else:
                 err_description = self.msg['err_http'].format(e.code, e.text)
             view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/setup-toprole")
+            await interaction.followup.send(view=view, ephemeral=True)
             logger.critical("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
 
         except Exception as e:
