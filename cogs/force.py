@@ -46,7 +46,12 @@ class ForceCog(BaseCog):
             new_colors_val: Tuple[int, Optional[int]] = (primary_val, secondary_val)
 
             role, role_updated, prev_colors = await create_or_update_color_role(
-                interaction.guild, username.id, primary_val, secondary_val, self.db
+                interaction.guild,
+                username.id,
+                primary_val,
+                secondary_val,
+                self.db,
+                interaction.client.user.id,
             )
 
             if not role_updated:
