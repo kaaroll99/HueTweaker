@@ -165,3 +165,6 @@ assets/token.yml
 /output/
 /assets/guilds.db
 .DS_Store
+
+CLAUDE.md
+.claude/
