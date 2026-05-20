@@ -77,6 +77,43 @@ async def get_role_position(
     return min(role_position, max_manageable_position)
 
 
+async def move_roles_to_block(
+    guild: discord.Guild,
+    role_ids: set[int],
+    top_position: int,
+    reason: str = "HueTweaker color role placement",
+    roles: Optional[list[discord.Role]] = None,
+) -> None:
+    if not role_ids:
+        return
+
+    source_roles = roles if roles is not None else await guild.fetch_roles()
+    all_roles = sorted(source_roles)
+    non_default = [r for r in all_roles if not r.is_default()]
+
+    moving = [r for r in non_default if r.id in role_ids]
+    static = [r for r in non_default if r.id not in role_ids]
+
+    if not moving:
+        return
+
+    insert_idx = max(0, min(top_position - len(moving), len(static)))
+    new_order = [*static[:insert_idx], *moving, *static[insert_idx:]]
+
+    payload: dict[discord.abc.Snowflake, int] = {}
+    for new_idx, item in enumerate(new_order, start=1):
+        if item.position != new_idx:
+            payload[item] = new_idx
+
+    if not payload:
+        return
+
+    await guild.edit_role_positions(
+        cast(dict[discord.abc.Snowflake, int], payload),
+        reason=reason,
+    )
+
+
 async def move_role_to_position(
     guild: discord.Guild,
     role: discord.Role,

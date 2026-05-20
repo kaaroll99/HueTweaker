@@ -13,7 +13,7 @@ from utils.role_manager import (
     TOPROLE_MODE_CUSTOM,
     TOPROLE_MODE_OFF,
     get_role_position,
-    move_role_to_position,
+    move_roles_to_block,
 )
 from views.global_view import GlobalLayout
 from views.setup_select import SetupView
@@ -111,9 +111,13 @@ class SetupCog(BaseCog):
                 roles=roles,
             )
 
-            for role in roles:
-                if _color_role_re.match(role.name) and role.position != role_position:
-                    await move_role_to_position(interaction.guild, role, role_position)
+            color_role_ids = {role.id for role in roles if _color_role_re.match(role.name)}
+            await move_roles_to_block(
+                interaction.guild,
+                color_role_ids,
+                role_position,
+                roles=roles,
+            )
 
             view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/setup-toprole")
             await interaction.followup.send(view=view)
