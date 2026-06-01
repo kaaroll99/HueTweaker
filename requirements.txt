@@ -14,4 +14,5 @@ colorlog
 aiohttp
 aiomysql
 aiosqlite
+asyncpg
 greenlet
