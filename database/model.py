@@ -16,7 +16,7 @@ class Guilds(Base):
 
 
 class Select(Base):
-    __tablename__ = 'select'
+    __tablename__ = 'server_selections'
 
     server_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, nullable=False)
     hex_1: Mapped[str | None] = mapped_column(Text, default=None)
