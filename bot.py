@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from typing import Any, Dict, Set
+from urllib.parse import quote_plus
 
 import discord
 from discord import Locale
@@ -83,9 +84,18 @@ async def main():
     messages = load_yml('assets/messages.yml')
 
     token = config['TOKEN']
-    db_url = config['DB_LOCAL_URI']
 
-    logger.info("Local database connect")
+    if str(config.get('SYSTEM')).upper() == 'DEV':
+        db_url = config['DB_LOCAL_URI']
+        logger.info("Local database connect")
+    else:
+        db_host = config.get('db_host', 'localhost')
+        db_login = quote_plus(str(config['db_login']))
+        db_pass = quote_plus(str(config['db_pass']))
+        db_name = config['db_name']
+        db_url = f"postgresql+asyncpg://{db_login}:{db_pass}@{db_host}/{db_name}"
+        logger.info("Production database connect (PostgreSQL @ %s)", db_host)
+
     db_instance = database.Database(url=db_url)
     await db_instance.database_init()
 
