@@ -25,15 +25,34 @@ class SetCog(BaseCog):
 
     @app_commands.command(name="set", description="Set color using HEX code or CSS color name")
     @app_commands.describe(
-        color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)",
-        secondary_color="Secondary color for gradient (optional)"
+        color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)"
     )
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
-    async def set(self, interaction: discord.Interaction, color: str, secondary_color: Optional[str] = None) -> None:
+    async def set(self, interaction: discord.Interaction, color: str) -> None:
+        await self._apply_color(interaction, "set", color, None)
+
+    @app_commands.command(name="gradient", description="Set a gradient using two HEX codes or CSS color names")
+    @app_commands.describe(
+        color="Primary color code (e.g. #9932f0) or CSS color name (e.g royalblue)",
+        secondary_color="Secondary color code (e.g. #1abc9c) or CSS color name"
+    )
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
+    @app_commands.guild_only()
+    async def gradient(self, interaction: discord.Interaction, color: str, secondary_color: str) -> None:
+        await self._apply_color(interaction, "gradient", color, secondary_color)
+
+    async def _apply_color(
+        self,
+        interaction: discord.Interaction,
+        command_name: str,
+        color: str,
+        secondary_color: Optional[str],
+    ) -> None:
         description = ""
         undo_lock = False
         prev_colors: Optional[Tuple[Optional[int], Optional[int]]] = None
+        docs_page = f"commands/{command_name}"
 
         try:
             guild = interaction.guild
@@ -70,11 +89,11 @@ class SetCog(BaseCog):
             await view.wait()
 
             if view.value is None:
-                timeout_view = GlobalLayout(self.msg, self.msg.get('timeout', "Timed out."), "commands/set")
+                timeout_view = GlobalLayout(self.msg, self.msg.get('timeout', "Timed out."), docs_page)
                 await interaction.edit_original_response(content=None, view=timeout_view, attachments=[])
                 return
             elif view.value is False:
-                cancel_view = GlobalLayout(self.msg, self.msg.get('cancelled', "Cancelled."), "commands/set")
+                cancel_view = GlobalLayout(self.msg, self.msg.get('cancelled', "Cancelled."), docs_page)
                 await interaction.edit_original_response(content=None, view=cancel_view, attachments=[])
                 return
 
@@ -114,27 +133,32 @@ class SetCog(BaseCog):
             await interaction.edit_original_response(content=None, view=view, attachments=[])
 
         except ValueError:
-            view = GlobalLayout(messages=self.msg, description=self.msg['color_format'], docs_page="commands/set")
+            view = GlobalLayout(messages=self.msg, description=self.msg['color_format'], docs_page=docs_page)
             await interaction.followup.send(view=view, ephemeral=True)
-            logger.info("%s[%s] issued bot command: /set (invalid format)", interaction.user.name, interaction.user.id)
+            logger.info("%s[%s] issued bot command: /%s (invalid format)", interaction.user.name, interaction.user.id, command_name)
 
         except discord.HTTPException as e:
             err_description = self.get_http_error_description(e)
-            view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/set")
+            view = GlobalLayout(messages=self.msg, description=err_description, docs_page=docs_page)
             await interaction.followup.send(view=view, ephemeral=True)
             logger.warning("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/set")
+            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page=docs_page)
             await interaction.followup.send(view=view, ephemeral=True)
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
 
         finally:
             log_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
-            logger.info("%s[%s] issued bot command: /set %s", interaction.user.name, interaction.locale, log_color)
+            logger.info("%s[%s] issued bot command: /%s %s", interaction.user.name, interaction.locale, command_name, log_color)
 
     @set.error
-    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+    async def set_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+        if isinstance(error, app_commands.CommandOnCooldown):
+            await self.handle_cooldown_error(interaction, error)
+
+    @gradient.error
+    async def gradient_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.CommandOnCooldown):
             await self.handle_cooldown_error(interaction, error)
 

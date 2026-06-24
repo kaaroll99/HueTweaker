@@ -22,6 +22,7 @@ class HelpSelect(discord.ui.ActionRow['HelpView']):
         options=[
             discord.SelectOption(label="/help", value="help", emoji="ℹ️"),
             discord.SelectOption(label="/set", value="set", emoji="🌈"),
+            discord.SelectOption(label="/gradient", value="gradient", emoji="🎨"),
             discord.SelectOption(label="/remove", value="remove", emoji="🗑️"),
             discord.SelectOption(label="/select", value="select", emoji="⭐"),
             discord.SelectOption(label="/history", value="history", emoji="📜"),
