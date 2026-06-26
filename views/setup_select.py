@@ -7,6 +7,7 @@ from discord.ui import Button, Modal, TextInput
 
 from constants import ACCENT_COLOR
 from database import model
+from utils.color_format import format_color_label
 from utils.color_parse import color_parser
 from views.global_view import make_docs_button
 
@@ -30,7 +31,7 @@ class SetupView(discord.ui.LayoutView):
         for i in range(1, 11):
             color_val = self.colors_data.get(f"hex_{i}")
             if color_val:
-                color_list += f"**{i}.** #{color_val}\n"
+                color_list += f"**{i}.** {format_color_label(color_val)}\n"
             else:
                 color_list += f"**{i}.** -\n"
 

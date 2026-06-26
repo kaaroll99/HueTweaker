@@ -27,9 +27,15 @@
 
 `/set` - Set your color. Accepts HEX, CSS names, mention (copy) or "random".
 
+`/gradient` - Set a two-color gradient (primary + secondary) as your username color.
+
 `/select` - Interactive menu to pick a predefined server color (preview image).
 
-`/history` - View your color change history on the server.
+`/favorites add` - Save a color to your personal favorites (global to your account, up to 10).
+
+`/favorites list` - Browse your favorites with a preview; set one via buttons or remove via dropdown.
+
+`/history` - View your last 5 colors and restore one with a button.
 
 `/remove` - Remove your color.
 

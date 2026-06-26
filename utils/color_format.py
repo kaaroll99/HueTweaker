@@ -26,6 +26,14 @@ def _load_css_color_cache() -> dict[str, str]:
 
 
 @lru_cache(maxsize=1)
+def _load_css_name_by_hex() -> dict[str, str]:
+    reverse: dict[str, str] = {}
+    for name, hex_val in _load_css_color_cache().items():
+        reverse.setdefault(hex_val.lower(), name)
+    return reverse
+
+
+@lru_cache(maxsize=1)
 def _load_css_hsl_cache() -> dict[str, np.ndarray]:
     color_dict = _load_css_color_cache()
     result = {}
@@ -46,6 +54,27 @@ def _get_font(size: int = 18) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
 
 def _int_to_rgb(color_int: int) -> tuple[int, int, int]:
     return (color_int >> 16) & 255, (color_int >> 8) & 255, color_int & 255
+
+
+def name_and_hex(color: int | str) -> tuple[str, str]:
+    if isinstance(color, int):
+        hex_value = f"{color:06x}"
+    else:
+        hex_value = color.strip().lstrip("#").lower()
+        if len(hex_value) == 3:
+            hex_value = "".join(ch * 2 for ch in hex_value)
+
+    formatted_hex = f"#{hex_value.upper()}"
+    name = _load_css_name_by_hex().get(hex_value)
+    if name is not None:
+        return name, formatted_hex
+    return formatted_hex, formatted_hex
+
+
+def format_color_label(color: int | str) -> str:
+    """Format a color as ``name (#HEX)`` when it matches a CSS color name, else ``#HEX``."""
+    label, formatted_hex = name_and_hex(color)
+    return formatted_hex if label == formatted_hex else f"{label} ({formatted_hex})"
 
 
 class ColorUtils:
@@ -150,25 +179,33 @@ class ColorUtils:
         return buf
 
     @staticmethod
-    def generate_colored_text_grid(text, hex_colors):
+    def generate_color_list_image(nick, colors):
+        """Render a numbered grid where each line is ``{i}. {nick} {name (#HEX)|#HEX}``
+        drawn in its own color. ``colors`` may be ints or hex strings."""
         font = _get_font()
 
         padding = 10
         line_height = 30
-        height = (len(hex_colors) * line_height) + padding * 2
-        width = 400
+
+        lines, fills = [], []
+        for i, color in enumerate(colors):
+            color_int = color if isinstance(color, int) else int(str(color).lstrip('#'), 16)
+            lines.append(f"{i + 1}. {nick} {format_color_label(color)}")
+            fills.append(_int_to_rgb(color_int))
+
+        height = (len(colors) * line_height) + padding * 2
+        measure = ImageDraw.Draw(Image.new('RGBA', (1, 1)))
+        max_text = max((measure.textlength(line, font=font) for line in lines), default=0)
+        width = max(400, int(max_text + padding * 3))
 
         image = Image.new('RGBA', (width, height), (50, 51, 57, 255))
         draw = ImageDraw.Draw(image)
 
-        for i, hex_color in enumerate(hex_colors):
-            hex_color = hex_color.lstrip('#')
-            r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
-
+        for i, (line, fill) in enumerate(zip(lines, fills)):
             draw.text(
                 (padding * 1.5, padding + i * line_height),
-                f"{i + 1}. {text}",
-                fill=(r, g, b, 255),
+                line,
+                fill=(*fill, 255),
                 font=font,
             )
         return image
@@ -227,30 +264,6 @@ class ColorUtils:
             gradient_img = Image.fromarray(gradient_arr, 'RGB')
             image.paste(gradient_img, (0, 0), mask)
 
-        return image
-
-    @staticmethod
-    def generate_int_colors_grid(int_colors):
-        font = _get_font()
-
-        padding = 10
-        line_height = 30
-        height = (len(int_colors) * line_height) + padding * 2
-        width = 400
-
-        image = Image.new('RGBA', (width, height), (50, 51, 57, 255))
-        draw = ImageDraw.Draw(image)
-
-        for i, int_color in enumerate(int_colors):
-            hex_color = f"#{int_color:06X}"
-            r, g, b = _int_to_rgb(int_color)
-
-            draw.text(
-                (padding * 1.5, padding + i * line_height),
-                f"{i + 1}. {hex_color}",
-                fill=(r, g, b, 255),
-                font=font,
-            )
         return image
 
     @staticmethod
