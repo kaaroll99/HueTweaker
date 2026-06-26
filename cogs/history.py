@@ -36,10 +36,11 @@ class HistoryCog(BaseCog):
                 file = None
             else:
                 description = self.msg['history_title']
-                image = ColorUtils.generate_int_colors_grid(colors)
+                image = ColorUtils.generate_color_list_image(interaction.user.display_name, colors)
                 file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_history.png")
 
-            view = HistoryView(self.msg, description, self.bot, file, "commands/history")
+            view = HistoryView(self.msg, description, self.bot, file, "commands/history",
+                               colors=colors, author_id=interaction.user.id)
             if file:
                 await interaction.followup.send(view=view, file=file)
             else:

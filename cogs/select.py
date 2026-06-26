@@ -42,7 +42,7 @@ class SelectCog(BaseCog):
             else:
                 color_values = [color for _, color in color_options]
                 description = self.msg['available_colors']
-                image = ColorUtils.generate_colored_text_grid(interaction.user.name, color_values)
+                image = ColorUtils.generate_color_list_image(interaction.user.display_name, color_values)
                 file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_select.png")
 
                 view = SelectView(self.msg, description, self.bot, color_options, color_map, file)

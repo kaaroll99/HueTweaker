@@ -26,6 +26,8 @@ class HelpSelect(discord.ui.ActionRow['HelpView']):
             discord.SelectOption(label="/remove", value="remove", emoji="🗑️"),
             discord.SelectOption(label="/select", value="select", emoji="⭐"),
             discord.SelectOption(label="/history", value="history", emoji="📜"),
+            discord.SelectOption(label="/favorites add", value="favoritesadd", emoji="🌟"),
+            discord.SelectOption(label="/favorites list", value="favoriteslist", emoji="📋"),
             discord.SelectOption(label="/check", value="check", emoji="🔍"),
             discord.SelectOption(label="/force set", value="forceset", emoji="⚙️"),
             discord.SelectOption(label="/force remove", value="forceremove", emoji="🔄"),

@@ -130,11 +130,58 @@ history:
   desc: >-
     View your color change history on the server. The command displays the last 5 colors
     you have used. It also generates a small PNG preview image showing your username
-    rendered with each of those colors.
+    rendered with each of those colors (shown as "name (#HEX)" when the color matches a CSS
+    color name, otherwise just the HEX).
+
+    ### How to use:
+      - Press a numbered button to restore that color.
 
   usage: /history
   example: /history
   docs: history
+
+### FAVORITES ADD ###
+favoritesadd:
+  name: favorites add
+  desc: >-
+    Add a color to your personal favorites list. Favorites are saved to your account and are
+    available on every server where HueTweaker is present (up to 10 colors). The color can be
+    given as a HEX value (with or without a leading '#'), a CSS color name, by copying another
+    user's color (mention them, e.g. @kaaroll99), or as "random".
+
+    ### Parameters:
+      <color> - Color to add (required).
+    ### Accepted color formats:
+      - Hex: F5DF4D or #F5DF4D
+      - CSS color names: royalblue
+      - Mention a user to copy their color, or "random"
+    ### Notes:
+      - The stored value is always a normalized HEX, regardless of the input format.
+      - Duplicate colors and a full list (10/10) are rejected with a message.
+  usage: /favorites add <color>
+  example: |
+    - /favorites add f5df4d
+    - /favorites add royalblue
+    - /favorites add random
+  docs: favorites-add
+
+### FAVORITES LIST ###
+favoriteslist:
+  name: favorites list
+  desc: >-
+    Show your personal favorite colors. The command generates a preview image with your
+    nickname rendered in each color (shown as "name (#HEX)" when the color matches a CSS
+    color name, otherwise just the HEX).
+
+    ### How to use:
+      - Press a numbered button to set that favorite as your color.
+      - Use the dropdown to remove a color from your list.
+    ### Notes:
+      - Favorites are global to your account (the same on every server).
+      - Add colors first with `/favorites add`.
+  usage: /favorites list
+  example: /favorites list
+  docs: favorites-list
 
 ### VOTE ###
 vote:

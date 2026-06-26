@@ -31,6 +31,22 @@ class Select(Base):
     hex_10: Mapped[str | None] = mapped_column(Text, default=None)
 
 
+class Favorites(Base):
+    __tablename__ = 'favorites'
+
+    user_id: Mapped[int] = mapped_column(BigInteger, primary_key=True, nullable=False)
+    hex_1: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_2: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_3: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_4: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_5: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_6: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_7: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_8: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_9: Mapped[str | None] = mapped_column(Text, default=None)
+    hex_10: Mapped[str | None] = mapped_column(Text, default=None)
+
+
 class History(Base):
     __tablename__ = 'history'
 

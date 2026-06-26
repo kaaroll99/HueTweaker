@@ -150,6 +150,28 @@ history_title: |
 
 history_no_history: "### <:warn:1362879461468672130> No color history found."
 
+history_restored: |
+  ### <:ok:1362879418640498748> Your color has been restored to __{}__
+
+#favorites
+favorites_list_title: |
+  **<:star:1362879443625971783> Your favorite colors:**
+
+  <:bubble:1362879391423533226> Use the buttons to set a color.
+  <:bubble:1362879391423533226> Use the dropdown to remove a color.
+
+favorites_no_colors: "### <:warn:1362879461468672130> You don't have any favorite colors yet. Add one with `/favorites add`."
+
+favorites_added: |
+  ### <:ok:1362879418640498748> Added __{}__ to your favorites
+
+favorites_applied: |
+  ### <:ok:1362879418640498748> Your color has been set to __{}__
+
+favorites_duplicate: "### <:warn:1362879461468672130> __{}__ is already in your favorites."
+
+favorites_full: "### <:warn:1362879461468672130> Your favorites list is full (10/10). Remove a color first."
+
 confirm_color: "### <:bubble:1362879391423533226> Please confirm your color selection:"
 cancelled: "### <:warn:1362879461468672130> Action has been cancelled. Colors were not changed."
 timeout: "### <:warn:1362879461468672130> Action timed out. Please try again."
