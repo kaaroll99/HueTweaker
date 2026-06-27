@@ -4,7 +4,7 @@ help:
   desc: Information about the bot and a list of available commands.
   usage: /help
   example: /help
-  docs:
+  docs: help
 
 ### SET ###
 set:
