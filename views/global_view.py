@@ -1,6 +1,22 @@
+import logging
+
 import discord
 
 from constants import ACCENT_COLOR, DOCS_BASE_URL, INVITE_URL
+
+logger = logging.getLogger(__name__)
+
+
+async def safe_defer(interaction: discord.Interaction, **kwargs) -> bool:
+    """Acknowledge a component interaction. Returns False if it can no longer be answered."""
+    try:
+        await interaction.response.defer(**kwargs)
+        return True
+    except discord.InteractionResponded:
+        return True
+    except discord.HTTPException as e:
+        logger.warning("%s[%s] failed to acknowledge interaction: %s", interaction.user.name, interaction.user.id, e)
+        return False
 
 
 def make_invite_button() -> discord.ui.Button:

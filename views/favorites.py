@@ -7,7 +7,7 @@ from database import model
 from utils.color_format import ColorUtils, format_color_label
 from utils.history_manager import update_history
 from utils.role_manager import create_or_update_color_role, assign_role_if_missing
-from views.global_view import GlobalLayout, make_docs_button, make_invite_button
+from views.global_view import GlobalLayout, make_docs_button, make_invite_button, safe_defer
 from views.set import Layout
 
 logger = logging.getLogger(__name__)
@@ -55,6 +55,9 @@ class RemoveSelect(discord.ui.ActionRow['FavoritesView']):
             return
 
         slot = int(select.values[0])
+        if not await safe_defer(interaction):
+            return
+
         try:
             await self.bot.db.update(model.Favorites, {"user_id": interaction.user.id}, {f"hex_{slot}": None})
 
@@ -63,17 +66,19 @@ class RemoveSelect(discord.ui.ActionRow['FavoritesView']):
 
             if not colors:
                 view = GlobalLayout(messages=self.msg, description=self.msg['favorites_no_colors'], docs_page=self.docs_page)
-                await interaction.response.edit_message(view=view, attachments=[])
+                await interaction.edit_original_response(view=view, attachments=[])
                 return
 
             view, file = FavoritesView.build(self.msg, self.bot, self.author_id, colors, self.nick, self.docs_page)
-            await interaction.response.edit_message(view=view, attachments=[file])
+            await interaction.edit_original_response(view=view, attachments=[file])
             logger.info("%s[%s] removed a favorite color (slot %s)", interaction.user.name, interaction.locale, slot)
 
         except Exception as e:
             logger.critical("%s[%s] raise critical exception while removing favorite - %r", interaction.user.name, interaction.locale, e)
-            if not interaction.response.is_done():
-                await interaction.response.send_message(self.msg['exception'], ephemeral=True)
+            try:
+                await interaction.followup.send(self.msg['exception'], ephemeral=True)
+            except discord.HTTPException:
+                pass
 
 
 class FavoritesView(discord.ui.LayoutView):
@@ -125,6 +130,9 @@ class FavoritesView(discord.ui.LayoutView):
                 self.msg.get('revert_not_author', "You can't use these buttons."), ephemeral=True)
             return
 
+        if not await safe_defer(interaction, ephemeral=True, thinking=True):
+            return
+
         hex_str = f"#{color_int:06X}"
         try:
             role, role_updated, prev_colors = await create_or_update_color_role(
@@ -155,12 +163,18 @@ class FavoritesView(discord.ui.LayoutView):
                 description=description,
                 undo_lock=undo_lock,
             )
-            await interaction.response.send_message(view=view, ephemeral=True)
+            await interaction.followup.send(view=view, ephemeral=True)
             logger.info("%s[%s] applied favorite color %s", interaction.user.name, interaction.locale, hex_str)
 
         except discord.HTTPException as e:
-            await interaction.response.send_message(self.msg['exception'], ephemeral=True)
+            await self._send_error(interaction)
             logger.warning("%s[%s] HTTP exception while applying favorite: %s", interaction.user.name, interaction.locale, e)
         except Exception as e:
-            await interaction.response.send_message(self.msg['exception'], ephemeral=True)
+            await self._send_error(interaction)
             logger.critical("%s[%s] raise critical exception while applying favorite - %r", interaction.user.name, interaction.locale, e)
+
+    async def _send_error(self, interaction: discord.Interaction) -> None:
+        try:
+            await interaction.followup.send(self.msg['exception'], ephemeral=True)
+        except discord.HTTPException:
+            pass

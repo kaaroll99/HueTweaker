@@ -5,7 +5,7 @@ import discord
 from constants import ACCENT_COLOR, BANNER_URL
 from utils.history_manager import update_history
 from utils.role_manager import create_or_update_color_role, assign_role_if_missing
-from views.global_view import make_docs_button, make_invite_button
+from views.global_view import make_docs_button, make_invite_button, safe_defer
 from views.set import Layout
 
 logger = logging.getLogger(__name__)
@@ -114,6 +114,9 @@ class HistoryView(discord.ui.LayoutView):
             )
             return
 
+        if not await safe_defer(interaction, ephemeral=True, thinking=True):
+            return
+
         hex_str = f"#{color_int:06X}"
         try:
             role, role_updated, prev_colors = await create_or_update_color_role(
@@ -144,11 +147,17 @@ class HistoryView(discord.ui.LayoutView):
                 description=description,
                 undo_lock=undo_lock,
             )
-            await interaction.response.send_message(view=view, ephemeral=True)
+            await interaction.followup.send(view=view, ephemeral=True)
             logger.info("%s[%s] restored color %s from history", interaction.user.name, interaction.locale, hex_str)
         except discord.HTTPException as e:
-            await interaction.response.send_message(self.msg['exception'], ephemeral=True)
+            await self._send_error(interaction)
             logger.warning("%s[%s] HTTP exception while restoring color: %s", interaction.user.name, interaction.locale, e)
         except Exception as e:
-            await interaction.response.send_message(self.msg['exception'], ephemeral=True)
+            await self._send_error(interaction)
             logger.critical("%s[%s] raise critical exception while restoring color - %r", interaction.user.name, interaction.locale, e)
+
+    async def _send_error(self, interaction: discord.Interaction) -> None:
+        try:
+            await interaction.followup.send(self.msg['exception'], ephemeral=True)
+        except discord.HTTPException:
+            pass

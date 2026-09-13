@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 
 import discord
 
-from views.global_view import make_invite_button
+from views.global_view import make_invite_button, safe_defer
 
 logger = logging.getLogger(__name__)
 
@@ -31,35 +31,48 @@ class Layout(discord.ui.LayoutView):
         self.undo_lock = undo_lock
 
         container = discord.ui.Container(accent_colour=self.color)
-        container.add_item(discord.ui.TextDisplay(self.description))
+        self.text_display = discord.ui.TextDisplay(self.description)
+        container.add_item(self.text_display)
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
 
-        revert_btn = discord.ui.Button(
+        self.revert_btn = discord.ui.Button(
             label=self.msg.get('revert_button', 'Revert'),
             style=discord.ButtonStyle.secondary,
             emoji="<:back:1408056926121627679>",
             disabled=self.undo_lock,
         )
-        revert_btn.callback = self._on_revert
-        container.add_item(discord.ui.ActionRow(revert_btn, make_invite_button()))
+        self.revert_btn.callback = self._on_revert
+        container.add_item(discord.ui.ActionRow(self.revert_btn, make_invite_button()))
 
         self.add_item(container)
 
+    def _set_description(self, description: str) -> None:
+        self.description = description
+        self.text_display.content = description
+
     async def _on_revert(self, interaction: discord.Interaction):
         if interaction.user.id != self.author_id:
-            await interaction.response.send_message(
-                self.msg.get('revert_not_author', "You can't revert this color."), ephemeral=True
-            )
+            try:
+                await interaction.response.send_message(
+                    self.msg.get('revert_not_author', "You can't revert this color."), ephemeral=True
+                )
+            except discord.HTTPException:
+                pass
+            return
+
+        if not await safe_defer(interaction):
             return
 
         guild = interaction.guild
-        role = discord.utils.get(guild.roles, id=self.role_id)
-        if role is None:
-            self.description = self.msg.get('revert_not_found')
-            await interaction.response.edit_message(view=self)
-            return
+        role = discord.utils.get(guild.roles, id=self.role_id) if guild else None
+        self.revert_btn.disabled = True
 
         try:
+            if role is None:
+                self._set_description(self.msg.get('revert_not_found'))
+                await interaction.edit_original_response(view=self)
+                return
+
             if self.prev_colors is None:
                 primary_color, secondary_color = discord.Color.default(), None
                 hex_str = "default"
@@ -71,20 +84,15 @@ class Layout(discord.ui.LayoutView):
 
             await role.edit(color=primary_color, secondary_color=secondary_color)
 
-            for item in self.children:
-                if isinstance(item, discord.ui.Container):
-                    for subitem in item.children:
-                        if isinstance(subitem, discord.ui.ActionRow):
-                            for btn in subitem.children:
-                                if isinstance(btn, discord.ui.Button) and btn.label == self.msg.get('revert_button', 'Revert'):
-                                    btn.disabled = True
-
-            self.description = self.msg.get('color_reverted').format(hex_str)
-            await interaction.response.edit_message(view=self)
+            self._set_description(self.msg.get('color_reverted').format(hex_str))
+            await interaction.edit_original_response(view=self)
             logger.info("%s[%s] reverted color for role to %s", interaction.user.name, interaction.locale, hex_str)
         except discord.HTTPException as e:
-            await interaction.response.send_message("Failed to revert color.", ephemeral=True)
             logger.critical("%s[%s] HTTP exception while reverting color: %s", interaction.user.name, interaction.locale, e)
+            try:
+                await interaction.followup.send("Failed to revert color.", ephemeral=True)
+            except discord.HTTPException:
+                pass
 
 
 class ConfirmationView(discord.ui.LayoutView):
@@ -119,19 +127,31 @@ class ConfirmationView(discord.ui.LayoutView):
         self.add_item(container)
 
     async def _on_confirm(self, interaction: discord.Interaction):
-        if interaction.user.id != self.author_id:
-            await interaction.response.send_message("This is not your confirmation.", ephemeral=True)
-            return
-
-        await interaction.response.defer()
-        self.value = True
-        self.stop()
+        await self._resolve(interaction, True)
 
     async def _on_cancel(self, interaction: discord.Interaction):
+        await self._resolve(interaction, False)
+
+    async def _resolve(self, interaction: discord.Interaction, value: bool):
         if interaction.user.id != self.author_id:
-            await interaction.response.send_message("This is not your confirmation.", ephemeral=True)
+            try:
+                await interaction.response.send_message("This is not your confirmation.", ephemeral=True)
+            except discord.HTTPException:
+                pass
             return
 
-        await interaction.response.defer()
-        self.value = False
+        if self.value is not None:
+            return
+
+        self.value = value
         self.stop()
+
+        try:
+            await interaction.response.defer()
+        except (discord.NotFound, discord.InteractionResponded):
+            pass
+        except discord.HTTPException as e:
+            logger.warning("%s[%s] failed to acknowledge confirmation: %s", interaction.user.name, interaction.user.id, e)
+
+    async def on_error(self, interaction: discord.Interaction, error: Exception, item: discord.ui.Item) -> None:
+        logger.error("%s[%s] error in ConfirmationView: %r", interaction.user.name, interaction.user.id, error, exc_info=error)
