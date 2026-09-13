@@ -53,7 +53,6 @@ class SetCog(BaseCog):
         undo_lock = False
         prev_colors: Optional[Tuple[Optional[int], Optional[int]]] = None
         docs_page = f"commands/{command_name}"
-        docs_page = f"commands/{command_name}"
 
         try:
             guild = interaction.guild

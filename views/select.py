@@ -5,7 +5,7 @@ import discord
 from constants import ACCENT_COLOR, BANNER_URL
 from utils.history_manager import update_history
 from utils.role_manager import create_or_update_color_role, assign_role_if_missing
-from views.global_view import make_docs_button, make_invite_button
+from views.global_view import make_docs_button, make_invite_button, safe_defer
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +39,9 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
         if not color:
             return
 
+        if not await safe_defer(interaction):
+            return
+
         try:
             new_val = int(color, 16)
             role, _, _ = await create_or_update_color_role(
@@ -53,16 +56,14 @@ class ColorSelect(discord.ui.ActionRow['SelectView']):
             await update_history(self.db, interaction.user.id, interaction.guild.id, new_val)
 
         except Exception as e:
-            logger.error("Failed to edit role: %s", e)
-            if not interaction.response.is_done():
-                await interaction.response.send_message(
+            logger.error("Failed to edit role: %s", e, exc_info=e)
+            try:
+                await interaction.followup.send(
                     "Failed to change color due to insufficient permissions.",
                     ephemeral=True
                 )
-            return
-
-        if not interaction.response.is_done():
-            await interaction.response.defer()
+            except discord.HTTPException:
+                pass
 
 
 class SelectView(discord.ui.LayoutView):

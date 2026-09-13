@@ -119,7 +119,7 @@ class HelpView(discord.ui.LayoutView):
             description = self.msg['exception']
             view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/help")
             logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
-            await interaction.response.edit_message(view=view)
+            await self._edit(interaction, view)
             return
 
         new_view = HelpView(
@@ -127,4 +127,11 @@ class HelpView(discord.ui.LayoutView):
             author_id=self.author_id, description=desc_display,
             docs_button=True, docs_key=docs_key,
         )
-        await interaction.response.edit_message(view=new_view)
+        await self._edit(interaction, new_view)
+
+    @staticmethod
+    async def _edit(interaction: discord.Interaction, view: discord.ui.LayoutView) -> None:
+        try:
+            await interaction.response.edit_message(view=view)
+        except (discord.NotFound, discord.InteractionResponded) as e:
+            logger.warning("%s[%s] could not update help view: %s", interaction.user.name, interaction.user.id, e)

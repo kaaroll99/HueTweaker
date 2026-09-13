@@ -15,6 +15,8 @@ class Database:
             url,
             pool_size=pool_size,
             max_overflow=max_overflow,
+            pool_pre_ping=True,
+            pool_recycle=1800,
         )
         self._session_factory = async_sessionmaker(
             bind=self._engine,
