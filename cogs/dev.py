@@ -20,11 +20,6 @@ class DevCog(commands.Cog):
         self.db = bot.db
 
     @app_commands.command(name="dev", description="Developer command. It won't work.")
-    @app_commands.describe(
-        action="tree | report | stats | migrate",
-        mode="migrate only: dry-run (default, report only) or apply",
-        guild_id="migrate only: limit the migration to a single guild id",
-    )
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def dev(
