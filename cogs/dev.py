@@ -1,11 +1,14 @@
 import datetime
 import logging
+import os
+from typing import Optional
 
 import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
 from constants import BANNER_URL, DEV_GUILD_ID
+from utils.migration import migrate_all
 
 logger = logging.getLogger(__name__)
 
@@ -17,9 +20,20 @@ class DevCog(commands.Cog):
         self.db = bot.db
 
     @app_commands.command(name="dev", description="Developer command. It won't work.")
+    @app_commands.describe(
+        action="tree | report | stats | migrate",
+        mode="migrate only: dry-run (default, report only) or apply",
+        guild_id="migrate only: limit the migration to a single guild id",
+    )
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
-    async def dev(self, interaction: discord.Interaction, action: str) -> None:
+    async def dev(
+        self,
+        interaction: discord.Interaction,
+        action: str,
+        mode: Optional[str] = None,
+        guild_id: Optional[str] = None,
+    ) -> None:
         embed: Embed = discord.Embed(title=f"{self.bot.user.name}", description="",
                                      color=4539717, timestamp=datetime.datetime.now())
         await interaction.response.defer(ephemeral=True)
@@ -51,6 +65,8 @@ class DevCog(commands.Cog):
                 elif action == "tree":
                     await self.bot.tree.sync()
                     embed.description = "Command tree synchronization completed."
+                elif action == "migrate":
+                    embed.description = await self._start_migration(interaction, mode, guild_id)
                 elif action == "stats":
                     import resource
                     import sys
@@ -90,6 +106,61 @@ class DevCog(commands.Cog):
                 await interaction.followup.send(embed=embed)
 
             logger.warning("%s[%s] issued bot command: /dev %s", interaction.user.name, interaction.locale, action)
+
+    async def _start_migration(self, interaction: discord.Interaction, mode: Optional[str], guild_id: Optional[str]) -> str:
+        """Kick off the legacy -> per-color role migration analysis in the background."""
+        mode = (mode or "dry-run").strip().lower()
+        if mode not in ("dry-run", "apply"):
+            return "Unknown mode. Use `dry-run` (default) or `apply`."
+        if mode == "apply":
+            return "`apply` is not available in this build. Only the `dry-run` analysis is."
+
+        target_guild_id: Optional[int] = None
+        if guild_id:
+            if not guild_id.strip().isdigit():
+                return "guild_id must be a numeric Discord guild id."
+            target_guild_id = int(guild_id.strip())
+            if self.bot.get_guild(target_guild_id) is None:
+                return f"Guild `{target_guild_id}` not found (bot is not a member or the shard is not ready)."
+
+        scope = f"guild `{target_guild_id}`" if target_guild_id else f"all {len(self.bot.guilds)} guilds"
+        self.bot.loop.create_task(self._run_migration(interaction, False, target_guild_id))
+        return (
+            f"Migration started in **{mode}** mode for {scope}.\n"
+            "The report will be posted here when finished and saved under `logs/`."
+        )
+
+    async def _run_migration(self, interaction: discord.Interaction, apply: bool, guild_id: Optional[int]) -> None:
+        started = datetime.datetime.now()
+        try:
+            summary = await migrate_all(self.bot, apply=apply, guild_id=guild_id)
+            text = summary.render()
+        except Exception as e:
+            logger.exception("Migration task crashed")
+            text = f"Migration crashed: {e!r}"
+
+        elapsed = datetime.datetime.now() - started
+        text = f"{text}\n\nfinished in {elapsed.total_seconds():.1f}s"
+
+        os.makedirs("logs", exist_ok=True)
+        stamp = started.strftime("%Y%m%d_%H%M%S")
+        path = os.path.join("logs", f"migration_{'apply' if apply else 'dry-run'}_{stamp}.txt")
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(text)
+        logger.warning("Migration report saved to %s", path)
+
+        try:
+            if len(text) <= 1900:
+                await interaction.followup.send(f"```\n{text}\n```", ephemeral=True)
+            else:
+                await interaction.followup.send(
+                    f"Migration finished ({'apply' if apply else 'dry-run'}). Full report attached.",
+                    file=discord.File(path),
+                    ephemeral=True,
+                )
+        except discord.HTTPException as e:
+            # Followup tokens expire after 15 minutes; the report is still on disk.
+            logger.warning("Could not post migration report (%s); see %s", e, path)
 
 
 async def setup(bot: commands.Bot) -> None:
