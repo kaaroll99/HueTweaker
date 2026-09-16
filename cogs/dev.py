@@ -8,7 +8,7 @@ from discord import app_commands, Embed
 from discord.ext import commands
 
 from constants import BANNER_URL, DEV_GUILD_ID
-from utils.migration import migrate_all
+from utils.migration import TOP_GUILDS_LIMIT, migrate_all
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,10 @@ class DevCog(commands.Cog):
             if self.bot.get_guild(target_guild_id) is None:
                 return f"Guild `{target_guild_id}` not found (bot is not a member or the shard is not ready)."
 
-        scope = f"guild `{target_guild_id}`" if target_guild_id else f"all {len(self.bot.guilds)} guilds"
+        scope = (
+            f"guild `{target_guild_id}`" if target_guild_id
+            else f"the top {TOP_GUILDS_LIMIT} guilds by member count (of {len(self.bot.guilds)})"
+        )
         self.bot.loop.create_task(self._run_migration(interaction, False, target_guild_id))
         return (
             f"Migration started in **{mode}** mode for {scope}.\n"

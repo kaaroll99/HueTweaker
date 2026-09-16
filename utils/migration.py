@@ -21,6 +21,9 @@ from constants import COLOR_ROLE_PATTERN
 
 logger = logging.getLogger(__name__)
 
+# Without an explicit guild_id only the largest guilds (by member count) are processed.
+TOP_GUILDS_LIMIT = 30
+
 _legacy_role_re = re.compile(COLOR_ROLE_PATTERN)
 
 
@@ -73,6 +76,7 @@ class GuildMigrationReport:
 class MigrationSummary:
     apply: bool
     guilds: list[GuildMigrationReport] = field(default_factory=list)
+    total_guilds: int = 0
 
     def total(self, attr: str) -> int:
         return sum(getattr(g, attr) for g in self.guilds)
@@ -83,7 +87,8 @@ class MigrationSummary:
         pct = (freed / legacy * 100) if legacy else 0.0
         header = [
             f"Color role migration [{'APPLY' if self.apply else 'DRY-RUN'}]",
-            f"guilds scanned: {len(self.guilds)}, guilds with legacy roles: {len(touched)}",
+            f"guilds scanned: {len(self.guilds)} of {self.total_guilds} (top {TOP_GUILDS_LIMIT} by member count), "
+            f"guilds with legacy roles: {len(touched)}",
             f"legacy roles: {legacy}, distinct colors: {self.total('distinct_colors')}",
             f"merge (duplicates): {self.total('merged')}, orphans (owner left): {self.total('orphans')}",
             f"roles freed: {freed} of {legacy} ({pct:.0f}% reduction)",
@@ -132,13 +137,21 @@ async def analyze_guild(guild: discord.Guild) -> GuildMigrationReport:
     return report
 
 
+def select_top_guilds(guilds, limit: int = TOP_GUILDS_LIMIT) -> list:
+    return sorted(guilds, key=lambda g: g.member_count or 0, reverse=True)[:limit]
+
+
 async def migrate_all(bot, apply: bool, guild_id: Optional[int] = None) -> MigrationSummary:
     """Dry-run analysis only in this build; ``apply`` raises ``NotImplementedError``."""
     if apply:
         raise NotImplementedError("apply mode is not available in this build")
 
     summary = MigrationSummary(apply=False)
-    guilds = [bot.get_guild(guild_id)] if guild_id else list(bot.guilds)
+    summary.total_guilds = len(bot.guilds)
+    if guild_id:
+        guilds = [bot.get_guild(guild_id)]
+    else:
+        guilds = select_top_guilds(bot.guilds)
     for guild in guilds:
         if guild is None:
             summary.guilds.append(GuildMigrationReport(guild_id=guild_id or 0, guild_name="?", errors=["guild not found"]))
