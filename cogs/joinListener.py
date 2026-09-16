@@ -15,16 +15,22 @@ class JoinListenerCog(commands.Cog):
         self.db = bot.db
 
     @commands.Cog.listener()
-    async def on_member_remove(self, member):
+    async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent):
+        user_id = payload.user.id
+        guild = self.bot.get_guild(payload.guild_id)
         try:
-            role = discord.utils.get(member.guild.roles, name=f"{COLOR_ROLE_PREFIX}{member.id}")
-            if role is not None:
-                await role.delete()
+            if guild is not None:
+                role = discord.utils.get(guild.roles, name=f"{COLOR_ROLE_PREFIX}{user_id}")
+                if role is not None:
+                    await role.delete(reason="HueTweaker: member left the server")
+                    logger.info("Deleted color role of user %s who left guild %s", user_id, payload.guild_id)
 
-            await self.db.delete(model.History, {"user_id": member.id, "guild_id": member.guild.id})
+            await self.db.delete(model.History, {"user_id": user_id, "guild_id": payload.guild_id})
 
-        except discord.HTTPException:
+        except discord.NotFound:
             pass
+        except discord.HTTPException as e:
+            logger.warning("Cleanup after user %s left guild %s failed: %s", user_id, payload.guild_id, e)
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild):
@@ -35,7 +41,6 @@ class JoinListenerCog(commands.Cog):
         logger.info("Bot has been removed from guild: %s", guild.name)
         await self.db.delete(model.Guilds, {"server": guild.id})
         await self.db.delete_all(model.History, {"guild_id": guild.id})
-
 
 
 async def setup(bot: commands.Bot) -> None:
