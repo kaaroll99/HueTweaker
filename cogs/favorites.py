@@ -7,7 +7,7 @@ from discord.ext import commands
 from cogs._base import BaseCog
 from database import model
 from utils.color_format import format_color_label
-from utils.color_parse import fetch_color_representation, color_parser
+from utils.color_parse import BLACK_HEX, NEAR_BLACK_HEX, fetch_color_representation, color_parser
 from views.favorites import FAVORITES_LIMIT, FavoritesView, extract_favorite_colors
 from views.global_view import GlobalLayout
 
@@ -31,19 +31,16 @@ class FavoritesCog(BaseCog):
 
             parsed = color_parser(fetch_color_representation(interaction, color))
             if parsed is None:
-                view = GlobalLayout(messages=self.msg, description=self.msg['color_format'], docs_page=DOCS_ADD)
-                await interaction.followup.send(view=view, ephemeral=True)
-                return
+                raise ValueError
 
-            hex_value = "000001" if parsed.lower() == "000000" else parsed.lower()
+            hex_value = NEAR_BLACK_HEX if parsed == BLACK_HEX else parsed
             display = format_color_label(hex_value)
 
             row = await self.db.select_one(model.Favorites, {"user_id": interaction.user.id})
             existing = extract_favorite_colors(row)
 
             if any(hex_value == hx.lower() for _, hx in existing):
-                view = GlobalLayout(messages=self.msg, description=self.msg['favorites_duplicate'].format(display), docs_page=DOCS_ADD)
-                await interaction.followup.send(view=view, ephemeral=True)
+                await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_duplicate'].format(display), DOCS_ADD))
                 return
 
             if not row:
@@ -52,23 +49,19 @@ class FavoritesCog(BaseCog):
                 used_slots = {slot for slot, _ in existing}
                 free_slot = next((i for i in range(1, FAVORITES_LIMIT + 1) if i not in used_slots), None)
                 if free_slot is None:
-                    view = GlobalLayout(messages=self.msg, description=self.msg['favorites_full'], docs_page=DOCS_ADD)
-                    await interaction.followup.send(view=view, ephemeral=True)
+                    await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_full'], DOCS_ADD))
                     return
                 await self.db.update(model.Favorites, {"user_id": interaction.user.id}, {f"hex_{free_slot}": hex_value})
 
-            view = GlobalLayout(messages=self.msg, description=self.msg['favorites_added'].format(display), docs_page=DOCS_ADD)
-            await interaction.followup.send(view=view, ephemeral=True)
+            await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_added'].format(display), DOCS_ADD))
 
         except ValueError:
-            view = GlobalLayout(messages=self.msg, description=self.msg['color_format'], docs_page=DOCS_ADD)
-            await interaction.followup.send(view=view, ephemeral=True)
+            await self.respond(interaction, GlobalLayout(self.msg, self.msg['color_format'], DOCS_ADD))
             logger.info("%s[%s] issued bot command: /favorites add (invalid format)", interaction.user.name, interaction.user.id)
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page=DOCS_ADD)
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), DOCS_ADD))
+            self.log_command_error(interaction, "favorites add", e)
 
         finally:
             logger.info("%s[%s] issued bot command: /favorites add %s", interaction.user.name, interaction.locale, color)
@@ -84,24 +77,15 @@ class FavoritesCog(BaseCog):
             colors = extract_favorite_colors(row)
 
             if not colors:
-                view = GlobalLayout(messages=self.msg, description=self.msg['favorites_no_colors'], docs_page=DOCS_LIST)
-                await interaction.followup.send(view=view, ephemeral=True)
+                await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_no_colors'], DOCS_LIST))
                 return
 
             view, file = FavoritesView.build(self.msg, self.bot, interaction.user.id, colors, interaction.user.display_name, DOCS_LIST)
-            await interaction.followup.send(view=view, file=file)
-
-        except discord.HTTPException as e:
-            err_description = self.get_http_error_description(e) if e.code != 10062 else None
-            if err_description:
-                view = GlobalLayout(messages=self.msg, description=err_description, docs_page=DOCS_LIST)
-                await interaction.followup.send(view=view, ephemeral=True)
-            logger.error("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
+            await interaction.followup.send(view=view, file=file, ephemeral=True)
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page=DOCS_LIST)
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), DOCS_LIST))
+            self.log_command_error(interaction, "favorites list", e)
 
         finally:
             logger.info("%s[%s] issued bot command: /favorites list", interaction.user.name, interaction.locale)

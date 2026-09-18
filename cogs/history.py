@@ -7,6 +7,7 @@ from discord.ext import commands
 from cogs._base import BaseCog
 from database import model
 from utils.color_format import ColorUtils
+from utils.history_manager import history_colors
 from views.global_view import GlobalLayout
 from views.history import HistoryView
 
@@ -19,37 +20,26 @@ class HistoryCog(BaseCog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def history(self, interaction: discord.Interaction) -> None:
+        docs_page = "commands/history"
         try:
             await interaction.response.defer(ephemeral=True)
 
-            data = await self.db.select(model.History, {"user_id": interaction.user.id, "guild_id": interaction.guild.id})
+            row = await self.db.select_one(model.History, {"user_id": interaction.user.id, "guild_id": interaction.guild.id})
+            colors = history_colors(row)
 
-            colors = []
-            if data:
-                entry = data[0]
-                for i in range(1, 6):
-                    color_val = entry.get(f"color_{i}")
-                    if color_val is not None:
-                        colors.append(color_val)
             if not colors:
-                description = self.msg['history_no_history']
-                file = None
-            else:
-                description = self.msg['history_title']
-                image = ColorUtils.generate_color_list_image(interaction.user.display_name, colors)
-                file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_history.png")
+                await self.respond(interaction, GlobalLayout(self.msg, self.msg['history_no_history'], docs_page))
+                return
 
-            view = HistoryView(self.msg, description, self.bot, file, "commands/history",
+            image = ColorUtils.generate_color_list_image(interaction.user.display_name, colors)
+            file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_history.png")
+            view = HistoryView(self.msg, self.msg['history_title'], self.bot, file, docs_page,
                                colors=colors, author_id=interaction.user.id)
-            if file:
-                await interaction.followup.send(view=view, file=file)
-            else:
-                await interaction.followup.send(view=view)
+            await interaction.followup.send(view=view, file=file, ephemeral=True)
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/history")
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), docs_page))
+            self.log_command_error(interaction, "history", e)
 
         finally:
             logger.info("%s[%s] issued bot command: /history", interaction.user.name, interaction.locale)

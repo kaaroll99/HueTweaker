@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from cogs._base import BaseCog
-from constants import COLOR_ROLE_PREFIX
+from utils.role_manager import remove_color_role
 from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
@@ -19,20 +19,13 @@ class RemoveCog(BaseCog):
     async def remove(self, interaction: discord.Interaction) -> None:
         try:
             await interaction.response.defer(ephemeral=True)
-            role = discord.utils.get(interaction.guild.roles, name=f"{COLOR_ROLE_PREFIX}{interaction.user.id}")
-            if role is not None:
-                await interaction.user.remove_roles(role)
-                await role.delete()
-                description = self.msg['color_remove']
-            else:
-                description = self.msg['color_remove_no_color']
-            view = GlobalLayout(messages=self.msg, description=description)
-            await interaction.followup.send(view=view)
+            removed = await remove_color_role(interaction.guild, interaction.user.id)
+            description = self.msg['color_remove'] if removed else self.msg['color_remove_no_color']
+            await self.respond(interaction, GlobalLayout(self.msg, description, "commands/remove"))
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/remove")
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), "commands/remove"))
+            self.log_command_error(interaction, "remove", e)
 
         finally:
             logger.info("%s[%s] issued bot command: /remove", interaction.user.name, interaction.locale)

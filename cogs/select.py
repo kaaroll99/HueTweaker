@@ -8,7 +8,7 @@ from cogs._base import BaseCog
 from database import model
 from utils.color_format import ColorUtils
 from views.global_view import GlobalLayout
-from views.select import SelectView
+from views.select import SelectView, extract_palette
 
 logger = logging.getLogger(__name__)
 
@@ -19,46 +19,27 @@ class SelectCog(BaseCog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:
-        color_options = []
-        color_map = {}
-
+        docs_page = "commands/select"
         try:
             await interaction.response.defer(ephemeral=True)
-            guild_obj = await self.db.select_one(model.Select, {"server_id": interaction.guild.id})
+            palette_row = await self.db.select_one(model.Select, {"server_id": interaction.guild.id})
+            color_options = extract_palette(palette_row)
 
-            if guild_obj and len(guild_obj) > 0:
-                colors_data = guild_obj
-                for i in range(1, 11):
-                    color_key = f"hex_{i}"
-                    color_value = colors_data.get(color_key)
-                    if isinstance(color_value, str) and color_value.strip():
-                        color_options.append((i, color_value.strip()))
-                color_map = {str(idx): hexv for idx, hexv in color_options}
+            if not color_options:
+                await self.respond(interaction, GlobalLayout(self.msg, self.msg['select_no_colors'], docs_page))
+                return
 
-            if not color_options and not color_map:
-                description = self.msg['select_no_colors']
-                view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/select")
-                await interaction.followup.send(view=view)
-            else:
-                color_values = [color for _, color in color_options]
-                description = self.msg['available_colors']
-                image = ColorUtils.generate_color_list_image(interaction.user.display_name, color_values)
-                file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_select.png")
+            color_values = [color for _, color in color_options]
+            image = ColorUtils.generate_color_list_image(interaction.user.display_name, color_values)
+            file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_select.png")
 
-                view = SelectView(self.msg, description, self.bot, color_options, color_map, file)
-                await interaction.followup.send(view=view, file=file)
-
-        except discord.HTTPException as e:
-            err_description = self.get_http_error_description(e) if e.code != 10062 else None
-            if err_description:
-                view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/select")
-                await interaction.followup.send(view=view, ephemeral=True)
-            logger.error("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
+            view = SelectView(self.msg, self.msg['available_colors'], self.bot, color_options, file,
+                              docs_page=docs_page, author_id=interaction.user.id)
+            await interaction.followup.send(view=view, file=file, ephemeral=True)
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/select")
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), docs_page))
+            self.log_command_error(interaction, "select", e)
 
         finally:
             logger.info("%s[%s] issued bot command: /select", interaction.user.name, interaction.locale)

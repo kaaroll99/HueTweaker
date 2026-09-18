@@ -1,24 +1,19 @@
 import logging
-from typing import Tuple, Optional
+from typing import Optional
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 from cogs._base import BaseCog
-from utils.color_parse import fetch_color_representation, color_parser, check_black
-from utils.color_format import ColorUtils
-from utils.cooldown_check import is_user_on_cooldown
+from utils.color_format import ColorUtils, format_colors_label
+from utils.color_parse import parse_color_pair
 from utils.history_manager import update_history
-from utils.role_manager import create_or_update_color_role, assign_role_if_missing
+from utils.role_manager import apply_color_role
 from views.global_view import GlobalLayout
 from views.set import Layout, ConfirmationView
 
 logger = logging.getLogger(__name__)
-
-
-async def dynamic_cooldown(interaction: discord.Interaction):
-    return await is_user_on_cooldown(interaction)
 
 
 class SetCog(BaseCog):
@@ -49,10 +44,8 @@ class SetCog(BaseCog):
         color: str,
         secondary_color: Optional[str],
     ) -> None:
-        description = ""
-        undo_lock = False
-        prev_colors: Optional[Tuple[Optional[int], Optional[int]]] = None
         docs_page = f"commands/{command_name}"
+        log_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
 
         try:
             guild = interaction.guild
@@ -63,93 +56,49 @@ class SetCog(BaseCog):
 
             await interaction.response.defer(ephemeral=True)
 
-            primary_hex = color_parser(fetch_color_representation(interaction, color))
-            secondary_hex = color_parser(fetch_color_representation(interaction, secondary_color)) if secondary_color else None
+            primary_val, secondary_val, is_black = parse_color_pair(interaction, color, secondary_color)
+            label = format_colors_label(primary_val, secondary_val)
 
-            primary_hex, secondary_hex, is_black = check_black(primary_hex, secondary_hex)
-
-            if primary_hex is None or (secondary_hex is None and secondary_color):
-                raise ValueError
-
-            primary_val = int(primary_hex, 16)
-            secondary_val = int(secondary_hex, 16) if secondary_hex else None
-            new_colors_val: Tuple[int, Optional[int]] = (primary_val, secondary_val)
-
-            image = ColorUtils.generate_preview_image(interaction.user.display_name, primary_val, secondary_val)
+            image = ColorUtils.generate_preview_image(member.display_name, primary_val, secondary_val)
             file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_preview.png")
-            image_url = "attachment://" + file.filename
 
-            view = ConfirmationView(
+            confirmation = ConfirmationView(
                 member.id,
-                self.msg.get('confirm_color'),
-                discord.Color(new_colors_val[0]),
-                image_url)
-            await interaction.edit_original_response(content=None, attachments=[file], view=view)
-
-            await view.wait()
-
-            if view.value is None:
-                timeout_view = GlobalLayout(self.msg, self.msg.get('timeout', "Timed out."), docs_page)
-                await interaction.edit_original_response(content=None, view=timeout_view, attachments=[])
-                return
-            elif view.value is False:
-                cancel_view = GlobalLayout(self.msg, self.msg.get('cancelled', "Cancelled."), docs_page)
-                await interaction.edit_original_response(content=None, view=cancel_view, attachments=[])
-                return
-
-            role, role_updated, prev_colors = await create_or_update_color_role(
-                guild,
-                member.id,
-                primary_val,
-                secondary_val,
-                self.db,
-                bot_user.id,
+                self.msg['confirm_color'],
+                discord.Color(primary_val),
+                "attachment://" + file.filename,
             )
+            await interaction.edit_original_response(content=None, attachments=[file], view=confirmation)
+            await confirmation.wait()
 
-            if not role_updated:
+            if confirmation.value is None:
+                await self.respond(interaction, GlobalLayout(self.msg, self.msg['timeout'], docs_page))
+                return
+            if confirmation.value is False:
+                await self.respond(interaction, GlobalLayout(self.msg, self.msg['cancelled'], docs_page))
+                return
+
+            result = await apply_color_role(guild, member, primary_val, secondary_val, self.db, bot_user.id)
+
+            if not result.changed:
                 description = self.msg['color_same']
-                undo_lock = True
             else:
-                display_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
-                if is_black:
-                    description = self.msg['color_set_black'].format(display_color)
-                else:
-                    description = self.msg['color_set'].format(display_color)
-                await update_history(self.db, member.id, guild.id, primary_val)
+                template = self.msg['color_set_black'] if is_black else self.msg['color_set']
+                description = template.format(label)
+                await update_history(self.db, member.id, guild.id, primary_val, secondary_val)
 
-            await assign_role_if_missing(member, role)
-
-            view = Layout(
-                messages=self.msg,
-                color=discord.Color(new_colors_val[0]),
-                display_color=f"{color}" + (f", {secondary_color}" if secondary_color else ""),
-                prev_colors=prev_colors,
-                role_id=role.id if role else None,
-                author_id=member.id,
-                description=description,
-                undo_lock=undo_lock
-            )
-
-            await interaction.edit_original_response(content=None, view=view, attachments=[])
+            view = Layout.from_result(self.msg, result, primary_val, member.id, description)
+            await self.respond(interaction, view)
 
         except ValueError:
-            view = GlobalLayout(messages=self.msg, description=self.msg['color_format'], docs_page=docs_page)
-            await interaction.followup.send(view=view, ephemeral=True)
+            await self.respond(interaction, GlobalLayout(self.msg, self.msg['color_format'], docs_page))
             logger.info("%s[%s] issued bot command: /%s (invalid format)", interaction.user.name, interaction.user.id, command_name)
 
-        except discord.HTTPException as e:
-            err_description = self.get_http_error_description(e)
-            view = GlobalLayout(messages=self.msg, description=err_description, docs_page=docs_page)
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.warning("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
-
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page=docs_page)
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), docs_page))
+            self.log_command_error(interaction, command_name, e)
 
         finally:
-            log_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
             logger.info("%s[%s] issued bot command: /%s %s", interaction.user.name, interaction.locale, command_name, log_color)
 
     @set.error

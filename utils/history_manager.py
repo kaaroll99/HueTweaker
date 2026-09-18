@@ -1,26 +1,53 @@
+"""Per-user, per-guild history of the last 5 colors.
+
+Each slot is one BigInteger. A solid color is stored as its plain 24-bit value, so rows written
+before gradients existed still decode. A gradient is packed as
+``primary | secondary << 24 | GRADIENT_FLAG`` (49 bits, fits a signed 64-bit column)."""
+
 from database import model
 
+HISTORY_SIZE = 5
+_COLOR_MASK = 0xFFFFFF
+GRADIENT_FLAG = 1 << 48
 
-async def update_history(db, user_id: int, guild_id: int, color: int) -> None:
-    history = await db.select_one(model.History, {"user_id": user_id, "guild_id": guild_id})
+
+def pack_color(primary: int, secondary: int | None) -> int:
+    if secondary is None:
+        return primary & _COLOR_MASK
+    return (primary & _COLOR_MASK) | ((secondary & _COLOR_MASK) << 24) | GRADIENT_FLAG
+
+
+def unpack_color(value: int) -> tuple[int, int | None]:
+    if value & GRADIENT_FLAG:
+        return value & _COLOR_MASK, (value >> 24) & _COLOR_MASK
+    return value & _COLOR_MASK, None
+
+
+def history_colors(row: dict | None) -> list[tuple[int, int | None]]:
+    """``[(primary, secondary), ...]`` newest first, skipping empty slots."""
+    colors = []
+    if row:
+        for i in range(1, HISTORY_SIZE + 1):
+            value = row.get(f"color_{i}")
+            if value is not None:
+                colors.append(unpack_color(int(value)))
+    return colors
+
+
+async def update_history(db, user_id: int, guild_id: int, primary: int, secondary: int | None = None) -> None:
+    packed = pack_color(primary, secondary)
+    criteria = {"user_id": user_id, "guild_id": guild_id}
+    history = await db.select_one(model.History, criteria)
 
     if history:
-        new_values = {
-            "color_1": color,
-            "color_2": history.get("color_1"),
-            "color_3": history.get("color_2"),
-            "color_4": history.get("color_3"),
-            "color_5": history.get("color_4"),
-        }
-        await db.update(model.History, {"user_id": user_id, "guild_id": guild_id}, new_values)
+        if history.get("color_1") == packed:
+            return  # already the most recent entry
+        values = {"color_1": packed}
+        for i in range(2, HISTORY_SIZE + 1):
+            values[f"color_{i}"] = history.get(f"color_{i - 1}")
+        await db.update(model.History, criteria, values)
     else:
-        new_values = {
-            "user_id": user_id,
-            "guild_id": guild_id,
-            "color_1": color,
-            "color_2": None,
-            "color_3": None,
-            "color_4": None,
-            "color_5": None,
-        }
-        await db.create(model.History, new_values)
+        values = {**criteria, "color_1": packed}
+        for i in range(2, HISTORY_SIZE + 1):
+            values[f"color_{i}"] = None
+        await db.create(model.History, values)

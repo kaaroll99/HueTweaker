@@ -19,41 +19,40 @@ class CheckCog(BaseCog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
+        docs_page = "commands/check"
         try:
             await interaction.response.defer(ephemeral=True)
-            color = fetch_color_representation(interaction, color)
-            color_utils = ColorUtils(color, find_similar_colors=True)
+            resolved = fetch_color_representation(interaction, color)
+            color_utils = ColorUtils(resolved, find_similar_colors=True)
             output_color = color_utils.color_converter()
             if output_color is None:
                 raise ValueError
             image = color_utils.generate_image(output_color['RGB'])
 
             description = self.msg['check_title'].format(output_color['Input'])
-            elements = []
-
-            elements.append(("<:star:1362879443625971783> Hex:", output_color['Hex'].upper()))
-            elements.append(("<:star:1362879443625971783> RGB:",
-                             f"rgb({output_color['RGB'][0] * 255:.0f}, {output_color['RGB'][1] * 255:.0f}, {output_color['RGB'][2] * 255:.0f})"))
-            elements.append(("<:star:1362879443625971783> HSL:",
-                            f"hsl({output_color['HSL'][0]:.2f}, {output_color['HSL'][1] * 100:.2f}%,{output_color['HSL'][2] * 100:.2f}%)"))
-            elements.append(("<:star:1362879443625971783> CMYK:",
-                            f"cmyk({output_color['CMYK'][0] * 100:.2f}%, {output_color['CMYK'][1] * 100:.2f}%, {output_color['CMYK'][2] * 100:.2f}%, {output_color['CMYK'][3] * 100:.2f}%)"))
-            elements.append((self.msg['check_css'], f"{', '.join(str(x) for x in output_color['Similars'][:5]) if output_color['Similars'] else '-'}", ""))
+            elements = [
+                ("<:star:1362879443625971783> Hex:", output_color['Hex'].upper()),
+                ("<:star:1362879443625971783> RGB:",
+                 f"rgb({output_color['RGB'][0] * 255:.0f}, {output_color['RGB'][1] * 255:.0f}, {output_color['RGB'][2] * 255:.0f})"),
+                ("<:star:1362879443625971783> HSL:",
+                 f"hsl({output_color['HSL'][0]:.2f}, {output_color['HSL'][1] * 100:.2f}%, {output_color['HSL'][2] * 100:.2f}%)"),
+                ("<:star:1362879443625971783> CMYK:",
+                 f"cmyk({output_color['CMYK'][0] * 100:.2f}%, {output_color['CMYK'][1] * 100:.2f}%, {output_color['CMYK'][2] * 100:.2f}%, {output_color['CMYK'][3] * 100:.2f}%)"),
+                (self.msg['check_css'], ', '.join(output_color['Similars'][:5]) if output_color['Similars'] else '-'),
+            ]
 
             file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_fill.png")
             image_url = "attachment://" + file.filename
 
             view = CheckLayout(messages=self.msg, description=description, image=image_url, elements=elements)
-            await interaction.followup.send(view=view, file=file)
+            await interaction.followup.send(view=view, file=file, ephemeral=True)
 
         except ValueError:
-            view = GlobalLayout(messages=self.msg, description=self.msg['check_color_format'], docs_page="commands/check")
-            await interaction.followup.send(view=view)
+            await self.respond(interaction, GlobalLayout(self.msg, self.msg['check_color_format'], docs_page))
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/check")
-            await interaction.followup.send(view=view)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), docs_page))
+            self.log_command_error(interaction, "check", e)
 
         finally:
             logger.info("%s[%s] issued bot command: /check %s", interaction.user.name, interaction.locale, color)

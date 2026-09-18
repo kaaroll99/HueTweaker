@@ -1,4 +1,4 @@
-from sqlalchemy import BigInteger, Integer, String, Text
+from sqlalchemy import BigInteger, Integer, String, Text, UniqueConstraint
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
@@ -7,7 +7,10 @@ class Base(DeclarativeBase):
 
 
 class Guilds(Base):
+    """Per-server configuration: color role placement mode and the reference role."""
+
     __tablename__ = 'guilds'
+    __table_args__ = (UniqueConstraint('server', name='uq_guilds_server'),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     server: Mapped[int] = mapped_column(BigInteger)
@@ -48,7 +51,11 @@ class Favorites(Base):
 
 
 class History(Base):
+    """Last 5 colors per user per guild. Each ``color_n`` is a packed value, see
+    ``utils.history_manager.pack_color`` (solid colors are the plain 24-bit int)."""
+
     __tablename__ = 'history'
+    __table_args__ = (UniqueConstraint('user_id', 'guild_id', name='uq_history_user_guild'),)
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(BigInteger)

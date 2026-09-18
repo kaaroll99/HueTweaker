@@ -24,10 +24,13 @@ set:
       - Other formats supported by the parser (e.g., rgb(...), hsl(...))
     ### Username:
       - Copy color from another user by mentioning them (e.g. @kaaroll99). If the selected user
-        does not have a colored role an error will be returned.
+        does not have a colored role an error will be returned. If they have a gradient, the
+        whole gradient is copied.
     ### Notes:
       - If you don't already have a bot-managed color role, the bot will create one named
         "color-<YOUR_ID>" and assign it to you.
+      - The reply has an "Undo to previous color" button. If you had no color before, undo
+        removes the color again.
       - To create a two-color gradient, use the `/gradient` command instead.
       - The command is subject to a cooldown.
   usage: /set <color>
@@ -88,7 +91,8 @@ select:
   desc: >-
     Choose one of the static colors configured on your server using a dropdown menu.
     The command generates a preview image showing your username rendered with each
-    available color so you can see how it will look before applying it.
+    available color so you can see how it will look before applying it. After choosing,
+    you get a confirmation with an "Undo to previous color" button.
 
     ### Notes:
       - The server must have colors configured (up to 10 positions) using `/setup select`.
@@ -111,7 +115,6 @@ check:
     - CSS color names (e.g. `royalblue`)
     - Mention another user to copy their color (e.g. `@kaaroll99`)
     - `random` to pick a random color
-    - `random` to pick a random color
 
     ### What the command returns:
       - Conversions: HEX, RGB, HSL, CMYK
@@ -129,7 +132,7 @@ history:
   name: history
   desc: >-
     View your color change history on the server. The command displays the last 5 colors
-    you have used. It also generates a small PNG preview image showing your username
+    (including gradients) you have used. It also generates a small PNG preview image showing your username
     rendered with each of those colors (shown as "name (#HEX)" when the color matches a CSS
     color name, otherwise just the HEX).
 
@@ -234,12 +237,9 @@ forceremove:
 forcepurge:
   name: forcepurge
   desc: >-
-    Delete HueTweaker-created color roles from the server. The command opens a confirmation
-    dialog where you can choose to remove:
-      - individual user color roles
-    - static roles created for `/select` (if configured)
-    - all color roles
-    - all color roles
+    Delete every HueTweaker-created color role (`color-<USER_ID>`) from the server. The command
+    opens a confirmation dialog; after confirming, the bot reports how many roles were deleted
+    and how many it could not delete (roles above the bot's own role).
 
     ### Notes:
       - This operation is irreversible once confirmed.

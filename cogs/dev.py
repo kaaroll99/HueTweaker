@@ -37,7 +37,8 @@ class DevCog(commands.Cog):
             if interaction.guild_id == DEV_GUILD_ID:
                 if action == "report":
                     import csv
-                    csv_file = 'guilds_info.csv'
+                    os.makedirs('logs', exist_ok=True)
+                    csv_file = os.path.join('logs', 'guilds_info.csv')
                     fields = ['Guild Name', 'Guild ID', 'Owner Name', 'Owner ID', 'Member Count', 'Preferred Locale']
 
                     with open(csv_file, 'w', newline='', encoding='utf-8') as f:
