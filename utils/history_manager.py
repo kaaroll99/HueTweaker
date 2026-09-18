@@ -4,7 +4,12 @@ Each slot is one BigInteger. A solid color is stored as its plain 24-bit value, 
 before gradients existed still decode. A gradient is packed as
 ``primary | secondary << 24 | GRADIENT_FLAG`` (49 bits, fits a signed 64-bit column)."""
 
+import logging
+
 from database import model
+from database.database import DatabaseError
+
+logger = logging.getLogger(__name__)
 
 HISTORY_SIZE = 5
 _COLOR_MASK = 0xFFFFFF
@@ -35,6 +40,15 @@ def history_colors(row: dict | None) -> list[tuple[int, int | None]]:
 
 
 async def update_history(db, user_id: int, guild_id: int, primary: int, secondary: int | None = None) -> None:
+    """Record the color as the newest history entry. History is best-effort: a database failure
+    is logged and swallowed, because the color itself has already been applied."""
+    try:
+        await _update_history(db, user_id, guild_id, primary, secondary)
+    except DatabaseError as e:
+        logger.warning("History not updated for user %s in guild %s: %s", user_id, guild_id, e)
+
+
+async def _update_history(db, user_id: int, guild_id: int, primary: int, secondary: int | None) -> None:
     packed = pack_color(primary, secondary)
     criteria = {"user_id": user_id, "guild_id": guild_id}
     history = await db.select_one(model.History, criteria)
