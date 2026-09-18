@@ -48,7 +48,7 @@ async def post_with_retry(url: str, headers: dict, data: dict, message: str) -> 
     return result
 
 
-async def api_request(server_count: int, user_count: int) -> None:
+async def api_request(server_count: int, user_count: int, shard_count: int = 1) -> None:
     tasks = []
 
     # top.gg
@@ -58,7 +58,7 @@ async def api_request(server_count: int, user_count: int) -> None:
             'Authorization': token_file['TOP_GG_TOKEN'],
             'Content-Type': 'application/json'
         },
-        {'server_count': server_count, 'shard_count': 2},
+        {'server_count': server_count, 'shard_count': shard_count},
         'stats to Top.gg'
     )))
 

@@ -11,5 +11,11 @@ INVITE_URL = (
 )
 SUPPORT_SERVER_URL = "https://discord.gg/tYdK4pD6ks"
 
+# Discord allows at most 250 roles per guild (HTTP 30005 when exceeded).
+DISCORD_ROLE_LIMIT = 250
+HTTP_MAX_ROLES_REACHED = 30005
+
 COLOR_ROLE_PREFIX = "color-"
-COLOR_ROLE_PATTERN = r"color-\d{18,19}"
+# Bot-managed color role: ``color-<user_id>``. Discord snowflakes are 15-20 digits
+# (accounts from 2015 have 17-digit ids). Anchored on both ends: use ``fullmatch``/``match``.
+COLOR_ROLE_PATTERN = r"^color-\d{15,20}$"

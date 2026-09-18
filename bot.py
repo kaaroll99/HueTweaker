@@ -24,7 +24,6 @@ class MyBot(commands.AutoShardedBot):
         self.config = config
         self.db = db
         self.messages = messages
-        self._guild_role_locks: Dict[int, asyncio.Lock] = {}
         self._ready_shards: Set[int] = set()
 
     async def load_cogs(self) -> None:
@@ -44,7 +43,7 @@ class MyBot(commands.AutoShardedBot):
                 return
             server_count = len(self.guilds)
             user_count = 0
-            await api_request(server_count, user_count)
+            await api_request(server_count, user_count, self.shard_count or 1)
         except Exception:
             logger.exception("update_stats_task error")
 

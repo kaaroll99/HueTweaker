@@ -5,24 +5,26 @@ from io import BytesIO
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from colormath.color_conversions import convert_color
-from colormath.color_objects import sRGBColor, CMYKColor, HSLColor
+from colormath.color_objects import sRGBColor, CMYKColor, HSLColor, LabColor
 
 from utils.data_loader import load_json
 
-rgb_pattern = re.compile(r"rgb\((\d+),\s*(\d+),\s*(\d+)\)")
-hsl_pattern = re.compile(r"hsl\((\d+(\.\d+)?),\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$")
-cmyk_pattern = re.compile(r"cmyk\((\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%,\s*(\d+(\.\d+)?)%\)$")
-
+# One regex per notation, used both for validation and for extracting the numbers.
+# Value ranges are checked numerically afterwards (see ``_in_range``).
+_NUM = r"(\d+(?:\.\d+)?)"
 hex_regex = re.compile(r"^#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$")
-rgb_regex = re.compile(r"^rgb\((25[0-5]|2[0-4]\d|[01]?\d{1,2})\s*,\s*(25[0-5]|2[0-4]\d|[01]?\d{1,2})\s*,\s*(25[0-5]|2[0-4]\d|[01]?\d{1,2})\)$")
-hsl_regex = re.compile(r"^hsl\((\d+(\.\d+)?|100(\.0+)?),\s*(\d+(\.\d+)?|100(\.0+)?)%\s*,\s*(\d+(\.\d+)?|100(\.0+)?)%\)$")
-cmyk_regex = re.compile(r"^cmyk\((100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%,\s*(100(\.0+)?|\d+(\.\d+)?)%\)$")
+rgb_regex = re.compile(rf"^rgb\(\s*{_NUM}\s*,\s*{_NUM}\s*,\s*{_NUM}\s*\)$")
+hsl_regex = re.compile(rf"^hsl\(\s*{_NUM}\s*,\s*{_NUM}%\s*,\s*{_NUM}%\s*\)$")
+cmyk_regex = re.compile(rf"^cmyk\(\s*{_NUM}%\s*,\s*{_NUM}%\s*,\s*{_NUM}%\s*,\s*{_NUM}%\s*\)$")
+
+# Colors closer than this (CIE76 distance in Lab) count as "similar" for /check.
+SIMILAR_COLOR_THRESHOLD = 30.0
 
 
 @lru_cache(maxsize=1)
 def _load_css_color_cache() -> dict[str, str]:
     data = load_json("assets/css-color-names.json")
-    return {name.lower(): value for name, value in data.items()}
+    return {name.lower(): value.lower() for name, value in data.items()}
 
 
 @lru_cache(maxsize=1)
@@ -34,13 +36,11 @@ def _load_css_name_by_hex() -> dict[str, str]:
 
 
 @lru_cache(maxsize=1)
-def _load_css_hsl_cache() -> dict[str, np.ndarray]:
-    color_dict = _load_css_color_cache()
+def _load_css_lab_cache() -> dict[str, np.ndarray]:
     result = {}
-    for name, hex_val in color_dict.items():
-        rgb_color = sRGBColor.new_from_rgb_hex(hex_val)
-        hsl = np.array(convert_color(rgb_color, HSLColor).get_value_tuple())
-        result[name] = hsl
+    for name, hex_val in _load_css_color_cache().items():
+        lab = convert_color(sRGBColor.new_from_rgb_hex(hex_val), LabColor)
+        result[name] = np.array(lab.get_value_tuple())
     return result
 
 
@@ -54,6 +54,11 @@ def _get_font(size: int = 18) -> ImageFont.FreeTypeFont | ImageFont.ImageFont:
 
 def _int_to_rgb(color_int: int) -> tuple[int, int, int]:
     return (color_int >> 16) & 255, (color_int >> 8) & 255, color_int & 255
+
+
+def css_name_key(text: str) -> str:
+    """Normalize user input for a CSS name lookup: ``"Royal Blue"`` -> ``"royalblue"``."""
+    return re.sub(r"[\s_-]", "", text.strip().lower())
 
 
 def name_and_hex(color: int | str) -> tuple[str, str]:
@@ -77,92 +82,94 @@ def format_color_label(color: int | str) -> str:
     return formatted_hex if label == formatted_hex else f"{label} ({formatted_hex})"
 
 
+def format_colors_label(primary: int, secondary: int | None = None) -> str:
+    """Label for a solid color or a ``primary + secondary`` gradient."""
+    if secondary is None:
+        return format_color_label(primary)
+    return f"{format_color_label(primary)} + {format_color_label(secondary)}"
+
+
+def _in_range(values, limits) -> bool:
+    return all(0.0 <= v <= hi for v, hi in zip(values, limits))
+
+
 class ColorUtils:
-    __slots__ = ['color', 'color_format', 'find_similar_colors']
+    __slots__ = ['color', 'color_format', 'find_similar_colors', '_values']
 
     def __init__(self, color, color_format=None, find_similar_colors=False):
         self.color = color
         self.color_format = color_format
         self.find_similar_colors = find_similar_colors
+        self._values: tuple[float, ...] = ()
 
     def __determine_color_format(self):
+        """Detect the notation and extract its numbers. Invalid or out-of-range input -> ``None``."""
         self.color = self.color.strip()
-        lowered = _load_css_color_cache()
-        css_name = re.sub(r"[^A-Za-z]", "", self.color.lower())
-        if css_name in lowered:
-            self.color = lowered[css_name]
+        self.color_format = None
+        self._values = ()
+
+        css_name = css_name_key(self.color)
+        css_colors = _load_css_color_cache()
+        if css_name in css_colors:
+            self.color = css_colors[css_name]
             self.color_format = "hex"
-        elif hex_regex.match(self.color):
-            self.color = self.color.lstrip("#")
-            if len(self.color) == 3:
-                self.color = ''.join([x * 2 for x in self.color])
+            return
+
+        if match := hex_regex.match(self.color):
+            value = match.group(1).lower()
+            if len(value) == 3:
+                value = ''.join(ch * 2 for ch in value)
+            self.color = value
             self.color_format = "hex"
-        elif rgb_regex.match(self.color):
-            self.color_format = "rgb"
-        elif hsl_regex.match(self.color):
-            self.color_format = "hsl"
-        elif cmyk_regex.match(self.color):
-            self.color_format = "cmyk"
-        else:
-            self.color_format = None
+            return
+
+        for fmt, regex, limits in (
+            ("rgb", rgb_regex, (255, 255, 255)),
+            ("hsl", hsl_regex, (360, 100, 100)),
+            ("cmyk", cmyk_regex, (100, 100, 100, 100)),
+        ):
+            match = regex.match(self.color)
+            if match:
+                values = tuple(float(v) for v in match.groups())
+                if _in_range(values, limits):
+                    self.color_format = fmt
+                    self._values = values
+                return
 
     def color_converter(self):
         self.__determine_color_format()
         if self.color_format is None:
             return None
         try:
-            rgb_color = None
             if self.color_format == "hex":
                 rgb_color = sRGBColor.new_from_rgb_hex(self.color)
             elif self.color_format == "rgb":
-                rgb_values = self.__parse_rgb()
-                rgb_color = sRGBColor(*np.array(rgb_values) / 255.0)
+                rgb_color = sRGBColor(*(np.array(self._values) / 255.0))
             elif self.color_format == "hsl":
-                hsl_values = self.__parse_hsl()
-                rgb_color = convert_color(HSLColor(hsl_values[0], hsl_values[1] / 100.0, hsl_values[2] / 100.0),
-                                          sRGBColor)
-            elif self.color_format == "cmyk":
-                cmyk_values = self.__parse_cmyk()
-                rgb_color = convert_color(CMYKColor(*cmyk_values), sRGBColor)
+                hue, sat, light = self._values
+                rgb_color = convert_color(HSLColor(hue % 360, sat / 100.0, light / 100.0), sRGBColor)
+            else:
+                rgb_color = convert_color(CMYKColor(*(np.array(self._values) / 100.0)), sRGBColor)
+
+            # Clamp so conversions from HSL/CMYK never produce components outside 0..1.
+            rgb_color = sRGBColor(*(min(1.0, max(0.0, c)) for c in rgb_color.get_value_tuple()))
 
             hex_color = rgb_color.get_rgb_hex()
             rgb_values = rgb_color.get_value_tuple()
             hsl_color = convert_color(rgb_color, HSLColor).get_value_tuple()
             cmyk_color = convert_color(rgb_color, CMYKColor).get_value_tuple()
-            similar_colors = self.__find_similar_colors(hsl_color) if self.find_similar_colors else []
+            similar_colors = self.__find_similar_colors(rgb_color) if self.find_similar_colors else []
 
-            result = {
+            return {
                 "Input": self.color,
                 "Hex": hex_color,
                 "RGB": rgb_values,
                 "HSL": hsl_color,
                 "CMYK": cmyk_color,
-                "Similars": similar_colors
+                "Similars": similar_colors,
             }
-            return result
-
-        except ValueError:
-            self.color = "ffffff"
-            self.color_format = "hex"
-            return self.color_converter()
-
-    def __parse_rgb(self):
-        match = rgb_pattern.match(self.color)
-        if match:
-            return np.array([int(match.group(1)), int(match.group(2)), int(match.group(3))])
-        raise ValueError
-
-    def __parse_hsl(self):
-        match = hsl_pattern.match(self.color)
-        if match:
-            return np.array([float(match.group(1)), float(match.group(3)), float(match.group(5))])
-        raise ValueError
-
-    def __parse_cmyk(self):
-        match = cmyk_pattern.match(self.color)
-        if match:
-            return np.array([float(match.group(i)) / 100.0 for i in (1, 3, 5, 7)])
-        raise ValueError
+        except (ValueError, TypeError):
+            return None
 
     @staticmethod
     def generate_image(color):
@@ -180,8 +187,8 @@ class ColorUtils:
 
     @staticmethod
     def generate_color_list_image(nick, colors):
-        """Render a numbered grid where each line is ``{i}. {nick} {name (#HEX)|#HEX}``
-        drawn in its own color. ``colors`` may be ints or hex strings."""
+        """Render a numbered list where each line is ``{i}. {nick} {label}`` drawn in its own
+        color. ``colors`` may be ints, hex strings, or ``(primary, secondary)`` tuples."""
         font = _get_font()
 
         padding = 10
@@ -189,8 +196,11 @@ class ColorUtils:
 
         lines, fills = [], []
         for i, color in enumerate(colors):
+            secondary = None
+            if isinstance(color, tuple):
+                color, secondary = color
             color_int = color if isinstance(color, int) else int(str(color).lstrip('#'), 16)
-            lines.append(f"{i + 1}. {nick} {format_color_label(color)}")
+            lines.append(f"{i + 1}. {nick} {format_colors_label(color_int, secondary)}")
             fills.append(_int_to_rgb(color_int))
 
         height = (len(colors) * line_height) + padding * 2
@@ -267,15 +277,13 @@ class ColorUtils:
         return image
 
     @staticmethod
-    def __find_similar_colors(hsl_color, threshold=20):
-        hsl_cache = _load_css_hsl_cache()
-        hsl_color_np = np.array(hsl_color)
+    def __find_similar_colors(rgb_color: sRGBColor, threshold: float = SIMILAR_COLOR_THRESHOLD):
+        """CSS colors sorted by perceptual distance (CIE76 in Lab), closest first."""
+        target = np.array(convert_color(rgb_color, LabColor).get_value_tuple())
         similar_colors = []
-
-        for color_name, compare_hsl in hsl_cache.items():
-            distance = np.sum((hsl_color_np - compare_hsl) ** 2)
+        for color_name, lab in _load_css_lab_cache().items():
+            distance = float(np.linalg.norm(target - lab))
             if distance <= threshold:
                 similar_colors.append((color_name, distance))
-
         similar_colors.sort(key=lambda x: x[1])
         return [color[0] for color in similar_colors]

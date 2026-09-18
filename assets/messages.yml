@@ -14,8 +14,7 @@ color_remove: "### <:ok:1362879418640498748> Color has been removed"
 color_remove_no_color: "### <:warn:1362879461468672130> No color to remove"
 
 #select
-select_set: "<:ok:1362879418640498748> **Your color has been set to the preset: {}**"
-select_remove: "<:ok:1362879418640498748> **Static color has been removed**"
+select_set: "### <:ok:1362879418640498748> Your color has been set to the preset __{}__"
 select_no_colors: "<:warn:1362879461468672130> **There are no preset colors configured on this server yet.**"
 available_colors: "<:star:1362879443625971783> Available colors to select:"
 
@@ -30,8 +29,8 @@ check_title: "### Details for color: {}"
 check_css: "<:star:1362879443625971783> The most similar CSS colors:"
 
 #force set
-force_set_set: "<:ok:1362879418640498748> **Color has been set for {} to __#{}__**"
-force_set_black: "<:ok:1362879418640498748> **Color has been set for {} to __#{}__**. However, due to Discord's limitations, the value has been modified."
+force_set_set: "### <:ok:1362879418640498748> Color has been set for {} to __{}__"
+force_set_black: "### <:ok:1362879418640498748> Color has been set for {} to __{}__. However, due to Discord's limitations, the value has been modified to #000001."
 
 #force remove
 force_remove_remove: "### <:ok:1362879418640498748> Color has been removed for {}"
@@ -44,9 +43,11 @@ purge_confirm: |
 
   <:warn:1362879461468672130> **The changes will be irreversible.**
 bttn_ind: "CONFIRM"
-bttn_stat: "STATIC ROLES"
-bttn_both: "ALL ROLES"
-purge_ok: "<:ok:1362879418640498748> **All roles with colors have been successfully removed.**"
+purge_ok: "### <:ok:1362879418640498748> All color roles have been removed ({} deleted)."
+purge_partial: |
+  ### <:warn:1362879461468672130> Removed {} color roles, but {} could not be deleted.
+
+  The bot cannot manage roles placed above its own highest role. Move them below the bot's role and run `/force purge` again.
 
 #setup select
 
@@ -70,7 +71,6 @@ toprole_custom_missing: |
   Please run `/setup toprole custom <role_name>`.
 
 #help
-help_choose: "Choose a command from the list..."
 help_desc: |
   <:star:1362879443625971783> Online on `{}` servers.
   <:star:1362879443625971783> Created by `@kaaroll99`
@@ -78,7 +78,6 @@ help_desc: |
   **<:bubble:1362879391423533226> Select one of the available commands from the list to learn more.**
 com_syntax: "<:star:1362879443625971783> Command syntax:"
 com_example: "<:star:1362879443625971783> Command example:"
-com_docs: "[See details of the command in the documentation](https://huetweaker.gitbook.io/docs/commands/{})"
 
 #exceptions
 exception: "### <:warn:1362879461468672130> The bot encountered an unexpected error."
@@ -93,6 +92,11 @@ err_50013: |
   Notify the server administrator of the occurrence of this error.
 
   <:bubble:1362879391423533226> Use the `/help` command to learn how to properly configure top role.
+
+err_role_limit: |
+  ### <:warn:1362879461468672130> This server has reached Discord's limit of 250 roles.
+
+  Ask an administrator to delete unused roles (or run `/force purge`) before setting a new color.
 
 err_670006: |
   <:warn:1362879461468672130> **This server does not have username color gradients enabled (required Nitro boost feature is missing).**
@@ -112,12 +116,12 @@ check_color_format: |
   * hsl(272.53, 86.36%, 56.86%)
   * cmyk(36.25%, 79.17%, 0.00%, 5.88%)
   * [CSS color](https://huetweaker.gitbook.io/docs/main/colors)
-cool_down_with_api: "<:warn:1362879461468672130> Please wait a moment. Retry <t:{}:R>"
 cool_down: |
   **<:warn:1362879461468672130> Please wait a moment.**
   **You can try again <t:{}:R>.**
 no_permissions: "<:warn:1362879461468672130> You don't have permission to perform this command."
-footer_message: "Support the bot by voting with the /vote command"
+not_author: "<:warn:1362879461468672130> Only the person who ran the command can use this."
+revert_not_author: "<:warn:1362879461468672130> Only the person who ran the command can use these buttons."
 
 color_reverted: |
   <:ok:1362879418640498748> **Color has been reverted to __{}__**
@@ -126,14 +130,14 @@ color_reverted: |
 
 revert_button: "Undo to previous color"
 
-revert_not_found: "<:warn:1362879461468672130> **No previous color was found to revert to.**"
+revert_not_found: "<:warn:1362879461468672130> **The color role no longer exists, nothing to revert.**"
 
-setup_select_embed_title: "<:star:1362879443625971783> /select color config"
+revert_removed: "<:ok:1362879418640498748> **Color has been removed. You had no color before this change.**"
+
 setup_select_embed_desc: |
   <:bubble:1362879391423533226> Use the button below to add or edit existing colors using hex codes or CSS names.
   <:bubble:1362879391423533226> Using the index number for an existing color will overwrite it.
   <:bubble:1362879391423533226> To remove an item from the list, leave the color field in the form blank.
-setup_select_create_info: "No colors set. Use the CREATE button to add the first one."
 setup_select_form_title: "Color edit form"
 setup_select_form_pl_index: "1"
 setup_select_form_index: "Index number to edit, e.g. 1, 2..., 10"

@@ -9,6 +9,10 @@ from . import model
 logger = logging.getLogger(__name__)
 
 
+class DatabaseError(Exception):
+    """Raised when a query fails. Callers must not mistake it for "no rows"."""
+
+
 class Database:
     def __init__(self, url: str, pool_size: int = 5, max_overflow: int = 10):
         self._engine = create_async_engine(
@@ -35,30 +39,35 @@ class Database:
     def _to_dict(obj: Any) -> dict:
         return {c.key: getattr(obj, c.key) for c in obj.__table__.columns}
 
-    async def select(self, table_class, parameters: dict | None = None) -> list[dict] | bool:
+    @staticmethod
+    def _ordered(stmt, table_class):
+        # Deterministic "first row" even if duplicates slipped into the table.
+        return stmt.order_by(*table_class.__table__.primary_key.columns)
+
+    async def select(self, table_class, parameters: dict | None = None) -> list[dict]:
         async with self._session_factory() as session:
             try:
                 stmt = select(table_class)
                 if parameters:
                     stmt = stmt.filter_by(**parameters)
-                result = await session.execute(stmt)
+                result = await session.execute(self._ordered(stmt, table_class))
                 return [self._to_dict(r) for r in result.scalars().all()]
             except Exception as e:
                 logger.error("Select error: %s", e)
-                return False
+                raise DatabaseError(str(e)) from e
 
-    async def select_one(self, table_class, parameters: dict | None = None) -> dict | None | bool:
+    async def select_one(self, table_class, parameters: dict | None = None) -> dict | None:
         async with self._session_factory() as session:
             try:
                 stmt = select(table_class)
                 if parameters:
                     stmt = stmt.filter_by(**parameters)
-                result = await session.execute(stmt)
+                result = await session.execute(self._ordered(stmt, table_class))
                 obj = result.scalars().first()
                 return self._to_dict(obj) if obj else None
             except Exception as e:
                 logger.error("Select_one error: %s", e)
-                return False
+                raise DatabaseError(str(e)) from e
 
     async def create(self, table_class, values: dict) -> bool:
         async with self._session_factory() as session:
@@ -69,12 +78,13 @@ class Database:
             except Exception as e:
                 await session.rollback()
                 logger.error("Create error: %s", e)
-                return False
+                raise DatabaseError(str(e)) from e
 
     async def update(self, table_class, criteria: dict, values: dict) -> bool:
+        """Update the first row matching ``criteria``. Returns False when no row matched."""
         async with self._session_factory() as session:
             try:
-                stmt = select(table_class).filter_by(**criteria)
+                stmt = self._ordered(select(table_class).filter_by(**criteria), table_class)
                 result = await session.execute(stmt)
                 obj = result.scalars().first()
                 if not obj:
@@ -86,7 +96,12 @@ class Database:
             except Exception as e:
                 await session.rollback()
                 logger.error("Update error: %s", e)
-                return False
+                raise DatabaseError(str(e)) from e
+
+    async def upsert(self, table_class, criteria: dict, values: dict) -> None:
+        """Update the row matching ``criteria`` or create it with ``criteria + values``."""
+        if not await self.update(table_class, criteria, values):
+            await self.create(table_class, {**criteria, **values})
 
     async def delete(self, table_class, criteria: dict) -> bool:
         async with self._session_factory() as session:
@@ -98,9 +113,9 @@ class Database:
             except Exception as e:
                 await session.rollback()
                 logger.error("Delete error: %s", e)
-                return False
+                raise DatabaseError(str(e)) from e
 
-    async def delete_all(self, table_class, criteria: dict) -> int | bool:
+    async def delete_all(self, table_class, criteria: dict) -> int:
         async with self._session_factory() as session:
             try:
                 stmt = delete(table_class).filter_by(**criteria)
@@ -110,4 +125,4 @@ class Database:
             except Exception as e:
                 await session.rollback()
                 logger.error("Delete_all error: %s", e)
-                return False
+                raise DatabaseError(str(e)) from e

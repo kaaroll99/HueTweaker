@@ -1,14 +1,14 @@
 import logging
-from typing import Tuple, Optional
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 from cogs._base import BaseCog
+from utils.color_format import format_colors_label
+from utils.color_parse import parse_color_pair
 from utils.history_manager import update_history
-from utils.color_parse import fetch_color_representation, color_parser, check_black
-from utils.role_manager import create_or_update_color_role, assign_role_if_missing, get_color_role
+from utils.role_manager import apply_color_role, remove_color_role
 from views.global_view import GlobalLayout
 from views.purge import PurgeView
 from views.set import Layout
@@ -28,76 +28,37 @@ class ForceCog(BaseCog):
                            secondary_color="Secondary color for gradient (optional)")
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, username: discord.Member, color: str, secondary_color: str = None) -> None:
-        description = ""
-        undo_lock = False
-        prev_colors: Optional[Tuple[Optional[int], Optional[int]]] = None
+        docs_page = "commands/force-set"
+        log_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
         try:
             await interaction.response.defer(ephemeral=True)
 
-            primary_hex = color_parser(fetch_color_representation(interaction, color))
-            secondary_hex = color_parser(fetch_color_representation(interaction, secondary_color)) if secondary_color else None
-            primary_hex, secondary_hex, is_black = check_black(primary_hex, secondary_hex)
+            primary_val, secondary_val, is_black = parse_color_pair(interaction, color, secondary_color)
+            label = format_colors_label(primary_val, secondary_val)
 
-            if primary_hex is None or (secondary_hex is None and secondary_color):
-                raise ValueError
-
-            primary_val = int(primary_hex, 16)
-            secondary_val = int(secondary_hex, 16) if secondary_hex else None
-            new_colors_val: Tuple[int, Optional[int]] = (primary_val, secondary_val)
-
-            role, role_updated, prev_colors = await create_or_update_color_role(
-                interaction.guild,
-                username.id,
-                primary_val,
-                secondary_val,
-                self.db,
-                interaction.client.user.id,
+            result = await apply_color_role(
+                interaction.guild, username, primary_val, secondary_val, self.db, interaction.client.user.id
             )
 
-            if not role_updated:
+            if not result.changed:
                 description = self.msg['color_same']
-                undo_lock = True
             else:
-                display_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
-                if is_black:
-                    description = self.msg['force_set_black'].format(display_color)
-                else:
-                    description = self.msg['force_set_set'].format(username.name, display_color)
-                await update_history(self.db, username.id, interaction.guild.id, primary_val)
+                template = self.msg['force_set_black'] if is_black else self.msg['force_set_set']
+                description = template.format(username.name, label)
+                await update_history(self.db, username.id, interaction.guild.id, primary_val, secondary_val)
 
-            await assign_role_if_missing(username, role)
-
-            view = Layout(
-                messages=self.msg,
-                color=discord.Color(new_colors_val[0]),
-                display_color=f"{color}" + (f", {secondary_color}" if secondary_color else ""),
-                prev_colors=prev_colors,
-                role_id=role.id if role else None,
-                author_id=interaction.user.id,
-                description=description,
-                undo_lock=undo_lock
-            )
-
-            await interaction.followup.send(view=view)
+            view = Layout.from_result(self.msg, result, primary_val, interaction.user.id, description)
+            await self.respond(interaction, view)
 
         except ValueError:
-            view = GlobalLayout(messages=self.msg, description=self.msg['color_format'], docs_page="commands/force-set")
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.info("%s[%s] issued bot command: /set (invalid format)", interaction.user.name, interaction.user.id)
-
-        except discord.HTTPException as e:
-            err_description = self.get_http_error_description(e)
-            view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/force-set")
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.warning("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
+            await self.respond(interaction, GlobalLayout(self.msg, self.msg['color_format'], docs_page))
+            logger.info("%s[%s] issued bot command: /force set (invalid format)", interaction.user.name, interaction.user.id)
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/force-set")
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), docs_page))
+            self.log_command_error(interaction, "force set", e)
 
         finally:
-            log_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
             logger.info("%s[%s] issued bot command: /force set %s", interaction.user.name, interaction.locale, log_color)
 
     @group.command(name="remove", description="Remove the color of the user")
@@ -106,23 +67,19 @@ class ForceCog(BaseCog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def forceremove(self, interaction: discord.Interaction, username: discord.Member) -> None:
+        docs_page = "commands/force-remove"
         try:
             await interaction.response.defer(ephemeral=True)
-            role = get_color_role(interaction.guild, username.id)
-            if role is not None:
-                await username.remove_roles(role)
-                await role.delete()
+            removed = await remove_color_role(interaction.guild, username.id)
+            if removed:
                 description = self.msg['force_remove_remove'].format(username.name)
             else:
                 description = self.msg['force_remove_no_color']
-
-            view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/force-remove")
-            await interaction.followup.send(view=view)
+            await self.respond(interaction, GlobalLayout(self.msg, description, docs_page))
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/force-remove")
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), docs_page))
+            self.log_command_error(interaction, "force remove", e)
 
         finally:
             logger.info("%s[%s] issued bot command: /force remove %s", interaction.user.name, interaction.locale, username.name)
@@ -132,15 +89,13 @@ class ForceCog(BaseCog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def purge(self, interaction: discord.Interaction) -> None:
-        view = PurgeView(messages=self.msg, author_id=interaction.user.id, db=self.db, description=self.msg['purge_confirm'])
-
         try:
             await interaction.response.defer(ephemeral=True)
-            await interaction.followup.send(view=view)
+            view = PurgeView(messages=self.msg, author_id=interaction.user.id, description=self.msg['purge_confirm'])
+            await interaction.followup.send(view=view, ephemeral=True)
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/force-purge")
-            await interaction.followup.send(view=view)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), "commands/force-purge"))
+            self.log_command_error(interaction, "force purge", e)
         finally:
             logger.info("%s[%s] issued bot command: /force purge", interaction.user.name, interaction.locale)
 

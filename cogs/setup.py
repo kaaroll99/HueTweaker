@@ -1,26 +1,22 @@
 import logging
-import re
 
 import discord
 from discord import app_commands
 from discord.ext import commands
 
 from cogs._base import BaseCog
-from constants import COLOR_ROLE_PATTERN
 from database import model
 from utils.role_manager import (
     TOPROLE_MODE_AUTO,
     TOPROLE_MODE_CUSTOM,
     TOPROLE_MODE_OFF,
-    get_role_position,
-    move_roles_to_block,
+    place_color_roles,
 )
 from views.global_view import GlobalLayout
 from views.setup_select import SetupView
 
 logger = logging.getLogger(__name__)
 
-_color_role_re = re.compile(COLOR_ROLE_PATTERN)
 _toprole_mode_choices = [
     app_commands.Choice(name="auto", value=TOPROLE_MODE_AUTO),
     app_commands.Choice(name="custom", value=TOPROLE_MODE_CUSTOM),
@@ -36,19 +32,17 @@ class SetupCog(BaseCog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:
+        docs_page = "commands/setup-select"
         try:
             await interaction.response.defer(ephemeral=True)
             select_obj = await self.db.select_one(model.Select, {"server_id": interaction.guild.id})
 
-            colors_data = select_obj if select_obj else {}
-
-            view = SetupView(colors_data, interaction.guild.id, self.bot)
+            view = SetupView(select_obj or {}, interaction.guild.id, self.bot)
             await interaction.followup.send(view=view, ephemeral=True)
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/setup-select")
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), docs_page))
+            self.log_command_error(interaction, "setup select", e)
 
         finally:
             logger.info("%s[%s] issued bot command: /setup select", interaction.user.name, interaction.locale)
@@ -67,34 +61,21 @@ class SetupCog(BaseCog):
         mode: app_commands.Choice[str],
         role_name: discord.Role | None = None,
     ) -> None:
+        docs_page = "commands/setup-toprole"
         try:
             await interaction.response.defer(ephemeral=True)
 
             selected_mode = mode.value
-            if selected_mode == TOPROLE_MODE_CUSTOM and role_name is None:
-                view = GlobalLayout(
-                    messages=self.msg,
-                    description=self.msg['toprole_custom_missing'],
-                    docs_page="commands/setup-toprole"
-                )
-                await interaction.followup.send(view=view, ephemeral=True)
+            if selected_mode == TOPROLE_MODE_CUSTOM and (role_name is None or role_name.is_default()):
+                await self.respond(interaction, GlobalLayout(self.msg, self.msg['toprole_custom_missing'], docs_page))
                 return
-
-            if role_name is not None and role_name.is_default():
-                selected_mode = TOPROLE_MODE_OFF
-                role_name = None
-
-            guild_obj = await self.db.select_one(model.Guilds, {"server": interaction.guild.id})
 
             values = {
                 "mode": selected_mode,
-                "role": role_name.id if selected_mode == TOPROLE_MODE_CUSTOM and role_name is not None else 0,
+                "role": role_name.id if selected_mode == TOPROLE_MODE_CUSTOM else 0,
             }
-
-            if guild_obj:
-                await self.db.update(model.Guilds, {"server": interaction.guild.id}, values)
-            else:
-                await self.db.create(model.Guilds, {"server": interaction.guild.id, **values})
+            # Raises DatabaseError when the write fails, so the user never sees a false success.
+            await self.db.upsert(model.Guilds, {"server": interaction.guild.id}, values)
 
             if selected_mode == TOPROLE_MODE_AUTO:
                 description = self.msg['toprole_auto']
@@ -103,38 +84,13 @@ class SetupCog(BaseCog):
             else:
                 description = self.msg['toprole_custom'].format(role_name.name)
 
-            roles = await interaction.guild.fetch_roles()
-            role_position = await get_role_position(
-                self.db,
-                interaction.guild,
-                interaction.client.user.id,
-                roles=roles,
-            )
+            await place_color_roles(self.db, interaction.guild, interaction.client.user.id)
 
-            color_role_ids = {role.id for role in roles if _color_role_re.match(role.name)}
-            await move_roles_to_block(
-                interaction.guild,
-                color_role_ids,
-                role_position,
-                roles=roles,
-            )
-
-            view = GlobalLayout(messages=self.msg, description=description, docs_page="commands/setup-toprole")
-            await interaction.followup.send(view=view)
-
-        except discord.HTTPException as e:
-            if e.code == 50013:
-                err_description = self.msg['err_50013']
-            else:
-                err_description = self.msg['err_http'].format(e.code, e.text)
-            view = GlobalLayout(messages=self.msg, description=err_description, docs_page="commands/setup-toprole")
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise HTTP exception: %s", interaction.user.name, interaction.user.id, e.text)
+            await self.respond(interaction, GlobalLayout(self.msg, description, docs_page))
 
         except Exception as e:
-            view = GlobalLayout(messages=self.msg, description=self.msg['exception'], docs_page="commands/setup-toprole")
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.critical("%s[%s] raise critical exception - %r", interaction.user.name, interaction.user.id, e)
+            await self.respond(interaction, GlobalLayout(self.msg, self.describe_error(e), docs_page))
+            self.log_command_error(interaction, "setup toprole", e)
 
         finally:
             logger.info("%s[%s] issued bot command: /setup toprole", interaction.user.name, interaction.locale)

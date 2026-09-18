@@ -3,6 +3,7 @@ import logging
 import discord
 
 from constants import ACCENT_COLOR, DOCS_BASE_URL, INVITE_URL
+from utils.role_manager import ColorRoleError
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,23 @@ async def safe_defer(interaction: discord.Interaction, **kwargs) -> bool:
     except discord.HTTPException as e:
         logger.warning("%s[%s] failed to acknowledge interaction: %s", interaction.user.name, interaction.user.id, e)
         return False
+
+
+def http_error_description(messages: dict, error: discord.HTTPException) -> str:
+    if error.code == 50013:
+        return messages["err_50013"]
+    if error.code == 670006:
+        return messages["err_670006"]
+    return messages["err_http"].format(error.code, error.text)
+
+
+def error_description(messages: dict, error: Exception) -> str:
+    """User-facing text for any failure of a color operation."""
+    if isinstance(error, ColorRoleError):
+        return messages[error.message_key]
+    if isinstance(error, discord.HTTPException):
+        return http_error_description(messages, error)
+    return messages["exception"]
 
 
 def make_invite_button() -> discord.ui.Button:

@@ -3,18 +3,24 @@ from typing import Optional, Tuple
 
 import discord
 
-from views.global_view import make_invite_button, safe_defer
+from utils.color_format import format_colors_label
+from utils.role_manager import ApplyResult, revert_color_role
+from views.global_view import error_description, make_invite_button, safe_defer
 
 logger = logging.getLogger(__name__)
 
 
 class Layout(discord.ui.LayoutView):
+    """Result of a color change with an "Undo to previous color" button.
+
+    ``prev_colors=None`` means the role did not exist before the change, so undo deletes it.
+    ``undo_lock=True`` disables the button (nothing changed)."""
+
     def __init__(
         self,
         messages: dict,
         color: discord.Color,
-        display_color: str,
-        prev_colors: Optional[Tuple[Optional[int], Optional[int]]] = None,
+        prev_colors: Optional[Tuple[int, Optional[int]]] = None,
         role_id: Optional[int] = None,
         author_id: Optional[int] = None,
         description: str = "",
@@ -23,7 +29,6 @@ class Layout(discord.ui.LayoutView):
         super().__init__()
         self.msg = messages
         self.color = color
-        self.display_color = display_color
         self.prev_colors = prev_colors
         self.role_id = role_id
         self.author_id = author_id
@@ -36,7 +41,7 @@ class Layout(discord.ui.LayoutView):
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
 
         self.revert_btn = discord.ui.Button(
-            label=self.msg.get('revert_button', 'Revert'),
+            label=self.msg['revert_button'],
             style=discord.ButtonStyle.secondary,
             emoji="<:back:1408056926121627679>",
             disabled=self.undo_lock,
@@ -46,6 +51,25 @@ class Layout(discord.ui.LayoutView):
 
         self.add_item(container)
 
+    @classmethod
+    def from_result(
+        cls,
+        messages: dict,
+        result: ApplyResult,
+        primary_val: int,
+        author_id: int,
+        description: str,
+    ) -> "Layout":
+        return cls(
+            messages=messages,
+            color=discord.Color(primary_val),
+            prev_colors=result.prev_colors,
+            role_id=result.role.id,
+            author_id=author_id,
+            description=description,
+            undo_lock=not result.changed,
+        )
+
     def _set_description(self, description: str) -> None:
         self.description = description
         self.text_display.content = description
@@ -54,7 +78,7 @@ class Layout(discord.ui.LayoutView):
         if interaction.user.id != self.author_id:
             try:
                 await interaction.response.send_message(
-                    self.msg.get('revert_not_author', "You can't revert this color."), ephemeral=True
+                    self.msg["revert_not_author"], ephemeral=True
                 )
             except discord.HTTPException:
                 pass
@@ -64,33 +88,28 @@ class Layout(discord.ui.LayoutView):
             return
 
         guild = interaction.guild
-        role = discord.utils.get(guild.roles, id=self.role_id) if guild else None
         self.revert_btn.disabled = True
 
         try:
-            if role is None:
-                self._set_description(self.msg.get('revert_not_found'))
+            if guild is None or self.role_id is None or guild.get_role(self.role_id) is None:
+                self._set_description(self.msg['revert_not_found'])
                 await interaction.edit_original_response(view=self)
                 return
 
+            await revert_color_role(guild, self.role_id, self.prev_colors)
+
             if self.prev_colors is None:
-                primary_color, secondary_color = discord.Color.default(), None
-                hex_str = "default"
+                self._set_description(self.msg['revert_removed'])
+                label = "none"
             else:
-                primary_val, secondary_val = self.prev_colors
-                primary_color = discord.Color(primary_val) if primary_val is not None else discord.Color.default()
-                secondary_color = discord.Color(secondary_val) if secondary_val is not None else None
-                hex_str = f"#{primary_val:06X}".lower() if primary_val is not None else "default"
-
-            await role.edit(color=primary_color, secondary_color=secondary_color)
-
-            self._set_description(self.msg.get('color_reverted').format(hex_str))
+                label = format_colors_label(*self.prev_colors)
+                self._set_description(self.msg['color_reverted'].format(label))
             await interaction.edit_original_response(view=self)
-            logger.info("%s[%s] reverted color for role to %s", interaction.user.name, interaction.locale, hex_str)
-        except discord.HTTPException as e:
-            logger.critical("%s[%s] HTTP exception while reverting color: %s", interaction.user.name, interaction.locale, e)
+            logger.info("%s[%s] reverted color of role %s to %s", interaction.user.name, interaction.locale, self.role_id, label)
+        except Exception as e:
+            logger.warning("%s[%s] failed to revert color: %r", interaction.user.name, interaction.locale, e)
             try:
-                await interaction.followup.send("Failed to revert color.", ephemeral=True)
+                await interaction.followup.send(error_description(self.msg, e), ephemeral=True)
             except discord.HTTPException:
                 pass
 
