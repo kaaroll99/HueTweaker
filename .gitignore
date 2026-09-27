@@ -169,3 +169,5 @@ assets/token.yml
 CLAUDE.md
 .claude/
 DEV_README.md
+update.sh
+stats.sh
