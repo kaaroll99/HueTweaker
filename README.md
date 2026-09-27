@@ -6,8 +6,8 @@
 [![Gitbook docs](https://img.shields.io/badge/Gitbook_docs-BBDDE5?style=for-the-badge&logo=gitbook&logoColor=black)](https://huetweaker.gitbook.io/docs/)
 ![License](https://img.shields.io/github/license/kaaroll99/HueTweaker.svg?style=for-the-badge&logo=unlicense&logoColor=white)
 ![Last commit](https://img.shields.io/github/last-commit/kaaroll99/HueTweaker?style=for-the-badge&logo=github&logoColor=white)
-![Python](https://img.shields.io/python/required-version-toml?tomlFilePath=https://raw.githubusercontent.com/kaaroll99/HueTweaker/main/pyproject.toml&style=for-the-badge&logo=python&logoColor=white&label=Python&color=3776AB)
-![discord.py](https://img.shields.io/badge/dynamic/toml?url=https://raw.githubusercontent.com/kaaroll99/HueTweaker/main/pyproject.toml&query=$.project.dependencies[0]&style=for-the-badge&logo=discord&logoColor=white&label=&color=5865F2)
+![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![discord.py](https://img.shields.io/badge/discord.py-2.7.1-5865F2?style=for-the-badge&logo=discord&logoColor=white&labelColor=2b2d31)
 </div>
 
 
