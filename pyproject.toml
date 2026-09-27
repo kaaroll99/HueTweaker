@@ -1,0 +1,33 @@
+[project]
+name = "huetweaker"
+version = "2026.9.18"
+description = "Discord bot that lets members set their own username color via roles."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.13"
+# discord.py must stay first: the README badge reads dependencies[0].
+# Keep in sync with requirements.txt.
+dependencies = [
+    "discord.py>=2.7.1",
+    "discord",
+    "PyYAML",
+    "msgspec",
+    "numpy",
+    "pillow",
+    "colormath",
+    "SQLAlchemy",
+    "requests",
+    "topggpy",
+    "PyMySQL",
+    "python-dotenv",
+    "colorlog",
+    "aiohttp",
+    "aiomysql",
+    "aiosqlite",
+    "asyncpg",
+    "greenlet",
+]
+
+[project.urls]
+Documentation = "https://huetweaker.gitbook.io/docs/"
+Repository = "https://github.com/kaaroll99/HueTweaker"
