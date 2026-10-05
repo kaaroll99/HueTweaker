@@ -63,7 +63,7 @@ The `[role_name]` parameter is only used with `custom`.
 ## **What happens when you update the mode**
 
 * The bot stores the selected mode for the server.
-* Existing roles matching `color-<USER_ID>` are moved immediately to the new target position.
+* Existing HueTweaker color roles are moved immediately to the new target position.
 
 ## Configuration (custom mode)
 

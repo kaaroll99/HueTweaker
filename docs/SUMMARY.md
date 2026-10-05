@@ -7,6 +7,7 @@
 * [Terms of service](main/terms-of-service.md)
 * [Colors](main/colors.md)
 * [Permissions](main/permissions.md)
+* [Voting](main/voting.md)
 
 ## Commands
 
@@ -23,3 +24,5 @@
 * [force purge](commands/force-purge.md)
 * [setup toprole](commands/setup-toprole.md)
 * [setup select](commands/setup-select.md)
+* [help](commands/help.md)
+* [refactor](commands/refactor.md)

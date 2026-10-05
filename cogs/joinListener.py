@@ -4,7 +4,7 @@ import discord
 from discord.ext import commands
 
 from database import model
-from utils.role_manager import TOPROLE_MODE_CUSTOM, TOPROLE_MODE_OFF, is_color_role, remove_color_role
+from utils.role_manager import TOPROLE_MODE_CUSTOM, TOPROLE_MODE_OFF, looks_like_color_role, remove_color_role
 
 logger = logging.getLogger(__name__)
 
@@ -20,16 +20,17 @@ class JoinListenerCog(commands.Cog):
         user_id = payload.user.id
         guild = self.bot.get_guild(payload.guild_id)
         try:
-            if guild is not None and await remove_color_role(guild, user_id, reason="HueTweaker: member left the server"):
+            if guild is not None and await remove_color_role(self.db, guild, user_id, reason="HueTweaker: member left the server"):
                 logger.info("Deleted color role of user %s who left guild %s", user_id, payload.guild_id)
             await self.db.delete(model.History, {"user_id": user_id, "guild_id": payload.guild_id})
+            await self.db.delete(model.ColorRoles, {"user_id": user_id, "guild_id": payload.guild_id})
         except Exception as e:
             logger.warning("Cleanup after user %s left guild %s failed: %r", user_id, payload.guild_id, e)
 
     @commands.Cog.listener()
     async def on_guild_role_delete(self, role: discord.Role):
         """If the reference role of ``custom`` placement is deleted, fall back to ``off``."""
-        if is_color_role(role):
+        if looks_like_color_role(role):
             return
         try:
             guild_obj = await self.db.select_one(model.Guilds, {"server": role.guild.id})
@@ -50,6 +51,7 @@ class JoinListenerCog(commands.Cog):
             await self.db.delete_all(model.Guilds, {"server": guild.id})
             await self.db.delete_all(model.History, {"guild_id": guild.id})
             await self.db.delete_all(model.Select, {"server_id": guild.id})
+            await self.db.delete_all(model.ColorRoles, {"guild_id": guild.id})
         except Exception as e:
             logger.warning("Cleanup after leaving guild %s failed: %r", guild.id, e)
 

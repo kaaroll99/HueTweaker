@@ -4,6 +4,7 @@ import re
 import discord
 
 from utils.color_format import ColorUtils
+from utils.role_manager import find_color_role
 
 MAX_COLOR_INPUT_LEN = 32
 BLACK_HEX = "000000"
@@ -23,7 +24,7 @@ def _role_colors(role: discord.Role) -> tuple[str, str | None]:
     return primary, secondary
 
 
-def resolve_mention(interaction: discord.Interaction, text: str) -> tuple[str, str | None] | None:
+async def resolve_mention(interaction: discord.Interaction, db, text: str) -> tuple[str, str | None] | None:
     """If ``text`` mentions a user, return that user's ``(primary, secondary)`` hex; else ``None``.
     Raises ``MentionedUserHasNoColor`` when the user has no color role (or a colorless one)."""
     match = _mention_re.match(text.strip())
@@ -31,17 +32,17 @@ def resolve_mention(interaction: discord.Interaction, text: str) -> tuple[str, s
         return None
     if interaction.guild is None:
         raise MentionedUserHasNoColor
-    copy_role = discord.utils.get(interaction.guild.roles, name=f"color-{match.group(1)}")
+    copy_role = await find_color_role(db, interaction.guild, int(match.group(1)))
     if copy_role is None or copy_role.color.value == 0:
         raise MentionedUserHasNoColor
     return _role_colors(copy_role)
 
 
-def fetch_color_representation(interaction: discord.Interaction, color: str) -> str:
+async def fetch_color_representation(interaction: discord.Interaction, db, color: str) -> str:
     """Turn ``@mention`` / ``random`` into a hex string; other input is returned unchanged."""
     if len(color) > MAX_COLOR_INPUT_LEN:
         raise ValueError
-    mentioned = resolve_mention(interaction, color)
+    mentioned = await resolve_mention(interaction, db, color)
     if mentioned is not None:
         return f"#{mentioned[0]}"
     if color.strip().lower() == "random":
@@ -70,8 +71,8 @@ def check_black(primary_hex: str | None, secondary_hex: str | None) -> tuple[str
     return primary_hex, secondary_hex, is_black
 
 
-def parse_color_pair(
-    interaction: discord.Interaction, color: str, secondary_color: str | None
+async def parse_color_pair(
+    interaction: discord.Interaction, db, color: str, secondary_color: str | None
 ) -> tuple[int, int | None, bool]:
     """Resolve the ``/set``, ``/gradient`` and ``/force set`` inputs into ``(primary, secondary, is_black)``
     integer values. Mentioning a user with a gradient (and giving no secondary color) copies the
@@ -79,16 +80,16 @@ def parse_color_pair(
     primary_hex: str | None
     secondary_hex: str | None = None
 
-    mentioned = resolve_mention(interaction, color) if len(color) <= MAX_COLOR_INPUT_LEN else None
+    mentioned = await resolve_mention(interaction, db, color) if len(color) <= MAX_COLOR_INPUT_LEN else None
     if mentioned is not None:
         primary_hex, copied_secondary = mentioned
         if secondary_color is None:
             secondary_hex = copied_secondary
     else:
-        primary_hex = color_parser(fetch_color_representation(interaction, color))
+        primary_hex = color_parser(await fetch_color_representation(interaction, db, color))
 
     if secondary_color:
-        secondary_hex = color_parser(fetch_color_representation(interaction, secondary_color))
+        secondary_hex = color_parser(await fetch_color_representation(interaction, db, secondary_color))
         if secondary_hex is None:
             raise ValueError
 

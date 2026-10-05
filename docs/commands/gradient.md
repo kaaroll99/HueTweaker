@@ -4,6 +4,10 @@
 Gradients rely on Discord's boost-gated Enhanced Role Colors. The server must have the required Server Boost level, otherwise the gradient can't be applied.
 {% endhint %}
 
+{% hint style="info" icon="star" %}
+Gradients are unlocked by [voting for HueTweaker on top.gg](../main/voting.md). A vote lasts 12 hours.
+{% endhint %}
+
 Set or change your username color using a two-color gradient. You provide a primary and a secondary color, and HueTweaker blends them into a single gradient role. Each color can be given as a HEX value (with or without a leading '#'), as a CSS color name, by copying another user's color (mention the user, e.g. @kaaroll99), or as "random".
 
 The command generates a preview image and asks for confirmation before applying the gradient.
@@ -25,7 +29,8 @@ The command generates a preview image and asks for confirmation before applying 
 
 **Notes:**
 
-* If you don't already have a bot-managed color role, the bot will create one named `color-<YOUR_ID>` and assign it to you.
+* The bot first checks whether the server supports gradients, then whether you have voted.
+* If you don't already have a bot-managed color role, the bot will create one named `🎨 <your display name>` and assign it to you.
 * To set a single solid color, use the `/set` command instead.
 * The command is subject to a cooldown.
 

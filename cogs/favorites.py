@@ -29,7 +29,7 @@ class FavoritesCog(BaseCog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            parsed = color_parser(fetch_color_representation(interaction, color))
+            parsed = color_parser(await fetch_color_representation(interaction, self.db, color))
             if parsed is None:
                 raise ValueError
 

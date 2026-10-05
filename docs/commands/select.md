@@ -21,7 +21,7 @@ Choose one of the static colors configured on your server using an interactive m
 **Notes:**
 
 * The server must have colors configured (up to 10 positions) using `/setup select`.
-* Selecting a color creates or updates your `color-<YOUR_ID>` role and records the choice in your `/history`.
+* Selecting a color creates or updates your color role (`🎨 <your display name>`) and records the choice in your `/history`.
 * The command is subject to a cooldown.
 
 **Command syntax:**

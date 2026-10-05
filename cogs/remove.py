@@ -19,7 +19,7 @@ class RemoveCog(BaseCog):
     async def remove(self, interaction: discord.Interaction) -> None:
         try:
             await interaction.response.defer(ephemeral=True)
-            removed = await remove_color_role(interaction.guild, interaction.user.id)
+            removed = await remove_color_role(self.db, interaction.guild, interaction.user.id)
             description = self.msg['color_remove'] if removed else self.msg['color_remove_no_color']
             await self.respond(interaction, GlobalLayout(self.msg, description, "commands/remove"))
 

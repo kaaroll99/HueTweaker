@@ -42,7 +42,7 @@ Delete HueTweaker-created color roles from the server. The command opens a confi
 
 **Notes:**
 
-* The command targets roles matching the pattern `color-<USER_ID>` (e.g. `color-512674615223517205`).
+* The command targets color roles created by HueTweaker (`🎨 <display name>`) and older roles named `color-<USER_ID>` (e.g. `color-512674615223517205`).
 * This operation is irreversible once confirmed.
 * Requires administrator privileges.
 
@@ -55,7 +55,7 @@ Delete HueTweaker-created color roles from the server. The command opens a confi
 * `/force purge`
 
 {% hint style="info" %}
-The command uses a [regular expression](https://en.wikipedia.org/wiki/Regular_expression). It will remove all roles that conform to the format: `color-{USER_ID}` e.g., `color-512674615223517205`
+HueTweaker keeps track of the color roles it created, so other roles are never deleted, even if their name starts with 🎨. Older roles are recognized by their `color-<USER_ID>` name.
 {% endhint %}
 
 <div align="left"><figure><img src="../.gitbook/assets/image (10).png" alt=""><figcaption></figcaption></figure></div>

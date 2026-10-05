@@ -38,7 +38,7 @@ Remove another user's username color. The bot will remove/unassign the bot-manag
 
 **Notes:**
 
-* Only affects roles created and managed by the bot (`color-<USER_ID>`).
+* Only affects color roles created and managed by the bot.
 * Requires administrator privileges.
 
 **Command syntax:**

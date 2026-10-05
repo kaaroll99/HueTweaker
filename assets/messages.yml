@@ -44,6 +44,18 @@ force_set_black: "### <:ok:1362879418640498748> Color has been set for {} to __{
 force_remove_remove: "### <:ok:1362879418640498748> Color has been removed for {}"
 force_remove_no_color: "### <:warn:1362879461468672130> The user with the given name did not have the color set."
 
+#refactor (temporary)
+refactor_done: |
+  ### <:ok:1362879418640498748> Color roles have been updated
+
+  <:star:1362879443625971783> Renamed to member names: **{}**
+  <:star:1362879443625971783> Deleted (owner left the server): **{}**
+  <:star:1362879443625971783> Could not update: **{}**
+refactor_failed_hint: |
+
+  <:bubble:1362879391423533226> Roles the bot could not update are usually placed above its own role. Move them below the bot's role and run `/refactor` again.
+refactor_nothing: "### <:ok:1362879418640498748> There are no old `color-<id>` roles on this server."
+
 #force purge
 purge_confirm: |
   ### Are you sure you want to remove all roles with user colors?

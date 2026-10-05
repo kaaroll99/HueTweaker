@@ -1,4 +1,9 @@
-"""Bot-managed color roles: one ``color-<user_id>`` role per member.
+"""Bot-managed color roles: one role per member, named ``🎨 <display name>``.
+
+Ownership lives in the ``member_color_roles`` table (guild, user -> role id); the name is cosmetic. Legacy
+roles named ``color-<user_id>`` are still recognized by name and get bound (and renamed) the next
+time their owner changes color, so no bulk migration is needed. A row whose role was deleted by
+hand is simply stale: lookups ignore it and the next write replaces or removes it.
 
 Every mutation (create / recolor / remove / purge) runs under a per-guild ``asyncio.Lock`` so two
 interactions (e.g. a double click on a favorites button, or ``/force set`` racing ``/set``) cannot
@@ -13,7 +18,14 @@ from typing import Optional, Tuple, cast
 
 import discord
 
-from constants import COLOR_ROLE_PATTERN, COLOR_ROLE_PREFIX, DISCORD_ROLE_LIMIT, HTTP_MAX_ROLES_REACHED
+from constants import (
+    COLOR_ROLE_NAME_PREFIX,
+    COLOR_ROLE_PATTERN,
+    COLOR_ROLE_PREFIX,
+    DISCORD_ROLE_LIMIT,
+    DISCORD_ROLE_NAME_MAX,
+    HTTP_MAX_ROLES_REACHED,
+)
 from database import model
 
 logger = logging.getLogger(__name__)
@@ -53,16 +65,50 @@ def get_guild_lock(guild_id: int) -> asyncio.Lock:
     return lock
 
 
-def color_role_name(user_id: int) -> str:
+def color_role_name(member: discord.Member) -> str:
+    return f"{COLOR_ROLE_NAME_PREFIX}{member.display_name}"[:DISCORD_ROLE_NAME_MAX]
+
+
+def legacy_color_role_name(user_id: int) -> str:
     return f"{COLOR_ROLE_PREFIX}{user_id}"
 
 
-def is_color_role(role: discord.Role) -> bool:
+def is_legacy_color_role(role: discord.Role) -> bool:
     return _color_role_re.match(role.name) is not None
 
 
-def get_color_role(guild: discord.Guild, user_id: int) -> Optional[discord.Role]:
-    return discord.utils.get(guild.roles, name=color_role_name(user_id))
+def looks_like_color_role(role: discord.Role) -> bool:
+    """Cheap name-only pre-filter (no DB): a legacy name or the ``🎨`` prefix. Not authoritative."""
+    return is_legacy_color_role(role) or role.name.startswith(COLOR_ROLE_NAME_PREFIX)
+
+
+async def _lookup_color_role(
+    db, guild: discord.Guild, user_id: int, roles: Optional[list[discord.Role]] = None
+) -> Tuple[Optional[discord.Role], Optional[dict]]:
+    """``(role, row)``: the bound role if it still exists, else the legacy ``color-<id>`` role."""
+    roles = roles if roles is not None else guild.roles
+    row = await db.select_one(model.ColorRoles, {"guild_id": guild.id, "user_id": user_id})
+    if row is not None:
+        role = discord.utils.get(roles, id=row["role_id"])
+        if role is not None:
+            return role, row
+    return discord.utils.get(roles, name=legacy_color_role_name(user_id)), row
+
+
+async def find_color_role(
+    db, guild: discord.Guild, user_id: int, roles: Optional[list[discord.Role]] = None
+) -> Optional[discord.Role]:
+    """The member's color role, or None. Read-only."""
+    role, _ = await _lookup_color_role(db, guild, user_id, roles)
+    return role
+
+
+async def color_role_ids(db, guild: discord.Guild, roles: list[discord.Role]) -> set[int]:
+    """Ids of every existing color role in the guild: bound ones plus unmigrated legacy ones."""
+    existing = {role.id for role in roles}
+    bound = {row["role_id"] for row in await db.select(model.ColorRoles, {"guild_id": guild.id})}
+    legacy = {role.id for role in roles if is_legacy_color_role(role)}
+    return (bound & existing) | legacy
 
 
 def role_colors(role: discord.Role) -> Colors:
@@ -194,12 +240,12 @@ async def place_color_roles(
     """Keep all color roles of the guild in one block at the configured position."""
     if roles is None:
         roles = await guild.fetch_roles()
-    color_role_ids = {role.id for role in roles if is_color_role(role)}
-    if not color_role_ids:
+    block_ids = await color_role_ids(db, guild, roles)
+    if not block_ids:
         return False
     top_position = await get_role_position(db, guild, bot_user_id, roles=roles)
     max_position = await get_max_manageable_role_position(guild, bot_user_id, roles=roles)
-    return await move_roles_to_block(guild, color_role_ids, top_position, roles=roles, max_position=max_position)
+    return await move_roles_to_block(guild, block_ids, top_position, roles=roles, max_position=max_position)
 
 
 def _color_kwargs(primary_val: int, secondary_val: Optional[int]) -> dict:
@@ -217,12 +263,15 @@ async def apply_color_role(
     db,
     bot_user_id: int,
 ) -> ApplyResult:
-    """Give ``member`` the color: create or recolor their ``color-<id>`` role, assign it, and keep
-    the color-role block positioned. ``changed`` is False when the role already had these colors."""
+    """Give ``member`` the color: create or recolor their color role (renaming a legacy or outdated
+    name in the same edit), bind it in ``member_color_roles``, assign it, and keep the color-role block
+    positioned. ``changed`` is False when the role already had these colors (a rename alone is not
+    a change)."""
     async with get_guild_lock(guild.id):
         roles = await guild.fetch_roles()
-        role = discord.utils.get(roles, name=color_role_name(member.id))
+        role, row = await _lookup_color_role(db, guild, member.id, roles)
         new_colors: Colors = (primary_val, secondary_val)
+        name = color_role_name(member)
         changed = False
         prev_colors: Optional[Colors] = None
 
@@ -231,7 +280,7 @@ async def apply_color_role(
                 raise RoleLimitReached()
             try:
                 role = await guild.create_role(
-                    name=color_role_name(member.id),
+                    name=name,
                     reason="HueTweaker color role",
                     **_color_kwargs(primary_val, secondary_val),
                 )
@@ -239,16 +288,29 @@ async def apply_color_role(
                 if e.code == HTTP_MAX_ROLES_REACHED:
                     raise RoleLimitReached() from e
                 raise
+            try:
+                await _bind_color_role(db, guild.id, member.id, role.id, row)
+            except Exception:
+                # Without the row nothing would find this role again; don't leave an orphan behind.
+                await role.delete(reason="HueTweaker: could not save color role")
+                raise
             changed = True
             roles = await guild.fetch_roles()
         else:
+            if row is None or row["role_id"] != role.id:
+                await _bind_color_role(db, guild.id, member.id, role.id, row)
+            edits: dict = {}
             current_colors = role_colors(role)
             if current_colors != new_colors:
                 prev_colors = current_colors
-                updated_role = await role.edit(reason="HueTweaker color change", **_color_kwargs(primary_val, secondary_val))
+                edits.update(_color_kwargs(primary_val, secondary_val))
+                changed = True
+            if role.name != name:
+                edits["name"] = name
+            if edits:
+                updated_role = await role.edit(reason="HueTweaker color change", **edits)
                 if updated_role is not None:
                     role = updated_role
-                changed = True
 
         if discord.utils.get(member.roles, id=role.id) is None:
             await member.add_roles(role, reason="HueTweaker color role")
@@ -259,8 +321,16 @@ async def apply_color_role(
         return ApplyResult(role=live_role or role, changed=changed, prev_colors=prev_colors)
 
 
+async def _bind_color_role(db, guild_id: int, user_id: int, role_id: int, row: Optional[dict]) -> None:
+    if row is None:
+        await db.create(model.ColorRoles, {"guild_id": guild_id, "user_id": user_id, "role_id": role_id})
+    else:
+        await db.update(model.ColorRoles, {"guild_id": guild_id, "user_id": user_id}, {"role_id": role_id})
+
+
 async def revert_color_role(guild: discord.Guild, role_id: int, prev_colors: Optional[Colors]) -> Optional[discord.Role]:
-    """Undo a color change. ``prev_colors=None`` means the role did not exist before: delete it.
+    """Undo a color change. ``prev_colors=None`` means the role did not exist before: delete it
+    (its ``member_color_roles`` row goes stale and is replaced on the next change).
     Returns the role (None when it was deleted or no longer exists)."""
     async with get_guild_lock(guild.id):
         role = guild.get_role(role_id)
@@ -273,17 +343,21 @@ async def revert_color_role(guild: discord.Guild, role_id: int, prev_colors: Opt
         return updated or role
 
 
-async def remove_color_role(guild: discord.Guild, user_id: int, reason: str = "HueTweaker: color removed") -> bool:
-    """Delete the member's color role (deleting a role also unassigns it). Returns False if none."""
+async def remove_color_role(db, guild: discord.Guild, user_id: int, reason: str = "HueTweaker: color removed") -> bool:
+    """Delete the member's color role (deleting a role also unassigns it) and its ``member_color_roles``
+    row, stale or not. Returns False if the member had no role."""
     async with get_guild_lock(guild.id):
-        role = get_color_role(guild, user_id)
-        if role is None:
-            return False
-        try:
-            await role.delete(reason=reason)
-        except discord.NotFound:
-            return False
-        return True
+        role, row = await _lookup_color_role(db, guild, user_id)
+        removed = False
+        if role is not None:
+            try:
+                await role.delete(reason=reason)
+                removed = True
+            except discord.NotFound:
+                pass
+        if row is not None:
+            await db.delete(model.ColorRoles, {"guild_id": guild.id, "user_id": user_id})
+        return removed
 
 
 @dataclass
@@ -292,21 +366,95 @@ class PurgeResult:
     failed: int = 0
 
 
-async def purge_color_roles(guild: discord.Guild, reason: str = "HueTweaker: purge") -> PurgeResult:
-    """Delete every ``color-<user_id>`` role. Roles the bot cannot manage are counted as failed."""
+async def purge_color_roles(db, guild: discord.Guild, reason: str = "HueTweaker: purge") -> PurgeResult:
+    """Delete every color role (bound and legacy). Roles the bot cannot manage are counted as failed
+    and keep their ``member_color_roles`` row; all other rows of the guild are removed."""
     result = PurgeResult()
     async with get_guild_lock(guild.id):
-        for role in list(guild.roles):
-            if not is_color_role(role):
+        roles = list(guild.roles)
+        purge_ids = await color_role_ids(db, guild, roles)
+        kept: list[int] = []
+        for role in roles:
+            if role.id not in purge_ids:
                 continue
             try:
                 await role.delete(reason=reason)
-                result.deleted += 1
             except discord.NotFound:
                 continue
             except discord.Forbidden:
                 result.failed += 1
+                kept.append(role.id)
             except discord.HTTPException as e:
                 logger.warning("Purge in guild %s: could not delete %s: %s", guild.id, role.name, e)
+                result.failed += 1
+                kept.append(role.id)
+            else:
+                result.deleted += 1
+
+        for row in await db.select(model.ColorRoles, {"guild_id": guild.id}):
+            if row["role_id"] not in kept:
+                await db.delete(model.ColorRoles, {"id": row["id"]})
+    return result
+
+
+@dataclass
+class RefactorResult:
+    renamed: int = 0
+    orphans: int = 0   # legacy roles whose owner left the server: deleted
+    skipped: int = 0   # owner already has another bound color role
+    failed: int = 0    # roles above the bot or other Discord errors
+
+
+async def _members_by_id(guild: discord.Guild, user_ids: list[int]) -> dict[int, discord.Member]:
+    """Resolve members in batches of 100 over the gateway (no per-member REST call)."""
+    found: dict[int, discord.Member] = {}
+    missing: list[int] = []
+    for uid in user_ids:
+        member = guild.get_member(uid)
+        if member is None:
+            missing.append(uid)
+        else:
+            found[uid] = member
+    for i in range(0, len(missing), 100):
+        batch = missing[i:i + 100]
+        for member in await guild.query_members(user_ids=batch, limit=len(batch), cache=True):
+            found[member.id] = member
+    return found
+
+
+async def refactor_legacy_roles(db, guild: discord.Guild, reason: str = "HueTweaker: color role rename") -> RefactorResult:
+    """Temporary (``/refactor``): bind every legacy ``color-<user_id>`` role of the guild and rename it
+    to ``🎨 <display name>`` now instead of on its owner's next color change. Roles whose owner left the
+    server are deleted, as the leaver cleanup would have done. The guild lock is taken per role so
+    ``/set`` keeps working while a large guild is processed."""
+    result = RefactorResult()
+    legacy = [role for role in await guild.fetch_roles() if is_legacy_color_role(role)]
+    if not legacy:
+        return result
+
+    owners = {role.id: int(role.name.split("-", 1)[1]) for role in legacy}
+    members = await _members_by_id(guild, list(set(owners.values())))
+
+    for role in legacy:
+        user_id = owners[role.id]
+        async with get_guild_lock(guild.id):
+            try:
+                member = members.get(user_id)
+                if member is None:
+                    await role.delete(reason="HueTweaker: owner left the server")
+                    result.orphans += 1
+                    continue
+                bound, row = await _lookup_color_role(db, guild, user_id)
+                if row is not None and bound is not None and bound.id != role.id:
+                    result.skipped += 1
+                    continue
+                # Bind first: a renamed role without a row could no longer be found by its legacy name.
+                await _bind_color_role(db, guild.id, user_id, role.id, row)
+                await role.edit(name=color_role_name(member), reason=reason)
+                result.renamed += 1
+            except discord.NotFound:
+                continue
+            except discord.HTTPException as e:
+                logger.warning("Refactor in guild %s: could not update %s: %s", guild.id, role.name, e)
                 result.failed += 1
     return result

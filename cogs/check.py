@@ -22,7 +22,7 @@ class CheckCog(BaseCog):
         docs_page = "commands/check"
         try:
             await interaction.response.defer(ephemeral=True)
-            resolved = fetch_color_representation(interaction, color)
+            resolved = await fetch_color_representation(interaction, self.db, color)
             color_utils = ColorUtils(resolved, find_similar_colors=True)
             output_color = color_utils.color_converter()
             if output_color is None:

@@ -33,7 +33,7 @@ class ForceCog(BaseCog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            primary_val, secondary_val, is_black = parse_color_pair(interaction, color, secondary_color)
+            primary_val, secondary_val, is_black = await parse_color_pair(interaction, self.db, color, secondary_color)
             label = format_colors_label(primary_val, secondary_val)
 
             result = await apply_color_role(
@@ -70,7 +70,7 @@ class ForceCog(BaseCog):
         docs_page = "commands/force-remove"
         try:
             await interaction.response.defer(ephemeral=True)
-            removed = await remove_color_role(interaction.guild, username.id)
+            removed = await remove_color_role(self.db, interaction.guild, username.id)
             if removed:
                 description = self.msg['force_remove_remove'].format(username.name)
             else:

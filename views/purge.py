@@ -40,7 +40,7 @@ class PurgeView(discord.ui.LayoutView):
         self.stop()
 
         try:
-            result = await purge_color_roles(interaction.guild)
+            result = await purge_color_roles(interaction.client.db, interaction.guild)
             if result.failed:
                 description = self.msg['purge_partial'].format(result.deleted, result.failed)
             else:

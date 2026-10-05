@@ -29,7 +29,7 @@ layout:
 
 # HueTweaker
 
-The application allows users to manage the name color themselves with a single command. The user can choose one of the predefined colors prepared on the server or set his own. The application also includes several commands for administrators to customize the bot's operation for a specific server.
+The application allows users to manage the name color themselves with a single command. The user can choose one of the predefined colors prepared on the server or set their own. The application also includes several commands for administrators to customize the bot's operation for a specific server.
 
 <p align="center"><a href="https://discord.com/api/oauth2/authorize?client_id=1209187999934578738&#x26;permissions=1099981745184&#x26;scope=bot"><img src="https://img.shields.io/badge/Invite_the_bot-FE5F50?style=for-the-badge" alt="Invite the bot"></a> <a href="https://discord.com/application-directory/1209187999934578738"><img src="https://img.shields.io/badge/App_directory-2b2d31?style=for-the-badge&#x26;logo=discord&#x26;logoColor=white" alt="Discord Application directory"></a> <a href="https://top.gg/bot/1209187999934578738"><img src="https://img.shields.io/badge/Top.gg-FF3366?style=for-the-badge&#x26;logo=topdotgg&#x26;logoColor=white" alt="Top.gg"></a> </p>
 
@@ -37,9 +37,11 @@ The application allows users to manage the name color themselves with a single c
 
 **Fully customizable predefined color list and custom individual colors for users.**
 
-* 🖌️ Set/change the username color using a hex code or CSS color name.&#x20;
+* 🖌️ Set/change the username color using a HEX code, CSS color name, rgb/hsl/cmyk, or copy it from another user.
+* 🌈 Two-color gradients (needs Server Boost and a [top.gg vote](main/voting.md)).
 * 🗂️ Create a list of predefined colors for users.
-* 🗑️ Remove the username color.&#x20;
-* 🔎 Get color information (HEX, RGB, HSL, CMYK, Integer).&#x20;
-* ⚙️ Manage the color of a specific user's username.&#x20;
-* 💫 Set the top role for color roles.&#x20;
+* ⭐ Personal favorite colors and color history.
+* 🗑️ Remove the username color.
+* 🔎 Get color information (HEX, RGB, HSL, CMYK).
+* ⚙️ Manage the color of a specific user's username.
+* 💫 Set the top role for color roles.

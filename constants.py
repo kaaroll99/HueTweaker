@@ -20,7 +20,11 @@ FREE_SET_WINDOW = 30 * 60
 DISCORD_ROLE_LIMIT = 250
 HTTP_MAX_ROLES_REACHED = 30005
 
+# New color roles are named ``🎨 <display name>`` and bound to their owner in the ``color_roles`` table.
+COLOR_ROLE_NAME_PREFIX = "🎨 "
+DISCORD_ROLE_NAME_MAX = 100
+
 COLOR_ROLE_PREFIX = "color-"
-# Bot-managed color role: ``color-<user_id>``. Discord snowflakes are 15-20 digits
+# Legacy color role: ``color-<user_id>``, recognized by name alone. Discord snowflakes are 15-20 digits
 # (accounts from 2015 have 17-digit ids). Anchored on both ends: use ``fullmatch``/``match``.
 COLOR_ROLE_PATTERN = r"^color-\d{15,20}$"

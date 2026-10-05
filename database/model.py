@@ -50,6 +50,22 @@ class Favorites(Base):
     hex_10: Mapped[str | None] = mapped_column(Text, default=None)
 
 
+class ColorRoles(Base):
+    """Which role is a member's color role. The role name is cosmetic; this row is the binding.
+    Legacy roles named ``color-<user_id>`` have no row until their owner next changes color."""
+
+    __tablename__ = 'member_color_roles'
+    __table_args__ = (
+        UniqueConstraint('guild_id', 'user_id', name='uq_member_color_roles_guild_user'),
+        UniqueConstraint('role_id', name='uq_member_color_roles_role'),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    guild_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    user_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+    role_id: Mapped[int] = mapped_column(BigInteger, nullable=False)
+
+
 class History(Base):
     """Last 5 colors per user per guild. Each ``color_n`` is a packed value, see
     ``utils.history_manager.pack_color`` (solid colors are the plain 24-bit int)."""

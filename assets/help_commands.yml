@@ -28,7 +28,8 @@ set:
         whole gradient is copied.
     ### Notes:
       - If you don't already have a bot-managed color role, the bot will create one named
-        "color-<YOUR_ID>" and assign it to you.
+        "🎨 <your display name>" and assign it to you. The name is refreshed every time you change
+        your color.
       - The reply has an "Undo to previous color" button. If you had no color before, undo
         removes the color again.
       - To create a two-color gradient, use the `/gradient` command instead.
@@ -66,7 +67,7 @@ gradient:
         does not have a colored role an error will be returned.
     ### Notes:
       - If you don't already have a bot-managed color role, the bot will create one named
-        "color-<YOUR_ID>" and assign it to you.
+        "🎨 <your display name>" and assign it to you.
       - To set a single solid color, use the `/set` command instead.
       - The server must have gradient role colors enabled (a server boost feature).
       - Gradients require a vote for HueTweaker on top.gg (a vote lasts 12 hours).
@@ -215,7 +216,7 @@ forceset:
       [secondary_color] - Secondary color for gradient (optional).
     ### Notes:
       - If the target user doesn't have a bot-managed color role, the bot will create
-        one named `color-<USER_ID>` and assign it to the user.
+        one named `🎨 <display name>` and assign it to the user.
     - Requires administrator privileges to run and the bot must have permission to
       manage roles.
   usage: /force set <user_name> <color>
@@ -241,14 +242,15 @@ forceremove:
 forcepurge:
   name: forcepurge
   desc: >-
-    Delete every HueTweaker-created color role (`color-<USER_ID>`) from the server. The command
+    Delete every HueTweaker-created color role from the server. The command
     opens a confirmation dialog; after confirming, the bot reports how many roles were deleted
     and how many it could not delete (roles above the bot's own role).
 
     ### Notes:
       - This operation is irreversible once confirmed.
       - Requires administrator privileges.
-      - The command targets roles matching the pattern `color-{USER_ID}` (e.g. `color-512674615223517205`).
+      - The command targets roles created by HueTweaker (`🎨 <display name>`) and older roles named
+        `color-<USER_ID>` (e.g. `color-512674615223517205`). Other roles are never touched.
 
   usage: /force purge
   example: /force purge
@@ -276,7 +278,7 @@ toprole:
 
     ### What happens when you update the mode:
       - The bot stores the selected mode for the server.
-      - Existing roles matching `color-<USER_ID>` are moved immediately to the new target position.
+      - Existing HueTweaker color roles are moved immediately to the new target position.
 
     ### 💡 Roles example:
       - [Admin]

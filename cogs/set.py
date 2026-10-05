@@ -62,7 +62,7 @@ class SetCog(BaseCog):
 
             await interaction.response.defer(ephemeral=True)
 
-            primary_val, secondary_val, is_black = parse_color_pair(interaction, color, secondary_color)
+            primary_val, secondary_val, is_black = await parse_color_pair(interaction, self.db, color, secondary_color)
             label = format_colors_label(primary_val, secondary_val)
 
             blocked = await self._access_gate(guild, member.id, secondary_val, docs_page)

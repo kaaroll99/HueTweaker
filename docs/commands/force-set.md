@@ -48,7 +48,8 @@ Set or change another user's username color. This command is for administrators 
 
 **Notes:**
 
-* If the target user doesn't have a bot-managed color role, the bot will create one named `color-<USER_ID>` and assign it to the user.
+* If the target user doesn't have a bot-managed color role, the bot will create one named `🎨 <display name>` and assign it to the user.
+* The vote requirements of `/set` and `/gradient` don't apply here. A gradient still needs the server's gradient support (Server Boost).
 * Requires administrator privileges to run, and the bot must have permission to manage roles.
 
 **Command syntax:**
