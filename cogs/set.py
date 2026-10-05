@@ -1,4 +1,5 @@
 import logging
+import time
 from typing import Optional
 
 import discord
@@ -6,17 +7,22 @@ from discord import app_commands
 from discord.ext import commands
 
 from cogs._base import BaseCog
+from constants import FREE_SET_USES, FREE_SET_WINDOW
 from utils.color_format import ColorUtils, format_colors_label
 from utils.color_parse import parse_color_pair
 from utils.history_manager import update_history
 from utils.role_manager import apply_color_role
-from views.global_view import GlobalLayout
+from utils.vote_manager import UsageQuota
+from views.global_view import GlobalLayout, VoteLayout
 from views.set import Layout, ConfirmationView
 
 logger = logging.getLogger(__name__)
 
 
 class SetCog(BaseCog):
+    def __init__(self, bot: commands.Bot) -> None:
+        super().__init__(bot)
+        self.set_quota = UsageQuota(FREE_SET_USES, FREE_SET_WINDOW)
 
     @app_commands.command(name="set", description="Set color using HEX code or CSS color name")
     @app_commands.describe(
@@ -59,6 +65,12 @@ class SetCog(BaseCog):
             primary_val, secondary_val, is_black = parse_color_pair(interaction, color, secondary_color)
             label = format_colors_label(primary_val, secondary_val)
 
+            blocked = await self._access_gate(guild, member.id, secondary_val, docs_page)
+            if blocked is not None:
+                await self.respond(interaction, blocked)
+                logger.info("%s[%s] issued bot command: /%s (blocked: gradients unavailable or vote required)", interaction.user.name, interaction.user.id, command_name)
+                return
+
             image = ColorUtils.generate_preview_image(member.display_name, primary_val, secondary_val)
             file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_preview.png")
 
@@ -77,6 +89,9 @@ class SetCog(BaseCog):
             if confirmation.value is False:
                 await self.respond(interaction, GlobalLayout(self.msg, self.msg['cancelled'], docs_page))
                 return
+
+            if secondary_val is None:
+                self.set_quota.consume(member.id)
 
             result = await apply_color_role(guild, member, primary_val, secondary_val, self.db, bot_user.id)
 
@@ -100,6 +115,25 @@ class SetCog(BaseCog):
 
         finally:
             logger.info("%s[%s] issued bot command: /%s %s", interaction.user.name, interaction.locale, command_name, log_color)
+
+    async def _access_gate(
+        self, guild: discord.Guild, user_id: int, secondary_val: Optional[int], docs_page: str
+    ) -> Optional[discord.ui.LayoutView]:
+        """The view to show instead of applying the color, or ``None`` when the user may proceed.
+        A gradient (also one copied with ``/set @user``) needs server support first, then a vote.
+        A solid color is free for ``FREE_SET_USES`` changes per window, then needs a vote."""
+        if secondary_val is not None:
+            if "ENHANCED_ROLE_COLORS" not in guild.features:
+                return GlobalLayout(self.msg, self.msg['err_670006'], docs_page)
+            if not await self.votes.has_voted(user_id):
+                return VoteLayout(self.msg, self.msg['vote_gradient'], docs_page)
+            return None
+
+        retry_after = self.set_quota.retry_after(user_id)
+        if retry_after > 0 and not await self.votes.has_voted(user_id):
+            retry_at = f"<t:{int(time.time() + retry_after)}:R>"
+            return VoteLayout(self.msg, self.msg['vote_set_limit'].format(FREE_SET_USES, retry_at), docs_page)
+        return None
 
     @set.error
     async def set_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

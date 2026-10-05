@@ -16,6 +16,7 @@ class BaseCog(commands.Cog):
         self.bot = bot
         self.db = bot.db
         self.msg = bot.messages
+        self.votes = bot.votes
 
     async def handle_cooldown_error(
         self, interaction: discord.Interaction, error: app_commands.CommandOnCooldown

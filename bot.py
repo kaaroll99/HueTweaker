@@ -11,6 +11,7 @@ from database import database
 from utils.console_logger import setup_logger
 from utils.data_loader import load_yml
 from utils.stats_api import api_request
+from utils.vote_manager import VoteChecker
 
 setup_logger()
 logger = logging.getLogger("bot")
@@ -24,6 +25,7 @@ class MyBot(commands.AutoShardedBot):
         self.config = config
         self.db = db
         self.messages = messages
+        self.votes = VoteChecker(config.get('TOP_GG_TOKEN'))
         self._ready_shards: Set[int] = set()
 
     async def load_cogs(self) -> None:

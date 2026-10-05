@@ -2,7 +2,7 @@ import logging
 
 import discord
 
-from constants import ACCENT_COLOR, DOCS_BASE_URL, INVITE_URL
+from constants import ACCENT_COLOR, DOCS_BASE_URL, INVITE_URL, VOTE_URL
 from utils.role_manager import ColorRoleError
 
 logger = logging.getLogger(__name__)
@@ -46,6 +46,15 @@ def make_invite_button() -> discord.ui.Button:
     )
 
 
+def make_vote_button() -> discord.ui.Button:
+    return discord.ui.Button(
+        label="Vote on top.gg",
+        style=discord.ButtonStyle.link,
+        emoji="<:star:1362879443625971783>",
+        url=VOTE_URL,
+    )
+
+
 def make_docs_button(page: str = "", label: str = "See documentation") -> discord.ui.Button:
     return discord.ui.Button(
         label=label,
@@ -73,4 +82,16 @@ class GlobalLayout(discord.ui.LayoutView):
         container.add_item(
             discord.ui.ActionRow(make_docs_button(self.docs_page), make_invite_button())
         )
+        self.add_item(container)
+
+
+class VoteLayout(discord.ui.LayoutView):
+    """Asks the user to vote on top.gg to unlock a feature."""
+
+    def __init__(self, messages: dict, description: str = "", docs_page: str = ""):
+        super().__init__()
+        container = discord.ui.Container(accent_colour=discord.Color(ACCENT_COLOR))
+        container.add_item(discord.ui.TextDisplay(description))
+        container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
+        container.add_item(discord.ui.ActionRow(make_vote_button(), make_docs_button(docs_page)))
         self.add_item(container)

@@ -23,6 +23,14 @@ vote_title: "Vote for {}"
 vote_desc: "Every 12 hours you can support by voting for the bot on the following pages."
 vote_topgg: "<:star:1362879443625971783> [Click here to vote on top.gg](https://top.gg/bot/1209187999934578738/vote)"
 vote_dbl: "<:star:1362879443625971783> [Click here to vote on discordbotlist.com](https://discordbotlist.com/bots/huetweaker/upvote)"
+vote_set_limit: |
+  ### <:warn:1362879461468672130> You've used your {} free color changes
+
+  <:bubble:1362879391423533226> Vote for HueTweaker on top.gg to keep changing your color without waiting, or try again {}.
+vote_gradient: |
+  ### <:warn:1362879461468672130> Gradients are unlocked by voting
+
+  <:bubble:1362879391423533226> Vote for HueTweaker on top.gg (it's free and lasts 12 hours), then run the command again.
 
 #check
 check_title: "### Details for color: {}"

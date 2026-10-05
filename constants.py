@@ -10,6 +10,11 @@ INVITE_URL = (
     f"?client_id={BOT_ID}&permissions=1099981745184&scope=bot"
 )
 SUPPORT_SERVER_URL = "https://discord.gg/tYdK4pD6ks"
+VOTE_URL = f"https://top.gg/bot/{BOT_ID}/vote"
+
+# /set without a top.gg vote: this many color changes per rolling window, then vote or wait.
+FREE_SET_USES = 2
+FREE_SET_WINDOW = 30 * 60
 
 # Discord allows at most 250 roles per guild (HTTP 30005 when exceeded).
 DISCORD_ROLE_LIMIT = 250

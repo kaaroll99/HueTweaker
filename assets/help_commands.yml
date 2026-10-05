@@ -33,6 +33,8 @@ set:
         removes the color again.
       - To create a two-color gradient, use the `/gradient` command instead.
       - The command is subject to a cooldown.
+      - Without a top.gg vote you can change your color 2 times per 30 minutes. Voting removes
+        this limit for 12 hours. Copying a gradient from another user requires a vote.
   usage: /set <color>
   example: |
     - /set f5df4d
@@ -66,6 +68,8 @@ gradient:
       - If you don't already have a bot-managed color role, the bot will create one named
         "color-<YOUR_ID>" and assign it to you.
       - To set a single solid color, use the `/set` command instead.
+      - The server must have gradient role colors enabled (a server boost feature).
+      - Gradients require a vote for HueTweaker on top.gg (a vote lasts 12 hours).
       - The command is subject to a cooldown.
   usage: /gradient <color> <secondary_color>
   example: |
