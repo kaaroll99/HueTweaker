@@ -62,17 +62,6 @@ async def api_request(server_count: int, user_count: int, shard_count: int = 1) 
         'stats to Top.gg'
     )))
 
-    # discordlist.gg
-    tasks.append(asyncio.create_task(post_with_retry(
-        f'https://api.discordlist.gg/v0/bots/{BOT_ID}/guilds',
-        {
-            'Authorization': f"Bearer {token_file['DISCORDLIST_GG_TOKEN']}",
-            'Content-Type': 'application/json; charset=utf-8'
-        },
-        {'count': server_count},
-        'stats to discordlist.gg'
-    )))
-
     # discordbotlist.com stats
     tasks.append(asyncio.create_task(post_with_retry(
         f'https://discordbotlist.com/api/v1/bots/{BOT_ID}/stats',
@@ -94,6 +83,17 @@ async def api_request(server_count: int, user_count: int, shard_count: int = 1) 
         load_json('assets/commands_list.json'),
         'command list'
     )))
+
+    # # discordlist.gg
+    # tasks.append(asyncio.create_task(post_with_retry(
+    #     f'https://api.discordlist.gg/v0/bots/{BOT_ID}/guilds',
+    #     {
+    #         'Authorization': f"Bearer {token_file['DISCORDLIST_GG_TOKEN']}",
+    #         'Content-Type': 'application/json; charset=utf-8'
+    #     },
+    #     {'count': server_count},
+    #     'stats to discordlist.gg'
+    # )))
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
     # Summarize
