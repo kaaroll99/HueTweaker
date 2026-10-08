@@ -1,39 +1,35 @@
-# Permissions
+# Restricting commands
 
-If you want to limit the visibility of bot commands for a specific channel or role, you can do it in the “Integrations” tab in the server settings.
+You can choose which roles and channels can use HueTweaker's commands. Open **Server Settings → Integrations** and select the bot:
 
-Open "Integrations" tab in server settings and select the bot:
-
-<figure><img src="../.gitbook/assets/image (14).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (14).png" alt="Integrations tab with HueTweaker"><figcaption></figcaption></figure>
 
 {% hint style="warning" %}
-Users with administrator privileges on the server will not be restricted
+Administrators can always use every command.
 {% endhint %}
 
-## Global limiting for role
+## Only for selected roles
 
-To restrict bot commands for the selected role you must disable access for `@everyone` and add the role using the button above.
+Turn off access for `@everyone`, then add the roles with the button above.
 
-<div align="left"><figure><img src="../.gitbook/assets/image (41).png" alt=""><figcaption></figcaption></figure></div>
+<div align="left"><figure><img src="../.gitbook/assets/image (41).png" alt="Role access settings"><figcaption></figcaption></figure></div>
 
-## Global limiting for channel
+## Only in selected channels
 
-To limit bot commands for a selected channel you must disable access for All Channels and add a channel using the button above.
+Turn off access for **All Channels**, then add the channels with the button above.
 
-<div align="left"><figure><img src="../.gitbook/assets/image (42).png" alt=""><figcaption></figcaption></figure></div>
+<div align="left"><figure><img src="../.gitbook/assets/image (42).png" alt="Channel access settings"><figcaption></figcaption></figure></div>
 
-## Limiting for commands
+## For a single command
 
-In the tab, there is an option to limit visibility for individual bot commands.
+1. Select the command.
 
-1. Select the bot command you want to restrict.
+<div align="left"><figure><img src="../.gitbook/assets/image (45).png" alt="Command list" width="524"><figcaption></figcaption></figure></div>
 
-<div align="left"><figure><img src="../.gitbook/assets/image (45).png" alt="" width="524"><figcaption></figcaption></figure></div>
+2. Choose the roles and channels where it should or shouldn't work.
 
-2. Select the roles/channels on which the command should or should not work.
-
-<div align="left"><figure><img src="../.gitbook/assets/image (46).png" alt=""><figcaption></figcaption></figure></div>
+<div align="left"><figure><img src="../.gitbook/assets/image (46).png" alt="Single command settings"><figcaption></figcaption></figure></div>
 
 {% hint style="info" %}
-Remember. Settings for the selected command overwrite the global visibility settings.
+Settings for a single command override the settings for the whole bot.
 {% endhint %}

@@ -1,7 +1,5 @@
 ---
-description: >-
-  The command allows you to delete all roles with colors (created by HueTweaker)
-  from the server.
+description: Delete every HueTweaker color role on the server.
 layout:
   width: default
   title:
@@ -26,36 +24,22 @@ layout:
 
 # force purge
 
-{% hint style="warning" %}
-The command can only be executed by a user with administrator privileges.
-{% endhint %}
-
 {% hint style="danger" %}
-The effect of the command is **irreversible** — execution at your own risk
+Administrators only. This **can't be undone**: every member loses their color.
 {% endhint %}
 
-Delete HueTweaker-created color roles from the server. The command opens a confirmation dialog before anything is deleted.
+Delete every HueTweaker color role on the server. The bot asks for confirmation first, then reports how many roles were deleted.
 
-**Parameters:**
+**Syntax:** `/force purge`
 
-* This command takes no parameters.
+**Good to know:**
 
-**Notes:**
+* Only HueTweaker color roles are deleted: the ones the bot created and older ones named `color-<USER_ID>`. Other roles are never touched, even if their name starts with 🎨.
+* Roles above the bot's highest role can't be deleted and are reported as failed.
+* Cooldown: 10 seconds.
 
-* The command targets color roles created by HueTweaker (`🎨 <display name>`) and older roles named `color-<USER_ID>` (e.g. `color-512674615223517205`).
-* This operation is irreversible once confirmed.
-* Requires administrator privileges.
+***
 
-**Command syntax:**
+## Bot response
 
-* `/force purge`
-
-**Command examples:**
-
-* `/force purge`
-
-{% hint style="info" %}
-HueTweaker keeps track of the color roles it created, so other roles are never deleted, even if their name starts with 🎨. Older roles are recognized by their `color-<USER_ID>` name.
-{% endhint %}
-
-<div align="left"><figure><img src="../.gitbook/assets/image (10).png" alt=""><figcaption></figcaption></figure></div>
+<div align="left"><figure><img src="../.gitbook/assets/image (10).png" alt="Purge confirmation"><figcaption></figcaption></figure></div>

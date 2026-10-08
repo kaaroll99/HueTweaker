@@ -1,31 +1,21 @@
 ---
-description: View your color change history on server
+description: See and restore your last 5 colors on this server.
 ---
 
 # history
 
-View your color change history on the server. The command displays the last 5 colors you have used and generates a preview image with your nickname rendered in each of them, shown as `name (#HEX)` when the color matches a CSS color name, otherwise just the HEX.
+See the last 5 colors you used on this server, newest first. Press a numbered button to restore one.
 
-**How to use:**
+**Syntax:** `/history`
 
-* Press a numbered button to restore that color.
+**Good to know:**
 
-**Notes:**
-
-* The history is ordered from the newest.
-* It is updated after every `/set`, `/gradient`, `/select`, or favorite applied.
-* The command is subject to a cooldown.
-
-**Command syntax:**
-
-* `/history`
-
-**Command examples:**
-
-* `/history`
+* Every color change is saved: `/set`, `/gradient`, `/select`, favorites, and changes made by an admin with `/force set`.
+* History is per server and is deleted when you leave the server.
+* Cooldown: 10 seconds.
 
 ***
 
 ## Bot response
 
-<figure><img src="../.gitbook/assets/image (80).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (80).png" alt="Color history"><figcaption></figcaption></figure>

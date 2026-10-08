@@ -1,5 +1,5 @@
 ---
-description: Remove the username color.
+description: Remove your username color.
 layout:
   width: default
   title:
@@ -24,27 +24,17 @@ layout:
 
 # remove
 
-Remove your username color. The bot will remove/unassign the bot-managed color role from your account and delete it. This command only affects roles created and managed by the bot.
+Remove your username color. The bot deletes your HueTweaker color role. Your other roles stay.
 
-**Parameters:**
+**Syntax:** `/remove`
 
-* This command takes no parameters.
+**Good to know:**
 
-**Notes:**
-
-* If you don't have a bot-managed color role, nothing is removed and you get an info message.
-* The command is subject to a cooldown.
-
-**Command syntax:**
-
-* `/remove`
-
-**Command examples:**
-
-* `/remove`
+* If you have no color, nothing happens and the bot tells you so.
+* Cooldown: 10 seconds.
 
 ***
 
 ## Bot response
 
-<div align="left"><figure><img src="../.gitbook/assets/image (1).png" alt=""><figcaption></figcaption></figure></div>
+<div align="left"><figure><img src="../.gitbook/assets/image (1).png" alt="Color removed"><figcaption></figcaption></figure></div>

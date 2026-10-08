@@ -1,7 +1,5 @@
 ---
-description: >-
-  Set/change the username color of the specific user using hex code or CSS color
-  name.
+description: Set or change another member's username color.
 layout:
   width: default
   title:
@@ -27,42 +25,32 @@ layout:
 # force set
 
 {% hint style="warning" %}
-The command can only be executed by a user with administrator privileges.
+Administrators only.
 {% endhint %}
 
-***
+Set or change another member's username color, solid or gradient. The color is applied right away, without a preview.
 
-Set or change another user's username color. This command is for administrators and accepts the same input formats as `/set`: HEX (with or without #), CSS color names, mention a user to copy their color (e.g. @kaaroll99), or "random". You may also provide an optional secondary color to create a gradient.
+**Syntax:** `/force set <username> <color> [secondary_color]`
 
-**Parameters:**
+* `<username>`: the member.
+* `<color>`: any [color format](../main/colors.md#color-formats).
+* `[secondary_color]`: optional, makes a gradient.
 
-* `<username>` - Name of the selected user (required)
-* `<color>` - Primary color to set (required)
-* `[secondary_color]` - Secondary color for gradient (optional)
-
-**Accepted color formats:**
-
-* Hex: F5DF4D or #F5DF4D
-* CSS color names: royalblue
-* Other formats supported by the parser (e.g., rgb(...), hsl(...))
-
-**Notes:**
-
-* If the target user doesn't have a bot-managed color role, the bot will create one named `🎨 <display name>` and assign it to the user.
-* The vote requirements of `/set` and `/gradient` don't apply here. A gradient still needs the server's gradient support (Server Boost).
-* Requires administrator privileges to run, and the bot must have permission to manage roles.
-
-**Command syntax:**
-
-* `/force set <username> <color> [secondary_color]`
-
-**Command examples:**
+**Examples:**
 
 * `/force set @kaaroll99 f5df4d`
 * `/force set @kaaroll99 royalblue tomato`
+
+**Good to know:**
+
+* No vote and no `/set` limit. A gradient still needs Server Boost.
+* If the member has no color yet, the bot creates a `🎨 <display name>` role for them.
+* **Undo** in the result message brings back the previous color.
+* The change is saved in the member's [`/history`](history.md).
+* Cooldown: 10 seconds.
 
 ***
 
 ## Bot response
 
-<div align="left"><figure><img src="../.gitbook/assets/image (3).png" alt=""><figcaption></figcaption></figure></div>
+<div align="left"><figure><img src="../.gitbook/assets/image (3).png" alt="Color set for a member"><figcaption></figcaption></figure></div>

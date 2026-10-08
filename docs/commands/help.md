@@ -1,5 +1,5 @@
 ---
-description: Information about the bot and the list of available commands.
+description: What HueTweaker does and the list of its commands.
 layout:
   width: default
   title:
@@ -24,16 +24,6 @@ layout:
 
 # help
 
-Show information about HueTweaker and a list of its commands. Pick a command from the menu to see its description, syntax and examples.
+Show what HueTweaker does and the list of its commands. Pick a command from the menu to see how to use it.
 
-**Parameters:**
-
-* This command takes no parameters.
-
-**Command syntax:**
-
-* `/help`
-
-**Command examples:**
-
-* `/help`
+**Syntax:** `/help`

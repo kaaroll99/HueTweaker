@@ -1,5 +1,5 @@
 ---
-description: Remove the username color of the specific user.
+description: Remove another member's username color.
 layout:
   width: default
   title:
@@ -25,32 +25,21 @@ layout:
 # force remove
 
 {% hint style="warning" %}
-The command can only be executed by a user with administrator privileges.
+Administrators only.
 {% endhint %}
 
-***
+Remove another member's username color. The bot deletes their HueTweaker color role.
 
-Remove another user's username color. The bot will remove/unassign the bot-managed color role from the selected user and delete that role if it exists. This command requires administrator privileges.
+**Syntax:** `/force remove <username>`
 
-**Parameters:**
+**Example:** `/force remove @kaaroll99`
 
-* `<username>` - Name of the selected user (required)
+**Good to know:**
 
-**Notes:**
-
-* Only affects color roles created and managed by the bot.
-* Requires administrator privileges.
-
-**Command syntax:**
-
-* `/force remove <username>`
-
-**Command examples:**
-
-* `/force remove @kaaroll99`
+* Cooldown: 10 seconds.
 
 ***
 
 ## Bot response
 
-<div align="left"><figure><img src="../.gitbook/assets/image (5).png" alt=""><figcaption></figcaption></figure></div>
+<div align="left"><figure><img src="../.gitbook/assets/image (5).png" alt="Color removed from a member"><figcaption></figcaption></figure></div>

@@ -1,39 +1,24 @@
 ---
-description: >-
-  Choose one of the prepared colors on the server using the button under the
-  message.  You can remove the color by pressing the red button.
+description: Pick one of the colors prepared by the server admins.
 ---
 
 # select
 
 {% hint style="info" %}
-The command must be configured on the selected server for this to work.
-
-Check [`/setup select`](setup-select.md) for more information
+An admin has to set up the color list first with [`/setup select`](setup-select.md).
 {% endhint %}
 
-Choose one of the static colors configured on your server using an interactive menu. The command generates a preview image showing your nickname rendered with each available color, so you can see how it will look before applying it.
+Pick one of the colors prepared on your server. The bot shows your name in each color; choose one from the menu below the preview.
 
-**Parameters:**
+**Syntax:** `/select`
 
-* This command takes no parameters.
+**Good to know:**
 
-**Notes:**
-
-* The server must have colors configured (up to 10 positions) using `/setup select`.
-* Selecting a color creates or updates your color role (`🎨 <your display name>`) and records the choice in your `/history`.
-* The command is subject to a cooldown.
-
-**Command syntax:**
-
-* `/select`
-
-**Command examples:**
-
-* `/select`
+* The list has up to 10 colors.
+* Cooldown: 10 seconds.
 
 ***
 
 ## Bot response
 
-<figure><img src="../.gitbook/assets/image (81).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (81).png" alt="Server color list"><figcaption></figcaption></figure>

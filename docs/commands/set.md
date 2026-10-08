@@ -1,5 +1,5 @@
 ---
-description: Set/change the username color using hex code or CSS color name.
+description: Set your username color.
 layout:
   width: default
   title:
@@ -25,51 +25,35 @@ layout:
 # set
 
 {% hint style="info" icon="star" %}
-Without a vote you can change your color **2 times per 30 minutes**. [Voting for HueTweaker on top.gg](../main/voting.md) removes this limit for 12 hours.
+Without a vote you can change your color **2 times per 30 minutes**. [Voting on top.gg](../main/voting.md) removes this limit for 12 hours.
 {% endhint %}
 
-Set or change your username color. The color can be given as a HEX value (with or without a leading '#'), as a CSS color name, by copying another user's color (mention the user, e.g. @kaaroll99), or as "random" to pick a random color.
+Set or change your username color. The bot shows a preview and applies the color after you press **Accept**.
 
-The command generates a preview image and asks for confirmation before applying the color.
+**Syntax:** `/set <color>`
 
-**Parameters:**
+`<color>` can be any [color format](../main/colors.md#color-formats): HEX, CSS name, rgb/hsl/cmyk, `random` or `@user`.
 
-* `<color>` - Color to set (required)
-
-**Accepted color formats:**
-
-* Hex: F5DF4D or #F5DF4D
-* CSS color names: royalblue
-* Other formats supported by the parser (e.g., rgb(...), hsl(...))
-
-**Username:**
-
-* Copy color from another user by mentioning them (e.g. @kaaroll99). If the selected user does not have a colored role an error will be returned.
-* If the mentioned user has a gradient, the whole gradient is copied. Like [`/gradient`](gradient.md), this needs gradient support on the server and a vote.
-
-**Notes:**
-
-* If you don't already have a bot-managed color role, the bot will create one named `🎨 <your display name>` and assign it to you. The name is refreshed every time you change your color.
-* Only confirmed changes count towards the free limit. Previewing and cancelling, or using the **Undo** button, doesn't use it up.
-* To create a two-color gradient, use the `/gradient` command instead.
-* The command is subject to a cooldown.
-
-**Command syntax:**
-
-* `/set <color>`
-
-**Command examples:**
+**Examples:**
 
 * `/set f5df4d`
 * `/set royalblue`
 * `/set @kaaroll99`
 * `/set random`
 
+**Good to know:**
+
+* The first time, the bot creates a role named `🎨 <your display name>`. The name updates every time you change your color.
+* **Undo** in the result message brings back your previous color.
+* Only accepted changes count toward the free limit. Cancelling or pressing **Undo** doesn't.
+* Copying a user who has a gradient copies the whole gradient. That needs the same as [`/gradient`](gradient.md): Server Boost and a vote.
+* For two colors, use [`/gradient`](gradient.md).
+* Cooldown: 10 seconds.
+
 ***
 
 ## Bot response
 
-<figure><img src="../.gitbook/assets/image (83).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (83).png" alt="Preview with Accept and Cancel"><figcaption></figcaption></figure>
 
-<div align="left"><figure><img src="../.gitbook/assets/image.png" alt=""><figcaption></figcaption></figure></div>
-
+<div align="left"><figure><img src="../.gitbook/assets/image.png" alt="Color set"><figcaption></figcaption></figure></div>

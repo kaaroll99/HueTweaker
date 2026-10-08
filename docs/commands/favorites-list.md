@@ -1,28 +1,19 @@
 # favorites list
 
-Show your personal favorite colors. The command generates a preview image with your nickname rendered in each color, shown as `name (#HEX)` when the color matches a CSS color name, otherwise just the HEX.
+Show your favorite colors with a preview of your name in each.
 
-**How to use:**
+* Press a numbered button to set that color.
+* Use the menu to remove a color from the list.
 
-* Press a numbered button to set that favorite as your color.
-* Use the dropdown to remove a color from your list.
+**Syntax:** `/favorites list`
 
-**Notes:**
+**Good to know:**
 
-* Favorites are global to your account (the same on every server).
-* Add colors first with `/favorites add`.
-* The command is subject to a cooldown.
-
-**Command syntax:**
-
-* `/favorites list`
-
-**Command examples:**
-
-* `/favorites list`
+* Add colors with [`/favorites add`](favorites-add.md).
+* Cooldown: 10 seconds.
 
 ***
 
 ## Bot response
 
-<figure><img src="../.gitbook/assets/image (79).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../.gitbook/assets/image (79).png" alt="Favorite colors"><figcaption></figcaption></figure>

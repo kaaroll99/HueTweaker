@@ -25,38 +25,26 @@ layout:
 # refactor
 
 {% hint style="warning" %}
-The command can only be executed by a user with administrator privileges.
+Administrators only.
 {% endhint %}
 
 {% hint style="info" %}
-This is a temporary command. It will be removed once most servers have switched to the new role names.
+Temporary command. It will be removed once most servers have switched to the new role names.
 {% endhint %}
 
-***
+Color roles used to be named `color-<USER_ID>`. Now they're named after their member, e.g. `🎨 kaaroll99`. Old roles are renamed when their owner changes color; `/refactor` renames all of them at once.
 
-HueTweaker now names color roles after their member, e.g. `🎨 kaaroll99`, instead of `color-<USER_ID>`. Older roles are renamed automatically the next time their owner changes color. `/refactor` renames all of them on the server at once.
+**Syntax:** `/refactor`
 
-**What the command does:**
+**What it does:**
 
-* Renames every `color-<USER_ID>` role to `🎨 <display name>` of its owner.
-* Deletes old color roles whose owner has left the server.
-* Reports how many roles were renamed, deleted, and could not be updated.
+* Renames every `color-<USER_ID>` role to `🎨 <display name>`.
+* Deletes old color roles of members who left the server.
+* Reports how many roles were renamed, deleted and skipped.
 
-**Parameters:**
+**Good to know:**
 
-* This command takes no parameters.
-
-**Notes:**
-
-* The bot can only update roles below its own highest role. Move other roles below the bot's role and run the command again.
-* On servers with many color roles it can take a few minutes.
-* The command can be used once every 5 minutes per server.
-* Colors and role positions don't change, and `/set` keeps working while the command runs.
-
-**Command syntax:**
-
-* `/refactor`
-
-**Command examples:**
-
-* `/refactor`
+* Colors and role positions don't change, and `/set` keeps working meanwhile.
+* The bot can only rename roles below its own highest role. Move the bot's role up and run it again.
+* With many color roles it can take a few minutes.
+* Cooldown: 5 minutes per server.

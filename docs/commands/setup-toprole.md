@@ -1,8 +1,5 @@
 ---
-description: >-
-  Configure how HueTweaker positions color roles on the server — auto, off, or
-  custom (directly below a chosen role). Proper configuration avoids color
-  display problems.
+description: Choose where color roles sit in the role list, so other colored roles don't cover them.
 layout:
   width: default
   title:
@@ -28,75 +25,53 @@ layout:
 # setup toprole
 
 {% hint style="warning" %}
-The command can only be executed by a user with administrator privileges.
+Administrators only.
 {% endhint %}
 
-***
+Choose where HueTweaker's color roles sit in the role list. Discord shows the color of a member's **highest colored role**, so color roles have to be above other colored roles to be visible.
 
-## Usage
+**Syntax:** `/setup toprole <mode> [role_name]`
 
-The command supports three modes:
+| Mode | Where color roles go |
+| --- | --- |
+| `auto` | As high as the bot can reach (just below the bot's highest role). **Recommended.** |
+| `custom` | Directly below the role given in `role_name`. |
+| `off` | At the bottom of the role list. **Default.** |
 
-* `auto` — moves color roles as high as the bot can manage.
-* `off` — moves color roles to the bottom of the role list.
-* `custom` — keeps color roles directly below the selected role.
+**Examples:**
 
-The `[role_name]` parameter is only used with `custom`.
+* `/setup toprole auto`
+* `/setup toprole custom @users-colors`
+* `/setup toprole off`
 
-***
+Color roles move as soon as you run the command, and new ones are placed the same way.
 
-## Example
+## Custom mode
 
-`/setup toprole auto`
+Use it to put color roles at a specific place, e.g. below staff roles.
 
-`/setup toprole off`
+1. Create a role, e.g. `@users-colors`, and place it below the bot's role.
 
-`/setup toprole custom @colors`
+<div align="left"><figure><img src="../.gitbook/assets/Bez nazwy-1 (1).png" alt="users-colors role placed below the bot role"><figcaption></figcaption></figure></div>
 
-***
+2. Run `/setup toprole custom @users-colors`.
 
-## **Important**
+<div align="left"><figure><img src="../.gitbook/assets/image (6).png" alt="Top role set"><figcaption></figcaption></figure></div>
 
-* In `custom`, the chosen role is respected only up to the bot's own hierarchy.
-* If the selected role is higher than the bot can manage, HueTweaker will place the color roles as high as possible instead.
+3. Color roles move directly below `@users-colors`.
 
-## **What happens when you update the mode**
+<div align="left"><figure><img src="../.gitbook/assets/image (31).png" alt="Color roles below users-colors"><figcaption></figcaption></figure></div>
 
-* The bot stores the selected mode for the server.
-* Existing HueTweaker color roles are moved immediately to the new target position.
+If the chosen role is above the bot's highest role, the bot places color roles as high as it can instead. If the chosen role is deleted, the mode switches to `off`.
 
-## Configuration (custom mode)
+## Common problems
 
-1. Create a toprole under the role that HueTweaker has so that it can manage it.
+**The chosen role is above the bot.** The bot can only manage roles below its own highest role. Move the bot's role above the chosen role.
 
-<div align="left"><figure><img src="../.gitbook/assets/Bez nazwy-1 (1).png" alt=""><figcaption></figcaption></figure></div>
+<div align="left"><figure><img src="../.gitbook/assets/image (32).png" alt="Chosen role above the bot role"><figcaption></figcaption></figure></div>
 
-2. Use `/setup` toprole custom with the `@users-colors` mention.
+**A colored role is above the color roles.** Members with that role see its color instead of their HueTweaker color. Move that role below the color roles or remove its color.
 
-Bot response:
+<div align="left"><figure><img src="../.gitbook/assets/image (33).png" alt="Colored role above the color roles"><figcaption></figcaption></figure></div>
 
-<div align="left"><figure><img src="../.gitbook/assets/image (6).png" alt=""><figcaption></figcaption></figure></div>
-
-3. After getting this response, color roles are automatically moved under `@user-colors`.
-
-<div align="left"><figure><img src="../.gitbook/assets/image (31).png" alt=""><figcaption></figcaption></figure></div>
-
-If not all roles are transferred, use the command again.
-
-### Role reset
-
-To restore the default behavior, run `/setup toprole off` — color roles will be moved to the bottom of the role list. Use `/setup toprole auto` if you want the bot to keep them as high as possible automatically.
-
-<div align="left"><figure><img src="../.gitbook/assets/image (7).png" alt=""><figcaption></figcaption></figure></div>
-
-***
-
-## Configuration issues
-
-1. The bot can only manage roles below its own highest role. The example below shows a role layout that will cause `custom` mode to fall back (the chosen role is above the bot, so HueTweaker places the color roles as high as it can manage instead).
-
-<div align="left"><figure><img src="../.gitbook/assets/image (32).png" alt=""><figcaption></figcaption></figure></div>
-
-2. If roles are configured as in the screenshot below, users who have a role Some role with color will see its color instead of their individual color from HueTweaker.
-
-<div align="left"><figure><img src="../.gitbook/assets/image (33).png" alt=""><figcaption></figcaption></figure></div>
+More fixes: [Troubleshooting](../main/troubleshooting.md).
