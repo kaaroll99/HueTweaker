@@ -2,6 +2,7 @@ import logging
 
 import discord
 
+from analytics.recorder import recorder
 from constants import ACCENT_COLOR, BANNER_URL
 from utils.color_format import Colors, decode_style, format_colors_label
 from utils.history_manager import update_history
@@ -93,8 +94,8 @@ class SelectView(discord.ui.LayoutView):
         label = format_colors_label(primary, secondary, tertiary)
         try:
             if secondary is not None:
-                blocked = await gradient_gate(self.msg, self.bot.votes, interaction.guild, interaction.user.id,
-                                              self.docs_page, require_vote=False)
+                blocked = await gradient_gate(self.msg, self.bot.votes, interaction, "select", self.docs_page,
+                                              require_vote=False)
                 if blocked is not None:
                     await interaction.followup.send(view=blocked, ephemeral=True)
                     return
@@ -106,6 +107,7 @@ class SelectView(discord.ui.LayoutView):
             if result.changed:
                 description = self.msg['select_set'].format(label)
                 await update_history(self.bot.db, interaction.user.id, interaction.guild.id, primary, secondary, tertiary)
+                recorder.color(interaction, "select", (primary, secondary, tertiary))
             else:
                 description = self.msg['color_same']
 

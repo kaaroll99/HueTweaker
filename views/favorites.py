@@ -3,6 +3,7 @@ import logging
 import discord
 
 from constants import ACCENT_COLOR
+from analytics.recorder import recorder
 from database import model
 from utils.color_format import ColorUtils, Colors, decode_style, format_colors_label
 from utils.history_manager import update_history
@@ -138,7 +139,7 @@ class FavoritesView(discord.ui.LayoutView):
         label = format_colors_label(*colors)
         try:
             if secondary is not None:
-                blocked = await gradient_gate(self.msg, self.bot.votes, interaction.guild, interaction.user.id, self.docs_page)
+                blocked = await gradient_gate(self.msg, self.bot.votes, interaction, "favorites", self.docs_page)
                 if blocked is not None:
                     await interaction.followup.send(view=blocked, ephemeral=True)
                     return
@@ -151,6 +152,7 @@ class FavoritesView(discord.ui.LayoutView):
             if result.changed:
                 description = self.msg['favorites_applied'].format(label)
                 await update_history(self.bot.db, interaction.user.id, interaction.guild.id, *colors)
+                recorder.color(interaction, "favorites", colors)
             else:
                 description = self.msg['color_same']
 

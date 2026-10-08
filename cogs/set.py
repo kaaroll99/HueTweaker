@@ -6,6 +6,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from analytics.recorder import recorder
 from cogs._base import BaseCog, preset_choices
 from constants import FREE_SET_USES, FREE_SET_WINDOW
 from utils.color_format import ColorUtils, format_colors_label
@@ -80,7 +81,7 @@ class SetCog(BaseCog):
                 await self.respond(interaction, GlobalLayout(self.msg, self.msg['gradient_needs_two'], docs_page))
                 return
 
-            blocked = await self._access_gate(guild, member.id, secondary_val, docs_page)
+            blocked = await self._access_gate(interaction, command_name, secondary_val, docs_page)
             if blocked is not None:
                 await self.respond(interaction, blocked)
                 logger.info("%s[%s] issued bot command: /%s (blocked: gradients unavailable or vote required)", interaction.user.name, interaction.user.id, command_name)
@@ -117,6 +118,7 @@ class SetCog(BaseCog):
                 template = self.msg['color_set_black'] if is_black else self.msg['color_set']
                 description = template.format(label)
                 await update_history(self.db, member.id, guild.id, *colors)
+                recorder.color(interaction, command_name, colors)
 
             view = Layout.from_result(self.msg, result, primary_val, member.id, description)
             await self.respond(interaction, view)
@@ -133,16 +135,18 @@ class SetCog(BaseCog):
             logger.info("%s[%s] issued bot command: /%s %s", interaction.user.name, interaction.locale, command_name, log_color)
 
     async def _access_gate(
-        self, guild: discord.Guild, user_id: int, secondary_val: Optional[int], docs_page: str
+        self, interaction: discord.Interaction, source: str, secondary_val: Optional[int], docs_page: str
     ) -> Optional[discord.ui.LayoutView]:
         """The view to show instead of applying the color, or ``None`` when the user may proceed.
         A gradient needs server support first, then a vote. A solid color is free for
         ``FREE_SET_USES`` changes per window, then needs a vote."""
         if secondary_val is not None:
-            return await gradient_gate(self.msg, self.votes, guild, user_id, docs_page)
+            return await gradient_gate(self.msg, self.votes, interaction, source, docs_page)
 
+        user_id = interaction.user.id
         retry_after = self.set_quota.retry_after(user_id)
         if retry_after > 0 and not await self.votes.has_voted(user_id):
+            recorder.blocked(interaction, source, "set_limit")
             retry_at = f"<t:{int(time.time() + retry_after)}:R>"
             return VoteLayout(self.msg, self.msg['vote_set_limit'].format(FREE_SET_USES, retry_at), docs_page)
         return None

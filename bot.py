@@ -7,11 +7,14 @@ import discord
 from discord import Locale
 from discord.ext import commands, tasks
 
+from analytics.recorder import recorder
 from database import database
 from utils.console_logger import setup_logger
 from utils.data_loader import load_yml
 from utils.stats_api import api_request
 from utils.vote_manager import VoteChecker
+
+ANALYTICS_DIR = "analytics/data"
 
 setup_logger()
 logger = logging.getLogger("bot")
@@ -59,8 +62,16 @@ class MyBot(commands.AutoShardedBot):
         logger.info("Sharding configuration: total shards = %d", self.shard_count or -1)
         logger.warning("Skipping sync- Manual sync required via /dev tree")
         self.remove_command('help')
+        await recorder.start(ANALYTICS_DIR)
         if not self.update_stats_task.is_running():
             self.update_stats_task.start()
+
+    async def close(self) -> None:
+        await recorder.stop()
+        await super().close()
+
+    async def on_app_command_completion(self, interaction: discord.Interaction, command) -> None:
+        recorder.command(interaction, command)
 
     async def on_ready(self) -> None:
         logger.info("%s Bot is ready. %s", "=" * 20, "=" * 20)

@@ -4,6 +4,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from analytics.recorder import recorder
 from cogs._base import BaseCog
 from utils.color_format import format_colors_label
 from utils.color_parse import parse_color_pair
@@ -48,6 +49,7 @@ class ForceCog(BaseCog):
                 template = self.msg['force_set_black'] if is_black else self.msg['force_set_set']
                 description = template.format(username.name, label)
                 await update_history(self.db, username.id, interaction.guild.id, *colors)
+                recorder.color(interaction, "force set", colors)
 
             view = Layout.from_result(self.msg, result, primary_val, interaction.user.id, description)
             await self.respond(interaction, view)

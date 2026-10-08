@@ -171,3 +171,9 @@ CLAUDE.md
 DEV_README.md
 update.sh
 stats.sh
+
+# Analytics: the data lives only on the server; the repo holds just the code
+/analytics/data/
+/analytics/history/
+/analytics/*.xlsx
+/analytics/*.csv

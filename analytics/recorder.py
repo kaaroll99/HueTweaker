@@ -1,0 +1,120 @@
+import asyncio
+import csv
+import hashlib
+import logging
+import os
+import secrets
+from datetime import datetime, timezone
+from itertools import groupby
+from pathlib import Path
+
+import discord
+
+from utils.color_format import Colors, encode_style
+
+logger = logging.getLogger(__name__)
+
+# "locale" is the Discord client language (e.g. en-US, pt-BR); Discord does not expose a country.
+COLUMNS = ["timestamp", "event", "name", "guild_id", "user", "value", "locale"]
+WORKING_FILE = "working.csv"
+FLUSH_INTERVAL = 60
+
+
+class AnalyticsRecorder:
+    def __init__(self) -> None:
+        self._dir: Path | None = None
+        self._salt = b""
+        self._buffer: list[list[str]] = []
+        self._task: asyncio.Task | None = None
+
+    async def start(self, data_dir: str | Path) -> None:
+        self._dir = Path(data_dir)
+        self._dir.mkdir(parents=True, exist_ok=True)
+        self._salt = load_salt(self._dir)
+        self._task = asyncio.create_task(self._flush_loop())
+
+    async def stop(self) -> None:
+        if self._task is not None:
+            self._task.cancel()
+            self._task = None
+        await self.flush()
+
+    def command(self, interaction: discord.Interaction, command: discord.app_commands.Command) -> None:
+        if command.qualified_name != "dev":
+            self._add("command", command.qualified_name, interaction, "")
+
+    def color(self, interaction: discord.Interaction, source: str, colors: Colors) -> None:
+        self._add("color", source, interaction, encode_style(colors))
+
+    def blocked(self, interaction: discord.Interaction, source: str, reason: str) -> None:
+        self._add("blocked", source, interaction, reason)
+
+    def _add(self, event: str, name: str, interaction: discord.Interaction, value: str) -> None:
+        if self._dir is None:
+            return
+        timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
+        locale = getattr(interaction.locale, "value", interaction.locale) or ""
+        self._buffer.append([timestamp, event, name, str(interaction.guild_id or ""),
+                             user_hash(self._salt, str(interaction.user.id)), value, str(locale)])
+
+    async def _flush_loop(self) -> None:
+        while True:
+            await asyncio.sleep(FLUSH_INTERVAL)
+            await self.flush()
+
+    async def flush(self) -> None:
+        if self._dir is None or not self._buffer:
+            return
+        rows, self._buffer = self._buffer, []
+        try:
+            await asyncio.to_thread(self._write, rows)
+        except OSError as e:
+            logger.warning("Analytics: could not write %d event(s): %s", len(rows), e)
+
+    def _write(self, rows: list[list[str]]) -> None:
+        working = self._dir / WORKING_FILE
+        working_month = _first_month(working)
+        for month, group in groupby(rows, key=lambda row: row[0][:7]):
+            if working_month and working_month != month:
+                self._rotate(working, working_month)
+            new_file = not working.exists()
+            with working.open("a", newline="", encoding="utf-8") as f:
+                writer = csv.writer(f)
+                if new_file:
+                    writer.writerow(COLUMNS)
+                writer.writerows(group)
+            working_month = month
+
+    def _rotate(self, working: Path, month: str) -> None:
+        target = self._dir / f"{month}.csv"
+        if not target.exists():
+            working.rename(target)
+            return
+        # The month file already exists (e.g. events written after a rotation): append the rest.
+        with working.open(newline="", encoding="utf-8") as src, target.open("a", newline="", encoding="utf-8") as dst:
+            next(src, None)
+            dst.writelines(src)
+        working.unlink()
+
+def load_salt(data_dir: Path) -> bytes:
+    path = data_dir / ".salt"
+    if not path.exists():
+        path.write_text(secrets.token_hex(16))
+        os.chmod(path, 0o600)
+    return path.read_text().strip().encode()
+
+
+def user_hash(salt: bytes, user_key: str) -> str:
+    return hashlib.sha256(salt + user_key.encode()).hexdigest()[:12]
+
+
+def _first_month(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    with path.open(newline="", encoding="utf-8") as f:
+        next(f, None)
+        first = next(f, "")
+    return first[:7] or None
+
+
+recorder = AnalyticsRecorder()

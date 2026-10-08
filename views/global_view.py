@@ -3,6 +3,7 @@ import logging
 import discord
 
 from constants import ACCENT_COLOR, DOCS_BASE_URL, INVITE_URL, VOTE_URL
+from analytics.recorder import recorder
 from utils.role_manager import ColorRoleError
 
 logger = logging.getLogger(__name__)
@@ -98,10 +99,12 @@ class VoteLayout(discord.ui.LayoutView):
 
 
 async def gradient_gate(
-    messages: dict, votes, guild: discord.Guild, user_id: int, docs_page: str = "", require_vote: bool = True
+    messages: dict, votes, interaction: discord.Interaction, source: str, docs_page: str = "", require_vote: bool = True
 ) -> discord.ui.LayoutView | None:
-    if "ENHANCED_ROLE_COLORS" not in guild.features:
+    if "ENHANCED_ROLE_COLORS" not in interaction.guild.features:
+        recorder.blocked(interaction, source, "gradient_unsupported")
         return GlobalLayout(messages, messages['err_670006'], docs_page)
-    if require_vote and not await votes.has_voted(user_id):
+    if require_vote and not await votes.has_voted(interaction.user.id):
+        recorder.blocked(interaction, source, "vote_required")
         return VoteLayout(messages, messages['vote_gradient'], docs_page)
     return None
