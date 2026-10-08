@@ -19,8 +19,7 @@ FAVORITES_IMAGE_NAME = "favorites.png"
 
 
 def extract_favorite_colors(row: dict | None) -> list[tuple[int, Colors]]:
-    """Return ``[(slot, colors), ...]`` for the non-empty favorite slots (solid, gradient or holographic,
-    see ``encode_style``). Malformed values are skipped."""
+    """Return ``[(slot, colors), ...]`` for non-empty favorite slots."""
     colors: list[tuple[int, Colors]] = []
     if row:
         for i in range(1, FAVORITES_LIMIT + 1):
@@ -138,8 +137,6 @@ class FavoritesView(discord.ui.LayoutView):
         primary, secondary, tertiary = colors
         label = format_colors_label(*colors)
         try:
-            # Favorites are global: a gradient saved on a boosted server may be used on one without
-            # gradient support, which gets the same answer as /gradient there.
             if secondary is not None:
                 blocked = await gradient_gate(self.msg, self.bot.votes, interaction.guild, interaction.user.id, self.docs_page)
                 if blocked is not None:

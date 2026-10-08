@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class SelectCog(BaseCog):
 
-    @app_commands.command(name="select", description="Choose one of the static colors on the server")
+    @app_commands.command(name="select", description="Pick a color or gradient from the server's list")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:

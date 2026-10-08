@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 class RemoveCog(BaseCog):
 
-    @app_commands.command(name="remove", description="Remove the color")
+    @app_commands.command(name="remove", description="Remove your username color")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
     async def remove(self, interaction: discord.Interaction) -> None:

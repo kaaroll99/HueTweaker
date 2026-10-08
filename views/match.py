@@ -13,9 +13,6 @@ logger = logging.getLogger(__name__)
 
 
 class MatchView(discord.ui.LayoutView):
-    """Colors picked from the user's avatar: one button per color, plus a gradient of the two main
-    ones. The gradient button is gated like ``/gradient`` (server boost, then a vote)."""
-
     def __init__(self, messages, description, bot, file, colors: list[int], author_id: int,
                  docs_page: str = "commands/match"):
         super().__init__()
@@ -33,7 +30,6 @@ class MatchView(discord.ui.LayoutView):
         container.add_item(gallery)
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
 
-        # One row (Discord allows 5 buttons per row): the colors, then the gradient of the first two.
         buttons = []
         for i, color in enumerate(colors, start=1):
             button = discord.ui.Button(label=str(i), style=discord.ButtonStyle.secondary)

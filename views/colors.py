@@ -11,7 +11,6 @@ from views.global_view import make_docs_button, make_invite_button
 
 logger = logging.getLogger(__name__)
 
-# The gradient presets (and holographic) are shown as one more group, first in the menu.
 GRADIENTS = "Gradients"
 
 GROUP_EMOJI = {
@@ -22,18 +21,15 @@ GROUP_EMOJI = {
 
 @lru_cache(maxsize=1)
 def color_groups() -> dict[str, list[str]]:
-    """CSS color names by group, in the same order as the Colors page of the docs."""
     return load_json("assets/css-color-groups.json")
 
 
 def book_groups() -> dict[str, int]:
-    """Menu entries: group name -> number of entries."""
     return {GRADIENTS: len(color_presets()), **{group: len(names) for group, names in color_groups().items()}}
 
 
 @lru_cache(maxsize=None)
 def _group_png(group: str) -> bytes:
-    # The images never change, so each group is rendered once per process.
     if group == GRADIENTS:
         image = ColorUtils.generate_preset_book_image()
     else:

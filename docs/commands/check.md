@@ -28,7 +28,7 @@ Show a color in HEX, RGB, HSL and CMYK, with a preview image and up to 5 similar
 
 **Syntax:** `/check <color>`
 
-`<color>` can be any [color format](../main/colors.md#color-formats). With `@user` you check that user's color.
+`<color>` can be any [color format](../main/colors.md#color-formats) except gradient presets. With `@user` you check that user's color.
 
 **Examples:**
 

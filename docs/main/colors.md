@@ -13,11 +13,13 @@ Every command that takes a color accepts any of these:
 | CMYK | `cmyk(0%, 9%, 69%, 4%)` |
 | Random color | `random` |
 | Another user's color | `@kaaroll99` |
-| Gradient preset or holographic (needs Server Boost and a [vote](voting.md)) | `sunset`, `holographic` |
+| Gradient preset or holographic* | `sunset`, `holographic` |
 
 {% hint style="info" %}
 Discord treats pure black `#000000` as "no color", so HueTweaker sets `#000001` instead. It looks the same.
 {% endhint %}
+
+\* Presets work in [`/set`](../commands/set.md), [`/gradient`](../commands/gradient.md), [`/favorites add`](../commands/favorites-add.md), [`/setup select`](../commands/setup-select.md) and [`/force set`](../commands/force-set.md), not in [`/check`](../commands/check.md). Using one needs Server Boost and a [vote](voting.md).
 
 `random` and `@user` don't work in [`/setup select`](../commands/setup-select.md). Copying only works when the other user has a HueTweaker color. All presets are listed in [`/colors`](../commands/colors.md) → **Gradients**.
 

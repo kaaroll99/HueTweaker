@@ -57,11 +57,9 @@ def _int_to_rgb(color_int: int) -> tuple[int, int, int]:
     return (color_int >> 16) & 255, (color_int >> 8) & 255, color_int & 255
 
 
-# Colors of the /colors image: Discord's dark theme background and its text colors.
 _BOOK_BACKGROUND = (50, 51, 57, 255)
 _BOOK_TEXT = (219, 222, 225)
 _BOOK_MUTED_TEXT = (148, 155, 164)
-# Below this contrast ratio against the dark background, a username color is hard to read.
 _MIN_READABLE_CONTRAST = 2.0
 
 
@@ -106,14 +104,11 @@ def format_color_label(color: int | str) -> str:
 
 HOLOGRAPHIC_NAME = "Holographic"
 
-# (primary, secondary, tertiary): a solid color, a gradient, or the holographic style.
 Colors = tuple[int, int | None, int | None]
 
 
 @lru_cache(maxsize=1)
 def color_presets() -> dict[str, tuple[str, Colors]]:
-    """Named styles usable as a color: ``css_name_key(name) -> (display name, colors)``. The gradient
-    presets from ``assets/gradient-presets.json`` in file order, then the holographic style."""
     presets = {
         css_name_key(name): (name, (int(primary, 16), int(secondary, 16), None))
         for name, (primary, secondary) in load_json("assets/gradient-presets.json").items()
@@ -135,14 +130,10 @@ _stored_hex_re = re.compile(r"^#?[0-9a-fA-F]{6}$")
 
 
 def encode_style(colors: Colors) -> str:
-    """Text form of a style for the ``hex_n`` columns of ``favorites`` / ``server_selections``:
-    ``ff0000``, ``ff0000+00ff00`` or ``a9c9ff+ffbbec+ffc3a0`` (holographic)."""
     return "+".join(f"{c:06x}" for c in colors if c is not None)
 
 
 def decode_style(text: str | None) -> Colors | None:
-    """Inverse of ``encode_style``; also reads the older single-HEX values (with or without ``#``).
-    Returns ``None`` for an empty or malformed value."""
     if not isinstance(text, str) or not text.strip():
         return None
     parts = text.strip().split("+")
@@ -157,8 +148,7 @@ def preset_name(colors: Colors) -> str | None:
 
 
 def format_colors_label(primary: int, secondary: int | None = None, tertiary: int | None = None) -> str:
-    """Label for a solid color, a ``primary + secondary`` gradient (prefixed with the preset name
-    when it is one) or the holographic style."""
+    """Label for a solid color, a ``primary + secondary`` gradient or the holographic style."""
     if tertiary is not None:
         return HOLOGRAPHIC_NAME
     if secondary is None:
@@ -173,7 +163,6 @@ def _color_stops(primary: int, secondary: int | None = None, tertiary: int | Non
 
 
 def _paint_text(image: Image.Image, xy: tuple[float, float], text: str, font, stops: list[tuple[int, int, int]]) -> None:
-    """Draw ``text`` filled with one color, or with a left-to-right gradient through all ``stops``."""
     if len(stops) == 1:
         ImageDraw.Draw(image).text(xy, text, fill=(*stops[0], 255), font=font)
         return
@@ -200,9 +189,6 @@ def _paint_text(image: Image.Image, xy: tuple[float, float], text: str, font, st
 
 
 def dominant_colors(image_bytes: bytes, count: int = 5, min_distance: float = 20.0) -> list[int]:
-    """Up to ``count`` distinct main colors of an image (e.g. an avatar), most common first.
-    Transparent pixels are ignored, and so are colors that would be unreadable as a username
-    on Discord's dark theme. Colors closer than ``min_distance`` (CIE76 in Lab) count as one."""
     with Image.open(BytesIO(image_bytes)) as source:
         image = source.convert('RGBA')
     image.thumbnail((64, 64))
@@ -330,7 +316,7 @@ class ColorUtils:
     @staticmethod
     def generate_color_list_image(nick, colors):
         """Render a numbered list where each line is ``{i}. {nick} {label}`` drawn in its own
-        color (gradients and holographic as a gradient). ``colors`` may be ints, hex strings, or
+        color. ``colors`` may be ints, hex strings, or
         ``(primary, secondary[, tertiary])`` tuples."""
         font = _get_font()
 
@@ -357,8 +343,6 @@ class ColorUtils:
 
     @staticmethod
     def generate_color_book_image(names):
-        """Render CSS color names as ``[swatch] Name #HEX`` rows, in two columns above 12 names.
-        The name is drawn in its own color unless it would be unreadable on the dark background."""
         font = _get_font()
         css = _load_css_color_cache()
 
@@ -392,8 +376,6 @@ class ColorUtils:
 
     @staticmethod
     def generate_preset_book_image():
-        """Render every named style (gradient presets, holographic) as ``Name  #A → #B`` rows,
-        the name painted in its own gradient."""
         font = _get_font()
         padding, line_height, gap = 14, 32, 24
 

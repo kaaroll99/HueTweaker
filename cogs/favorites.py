@@ -32,7 +32,6 @@ class FavoritesCog(BaseCog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            # Saving is allowed on any server; gradients are gated when a favorite is applied.
             colors, _ = await parse_color_pair(interaction, self.db, color, secondary_color)
             hex_value = encode_style(colors)
             display = format_colors_label(*colors)

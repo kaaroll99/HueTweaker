@@ -27,7 +27,6 @@ class MatchCog(BaseCog):
             await interaction.response.defer(ephemeral=True)
 
             avatar = await interaction.user.display_avatar.replace(size=128, static_format="png").read()
-            # Pillow work is CPU-bound; keep it off the event loop.
             colors = await asyncio.to_thread(dominant_colors, avatar, MATCH_COLORS)
             if not colors:
                 await self.respond(interaction, GlobalLayout(self.msg, self.msg['match_no_colors'], docs_page))

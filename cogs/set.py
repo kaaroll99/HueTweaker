@@ -136,9 +136,8 @@ class SetCog(BaseCog):
         self, guild: discord.Guild, user_id: int, secondary_val: Optional[int], docs_page: str
     ) -> Optional[discord.ui.LayoutView]:
         """The view to show instead of applying the color, or ``None`` when the user may proceed.
-        A gradient or the holographic style (also a preset, or one copied with ``/set @user``) needs
-        server support first, then a vote. A solid color is free for ``FREE_SET_USES`` changes per
-        window, then needs a vote."""
+        A gradient needs server support first, then a vote. A solid color is free for
+        ``FREE_SET_USES`` changes per window, then needs a vote."""
         if secondary_val is not None:
             return await gradient_gate(self.msg, self.votes, guild, user_id, docs_page)
 

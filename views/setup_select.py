@@ -142,7 +142,7 @@ class ColorSelectionModal(Modal):
             if raw == "":
                 new_color_value = None
             else:
-                # Invalid input raises ValueError, so it never silently clears the slot.
+                # Invalid input must not silently clear the slot.
                 colors, _ = parse_static_style(raw, secondary_raw or None)
                 new_color_value = encode_style(colors)
 

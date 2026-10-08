@@ -45,7 +45,8 @@ class MyBot(commands.AutoShardedBot):
                 return
             server_count = len(self.guilds)
             user_count = 0
-            await api_request(server_count, user_count, self.shard_count or 1)
+            command_list = [cmd.to_dict(self.tree) for cmd in self.tree.get_commands() if cmd.name != 'dev']
+            await api_request(server_count, user_count, command_list, self.shard_count or 1)
         except Exception:
             logger.exception("update_stats_task error")
 

@@ -73,8 +73,6 @@ def check_black(primary_hex: str | None, secondary_hex: str | None) -> tuple[str
 
 
 def parse_static_style(color: str, secondary_color: str | None = None) -> tuple[Colors, bool]:
-    """Like ``parse_color_pair`` without ``@mention`` and ``random``: for values stored as they are
-    (the server palette). Accepts a preset name, one color, or two colors. Raises ``ValueError``."""
     if not secondary_color:
         preset = preset_colors(color)
         if preset is not None:
@@ -90,10 +88,9 @@ def parse_static_style(color: str, secondary_color: str | None = None) -> tuple[
 async def parse_color_pair(
     interaction: discord.Interaction, db, color: str, secondary_color: str | None
 ) -> tuple[Colors, bool]:
-    """Resolve the ``/set``, ``/gradient``, ``/holographic`` and ``/force set`` inputs into
-    ``((primary, secondary, tertiary), is_black)``. Without a secondary color, a preset name
-    (``sunset``, ``holographic``) or a mention of a user with a gradient or the holographic style
-    gives the whole style. Raises ``ValueError`` on invalid input."""
+    """Resolve the ``/set``, ``/gradient`` and ``/force set`` inputs into
+    ``((primary, secondary, tertiary), is_black)``. A preset name or a mention of a user with a
+    gradient (and no secondary color) gives the whole style. Raises ``ValueError`` on invalid input."""
     if len(color) > MAX_COLOR_INPUT_LEN:
         raise ValueError
     if secondary_color is None:

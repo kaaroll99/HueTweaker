@@ -127,7 +127,7 @@ exception: "### <:warn:1362879461468672130> The bot encountered an unexpected er
 color_format: |
   ### <:warn:1362879461468672130> Incorrect color format or the selected user does not have the color set
 
-  Please use hexadecimal format, e.g. __F5DF4D__ or name of [CSS color](https://huetweaker.gitbook.io/docs/main/colors), e.g. __royalblue__
+  Use a HEX code (__F5DF4D__), a [CSS color name](https://huetweaker.gitbook.io/docs/main/colors) (__royalblue__), rgb/hsl/cmyk, __random__ or a preset (__sunset__). [All formats](https://huetweaker.gitbook.io/docs/main/colors#color-formats)
 err_50013: |
   ### <:warn:1362879461468672130> The bot does not have permissions to perform this operation.
 
@@ -196,7 +196,7 @@ history_title: |
   **<:star:1362879443625971783> Color history:**
 
   <:bubble:1362879391423533226> The history is ordered from the newest.
-  <:bubble:1362879391423533226> The history is updated after every `/set` or `/select` command.
+  <:bubble:1362879391423533226> Every color change is saved here, including gradients.
 
 history_no_history: "### <:warn:1362879461468672130> No color history found."
 

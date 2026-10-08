@@ -38,7 +38,6 @@ TOPROLE_MODES = {TOPROLE_MODE_AUTO, TOPROLE_MODE_CUSTOM, TOPROLE_MODE_OFF}
 _color_role_re = re.compile(COLOR_ROLE_PATTERN)
 _guild_locks: dict[int, asyncio.Lock] = {}
 
-# (primary, secondary, tertiary): a solid color, a gradient, or the holographic style.
 Colors = Tuple[int, Optional[int], Optional[int]]
 
 
@@ -274,7 +273,7 @@ async def apply_color_role(
     """Give ``member`` the color: create or recolor their color role (renaming a legacy or outdated
     name in the same edit), bind it in ``member_color_roles``, assign it, and keep the color-role block
     positioned. ``changed`` is False when the role already had these colors (a rename alone is not
-    a change). ``tertiary_val`` is only valid for the holographic style (``HOLOGRAPHIC_COLORS``)."""
+    a change)."""
     async with get_guild_lock(guild.id):
         roles = await guild.fetch_roles()
         role, row = await _lookup_color_role(db, guild, member.id, roles)

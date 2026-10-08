@@ -5,7 +5,7 @@ import random
 import aiohttp
 
 from constants import BOT_ID
-from utils.data_loader import load_json, load_yml
+from utils.data_loader import load_yml
 
 token_file = load_yml('assets/token.yml')
 
@@ -48,7 +48,7 @@ async def post_with_retry(url: str, headers: dict, data: dict, message: str) -> 
     return result
 
 
-async def api_request(server_count: int, user_count: int, shard_count: int = 1) -> None:
+async def api_request(server_count: int, user_count: int, command_list: list[dict], shard_count: int = 1) -> None:
     tasks = []
 
     # top.gg
@@ -80,7 +80,7 @@ async def api_request(server_count: int, user_count: int, shard_count: int = 1) 
             'Authorization': token_file['DISCORDBOTLIST_TOKEN'],
             'Content-Type': 'application/json'
         },
-        load_json('assets/commands_list.json'),
+        command_list,
         'command list'
     )))
 

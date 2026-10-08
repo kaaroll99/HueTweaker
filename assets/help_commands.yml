@@ -10,32 +10,17 @@ help:
 set:
   name: set
   desc: >-
-    Set or change your username color. Colors can be given as a HEX value (with or without
-    a leading '#'), as a CSS color name, or by copying another user's color (mention the user,
-    e.g. @kaaroll99). Use the keyword "random" to pick a random color.
+    Set or change your username color. The bot shows a preview and applies it after you press
+    Accept. The result has an "Undo to previous color" button.
 
-    The command generates a preview image and asks for confirmation before applying the color.
-
-    ### Parameters:
-      <color> - Color to set (required).
-    ### Accepted color formats:
-      - Hex: F5DF4D or #F5DF4D
-      - CSS color names: royalblue
-      - Other formats supported by the parser (e.g., rgb(...), hsl(...))
-    ### Username:
-      - Copy color from another user by mentioning them (e.g. @kaaroll99). If the selected user
-        does not have a colored role an error will be returned. If they have a gradient, the
-        whole gradient is copied.
+    ### Color:
+      HEX (F5DF4D), CSS name (royalblue), rgb/hsl/cmyk, "random", @user to copy their color,
+      or a gradient preset name (e.g. `sunset`, `holographic`).
     ### Notes:
-      - If you don't already have a bot-managed color role, the bot will create one named
-        "🎨 <your display name>" and assign it to you. The name is refreshed every time you change
-        your color.
-      - The reply has an "Undo to previous color" button. If you had no color before, undo
-        removes the color again.
-      - To create a two-color gradient, use the `/gradient` command instead.
-      - The command is subject to a cooldown.
       - Without a top.gg vote you can change your color 2 times per 30 minutes. Voting removes
-        this limit for 12 hours. Copying a gradient from another user requires a vote.
+        the limit for 12 hours.
+      - A preset, or copying someone's gradient, needs Server Boost and a vote, like `/gradient`.
+      - The first time, the bot creates a role named "🎨 <your display name>".
   usage: /set <color>
   example: |
     - /set f5df4d
@@ -123,24 +108,17 @@ select:
 check:
   name: check
   desc: >-
-    Get color information and a preview image (HEX, RGB, HSL, CMYK).
+    Show a color in HEX, RGB, HSL and CMYK, with a preview image and up to 5 similar CSS color
+    names. Your color doesn't change.
 
-    ### Accepted input formats:
-      - Hex (with or without `#`): `F5DF4D` or `#F5DF4D`
-    - Functional notation: `rgb(...)`, `hsl(...)`
-    - CSS color names (e.g. `royalblue`)
-    - Mention another user to copy their color (e.g. `@kaaroll99`)
-    - `random` to pick a random color
-
-    ### What the command returns:
-      - Conversions: HEX, RGB, HSL, CMYK
-      - A small PNG preview image (`color_fill.png`) showing the color
-      - Up to several similar CSS color names (if available)
-    ### Notes:
-      - Invalid formats will trigger a helpful error message directing to the docs.
-      - A short cooldown is applied per user per server to prevent spam.
+    ### Color:
+      HEX, CSS name, rgb/hsl/cmyk, "random", or @user to check their color.
+      Gradient presets are not supported here.
   usage: /check <color>
-  example: /check \#F5DF4D
+  example: |
+    - /check #F5DF4D
+    - /check royalblue
+    - /check @kaaroll99
   docs: check
 
 ### COLORS ###
@@ -157,14 +135,12 @@ colors:
 history:
   name: history
   desc: >-
-    View your color change history on the server. The command displays the last 5 colors
-    (including gradients) you have used. It also generates a small PNG preview image showing your username
-    rendered with each of those colors (shown as "name (#HEX)" when the color matches a CSS
-    color name, otherwise just the HEX).
+    See the last 5 colors you used on this server, newest first, including gradients and
+    holographic. Press a numbered button to restore one.
 
-    ### How to use:
-      - Press a numbered button to restore that color.
-
+    ### Notes:
+      - Restoring a gradient or holographic needs Server Boost and a top.gg vote.
+      - History is per server and is deleted when you leave the server.
   usage: /history
   example: /history
   docs: history
@@ -216,24 +192,21 @@ vote:
 
 ### FORCESET ###
 forceset:
-  name: forceset
+  name: force set
   desc: >-
-    Set or change another user's username color. This command is for administrators
-    and accepts the same input formats as `/set`: HEX (with or without `#`), CSS color
-    names, mention a user to copy their color (e.g. `@kaaroll99`), or `random`. You may
-    also provide an optional secondary color to create a gradient.
+    Set or change another member's username color, solid or gradient, right away (no preview).
+    Administrators only.
 
     ### Parameters:
-      <user_name> - Name of the selected user
-      <color> - Primary color to set (required).
-      [secondary_color] - Secondary color for gradient (optional).
+      <username> - the member.
+      <color> - any color format, or a preset name (`sunset`, `holographic`).
+      [secondary_color] - optional, makes a gradient.
     ### Notes:
-      - If the target user doesn't have a bot-managed color role, the bot will create
-        one named `🎨 <display name>` and assign it to the user.
-    - Requires administrator privileges to run and the bot must have permission to
-      manage roles.
-  usage: /force set <user_name> <color>
-  example: /force set @kaaroll99 f5df4d
+      - No vote and no `/set` limit. A gradient still needs Server Boost.
+  usage: /force set <username> <color> [secondary_color]
+  example: |
+    - /force set @kaaroll99 f5df4d
+    - /force set @kaaroll99 royalblue tomato
   docs: force-set
 
 ### FORCEREMOVE ###

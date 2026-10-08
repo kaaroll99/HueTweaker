@@ -15,8 +15,7 @@ PALETTE_SIZE = 10
 
 
 def extract_palette(row: dict | None) -> list[tuple[int, Colors]]:
-    """``[(slot, colors), ...]`` for the non-empty slots of a ``server_selections`` row (solid,
-    gradient or holographic, see ``encode_style``). Malformed values are skipped."""
+    """``[(slot, colors), ...]`` for the non-empty slots of a ``server_selections`` row."""
     colors: list[tuple[int, Colors]] = []
     if row:
         for i in range(1, PALETTE_SIZE + 1):
@@ -93,7 +92,6 @@ class SelectView(discord.ui.LayoutView):
             primary = 1  # Discord treats #000000 as "no color"
         label = format_colors_label(primary, secondary, tertiary)
         try:
-            # The palette is the admins' choice, so a gradient needs only the server's support, no vote.
             if secondary is not None:
                 blocked = await gradient_gate(self.msg, self.bot.votes, interaction.guild, interaction.user.id,
                                               self.docs_page, require_vote=False)

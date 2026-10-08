@@ -20,7 +20,7 @@ class ForceCog(BaseCog):
 
     group = app_commands.Group(name="force", description="Modify the color of specific user")
 
-    @group.command(name="set", description="Setting the color of the user")
+    @group.command(name="set", description="Set a member's color or gradient")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(username="Username",
@@ -63,7 +63,7 @@ class ForceCog(BaseCog):
         finally:
             logger.info("%s[%s] issued bot command: /force set %s", interaction.user.name, interaction.locale, log_color)
 
-    @group.command(name="remove", description="Remove the color of the user")
+    @group.command(name="remove", description="Remove a member's color")
     @app_commands.describe(username="Username")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.checks.has_permissions(administrator=True)

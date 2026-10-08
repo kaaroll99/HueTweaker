@@ -28,7 +28,7 @@ class SetupCog(BaseCog):
 
     group = app_commands.Group(name="setup", description="Setup bot on your server")
 
-    @group.command(name="select", description="Setup static colors on server")
+    @group.command(name="select", description="Set up the server's list of colors and gradients for /select")
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.guild_only()
     async def select(self, interaction: discord.Interaction) -> None:
