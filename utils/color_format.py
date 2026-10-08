@@ -56,6 +56,25 @@ def _int_to_rgb(color_int: int) -> tuple[int, int, int]:
     return (color_int >> 16) & 255, (color_int >> 8) & 255, color_int & 255
 
 
+# Colors of the /colors image: Discord's dark theme background and its text colors.
+_BOOK_BACKGROUND = (50, 51, 57, 255)
+_BOOK_TEXT = (219, 222, 225)
+_BOOK_MUTED_TEXT = (148, 155, 164)
+
+
+def _relative_luminance(rgb: tuple[int, int, int]) -> float:
+    def channel(value: int) -> float:
+        c = value / 255
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+    r, g, b = (channel(v) for v in rgb)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _contrast_ratio(a: tuple[int, int, int], b: tuple[int, int, int]) -> float:
+    la, lb = sorted((_relative_luminance(a), _relative_luminance(b)), reverse=True)
+    return (la + 0.05) / (lb + 0.05)
+
+
 def css_name_key(text: str) -> str:
     """Normalize user input for a CSS name lookup: ``"Royal Blue"`` -> ``"royalblue"``."""
     return re.sub(r"[\s_-]", "", text.strip().lower())
@@ -218,6 +237,41 @@ class ColorUtils:
                 fill=(*fill, 255),
                 font=font,
             )
+        return image
+
+    @staticmethod
+    def generate_color_book_image(names):
+        """Render CSS color names as ``[swatch] Name #HEX`` rows, in two columns above 12 names.
+        The name is drawn in its own color unless it would be unreadable on the dark background."""
+        font = _get_font()
+        css = _load_css_color_cache()
+
+        padding, line_height, swatch, gap = 14, 32, 22, 10
+        rows = [(name, css[name.lower()].lstrip('#').upper()) for name in names]
+        columns = 1 if len(rows) <= 12 else 2
+        per_column = -(-len(rows) // columns)
+
+        measure = ImageDraw.Draw(Image.new('RGBA', (1, 1)))
+        name_width = max((measure.textlength(name, font=font) for name, _ in rows), default=0)
+        hex_width = measure.textlength("#DDDDDD", font=font)
+        column_width = int(swatch + gap + name_width + gap * 2 + hex_width + padding * 2)
+
+        width = padding + columns * column_width
+        height = padding * 2 + per_column * line_height
+        image = Image.new('RGBA', (width, height), _BOOK_BACKGROUND)
+        draw = ImageDraw.Draw(image)
+
+        for i, (name, hex_value) in enumerate(rows):
+            x = padding + (i // per_column) * column_width
+            y = padding + (i % per_column) * line_height
+            fill = _int_to_rgb(int(hex_value, 16))
+
+            draw.rounded_rectangle((x, y + 2, x + swatch, y + 2 + swatch), radius=5, fill=fill,
+                                   outline=_BOOK_MUTED_TEXT, width=1)
+            readable = _contrast_ratio(fill, _BOOK_BACKGROUND[:3]) >= 2.0
+            draw.text((x + swatch + gap, y + 2), name, fill=fill if readable else _BOOK_TEXT, font=font)
+            draw.text((x + swatch + gap + name_width + gap * 2, y + 2), f"#{hex_value}",
+                      fill=_BOOK_MUTED_TEXT, font=font)
         return image
 
     @staticmethod

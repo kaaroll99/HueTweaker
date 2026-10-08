@@ -47,6 +47,7 @@ Give every member a **name color of their own**: HEX, CSS names, **gradients** o
 | `/favorites list` | Set a favorite with a button, or remove it via dropdown. |
 | `/history` | View your last 5 colors and restore one with a button. |
 | `/check <color>` | Show HEX/RGB/HSL/CMYK, similar names and a preview. |
+| `/colors` | Browse CSS color names and HEX codes by color group. |
 | `/remove` | Remove your color. |
 
 `/set`, `/gradient` and `/select` show a preview before applying, and the result comes with an **Undo to previous color** button.

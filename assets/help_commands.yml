@@ -132,6 +132,16 @@ check:
   example: /check \#F5DF4D
   docs: check
 
+### COLORS ###
+colors:
+  name: colors
+  desc: >-
+    Browse CSS color names with their HEX codes, grouped by color (red, green, blue...).
+    Pick a group from the menu to see its colors. Use a name or HEX with `/set`.
+  usage: /colors
+  example: /colors
+  docs: colors
+
 ### HISTORY ###
 history:
   name: history

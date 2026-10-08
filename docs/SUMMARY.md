@@ -18,6 +18,7 @@
 * [favorites add](commands/favorites-add.md)
 * [favorites list](commands/favorites-list.md)
 * [check](commands/check.md)
+* [colors](commands/colors.md)
 * [help](commands/help.md)
 
 ## Admin commands
