@@ -48,36 +48,51 @@ set:
 gradient:
   name: gradient
   desc: >-
-    Set or change your username color using a two-color gradient. You provide a primary and a
-    secondary color, and the bot blends them into a gradient role. Each color can be given as a
-    HEX value (with or without a leading '#'), as a CSS color name, by copying another user's
-    color (mention the user, e.g. @kaaroll99), or as "random" to pick a random color.
+    Set a two-color gradient as your username color, or pick a ready-made gradient by its name.
+    The bot shows a preview and applies it after you press Accept.
 
-    The command generates a preview image and asks for confirmation before applying the gradient.
-
-    ### Parameters:
-      <color> - Primary color of the gradient (required).
-      <secondary_color> - Secondary color of the gradient (required).
-    ### Accepted color formats:
-      - Hex: F5DF4D or #F5DF4D
-      - CSS color names: royalblue
-      - Other formats supported by the parser (e.g., rgb(...), hsl(...))
-    ### Username:
-      - Copy a color from another user by mentioning them (e.g. @kaaroll99). If the selected user
-        does not have a colored role an error will be returned.
+    ### Two colors:
+      Each can be HEX, a CSS name, rgb/hsl/cmyk, "random" or @user.
+    ### Preset:
+      Give only a preset name, e.g. `sunset`. The field suggests the names as you type;
+      see them all in `/colors` → Gradients.
     ### Notes:
-      - If you don't already have a bot-managed color role, the bot will create one named
-        "🎨 <your display name>" and assign it to you.
-      - To set a single solid color, use the `/set` command instead.
-      - The server must have gradient role colors enabled (a server boost feature).
-      - Gradients require a vote for HueTweaker on top.gg (a vote lasts 12 hours).
-      - The command is subject to a cooldown.
-  usage: /gradient <color> <secondary_color>
+      - Needs Server Boost (gradient role colors) and your top.gg vote (lasts 12 hours).
+      - For one color, use `/set`.
+  usage: /gradient <color> [secondary_color]
   example: |
     - /gradient f5df4d 00ff00
     - /gradient royalblue tomato
-    - /gradient random random
+    - /gradient sunset
   docs: gradient
+
+### HOLOGRAPHIC ###
+holographic:
+  name: holographic
+  desc: >-
+    Set Discord's holographic username style: a shimmering, iridescent color. Discord allows only
+    one holographic look, so the command takes no parameters.
+
+    ### Notes:
+      - Needs Server Boost (gradient role colors) and your top.gg vote (lasts 12 hours).
+      - The same as `/set holographic`.
+  usage: /holographic
+  example: /holographic
+  docs: holographic
+
+### MATCH ###
+match:
+  name: match
+  desc: >-
+    Get username colors that match your avatar. The bot finds up to 4 main colors of your avatar
+    and shows your name in each, plus a gradient of the two main ones.
+
+    ### How to use:
+      - Press a numbered button to set that color.
+      - Press the 🌈 button to set the gradient (needs Server Boost and a top.gg vote).
+  usage: /match
+  example: /match
+  docs: match
 
 ### REMOVE ###
 remove:
@@ -94,16 +109,12 @@ remove:
 select:
   name: select
   desc: >-
-    Choose one of the static colors configured on your server using a dropdown menu.
-    The command generates a preview image showing your username rendered with each
-    available color so you can see how it will look before applying it. After choosing,
-    you get a confirmation with an "Undo to previous color" button.
+    Pick one of the colors or gradients prepared on your server. The bot shows your name in
+    each of them; choose one from the menu.
 
     ### Notes:
-      - The server must have colors configured (up to 10 positions) using `/setup select`.
-    - The command generates a small PNG preview and sends it along with the selection UI.
-    - A short cooldown applies to prevent spamming (rate-limited per user per server).
-
+      - An admin sets the list up with `/setup select` (up to 10 positions).
+      - Gradients from the list need Server Boost on the server, but no vote.
   usage: /select
   example: /select
   docs: select
@@ -162,41 +173,33 @@ history:
 favoritesadd:
   name: favorites add
   desc: >-
-    Add a color to your personal favorites list. Favorites are saved to your account and are
-    available on every server where HueTweaker is present (up to 10 colors). The color can be
-    given as a HEX value (with or without a leading '#'), a CSS color name, by copying another
-    user's color (mention them, e.g. @kaaroll99), or as "random".
+    Save a color, gradient or preset to your favorites (up to 10). Favorites belong to your
+    account, so you see the same list on every server with HueTweaker.
 
-    ### Parameters:
-      <color> - Color to add (required).
-    ### Accepted color formats:
-      - Hex: F5DF4D or #F5DF4D
-      - CSS color names: royalblue
-      - Mention a user to copy their color, or "random"
+    ### Input:
+      - One color: HEX, CSS name, rgb/hsl/cmyk, "random" or @user.
+      - A gradient: add `secondary_color`, or give a preset name (e.g. `sunset`) or `holographic`.
     ### Notes:
-      - The stored value is always a normalized HEX, regardless of the input format.
-      - Duplicate colors and a full list (10/10) are rejected with a message.
-  usage: /favorites add <color>
+      - Saving works on any server. Using a saved gradient needs Server Boost on that server
+        and your top.gg vote, like `/gradient`.
+  usage: /favorites add <color> [secondary_color]
   example: |
     - /favorites add f5df4d
-    - /favorites add royalblue
-    - /favorites add random
+    - /favorites add royalblue tomato
+    - /favorites add sunset
   docs: favorites-add
 
 ### FAVORITES LIST ###
 favoriteslist:
   name: favorites list
   desc: >-
-    Show your personal favorite colors. The command generates a preview image with your
-    nickname rendered in each color (shown as "name (#HEX)" when the color matches a CSS
-    color name, otherwise just the HEX).
+    Show your favorite colors and gradients with a preview of your name in each.
 
     ### How to use:
-      - Press a numbered button to set that favorite as your color.
-      - Use the dropdown to remove a color from your list.
+      - Press a numbered button to set that favorite.
+      - Use the dropdown to remove one from your list.
     ### Notes:
-      - Favorites are global to your account (the same on every server).
-      - Add colors first with `/favorites add`.
+      - A gradient favorite needs Server Boost on this server and your top.gg vote.
   usage: /favorites list
   example: /favorites list
   docs: favorites-list
@@ -311,22 +314,15 @@ toprole:
 setupselect:
   name: setup select
   desc: >-
-    Configure the static color list for the `/select` command. This opens an interactive
-    panel where administrators can create the color list or add/edit entries.
+    Set up the list of colors members can pick with `/select` (up to 10 positions).
 
-    ### Behavior highlights:
-      - The list supports up to 10 positions (stored as `hex_1` .. `hex_10` in the DB).
-      - If no colors exist yet you'll see a **Create color list** button; otherwise an **Add/Edit color on list** button is shown.
-      - Editing opens a modal with two fields:
-          * Color index (1-10) — position in the `/select` menu (validated)
-        * Color value — hex (e.g. `F5DF4D` or `#F5DF4D`) or CSS color name (e.g. `royalblue`)
-      - Leaving the color value empty clears that entry.
-    ### Notes & validation:
-      - Index must be an integer between 1 and 10; invalid input will show a warning
-        and keep the current list unchanged.
-      - Colors are parsed with the same rules as `/set` (hex or CSS names).
-      - Only users with administrator privileges can run this command.
-
+    ### How to use:
+      1. Press **Create color list** (first time) or **Add/Edit color on list**.
+      2. Enter the position (1-10) and a color: HEX, CSS name, rgb/hsl/cmyk, or a preset name
+         (e.g. `sunset`, `holographic`).
+      3. Fill in the second color to make a gradient. Leave the color empty to clear the position.
+    ### Notes:
+      - Gradients work only on servers with Server Boost; members don't need to vote for them.
   usage: /setup select
   example: /setup select
   docs: setup-select

@@ -7,8 +7,8 @@ from discord.ui import Button, Modal, TextInput
 
 from constants import ACCENT_COLOR
 from database import model
-from utils.color_format import format_color_label
-from utils.color_parse import BLACK_HEX, NEAR_BLACK_HEX, color_parser
+from utils.color_format import decode_style, encode_style, format_colors_label
+from utils.color_parse import parse_static_style
 from views.global_view import error_description, make_docs_button
 
 logger = logging.getLogger(__name__)
@@ -45,9 +45,9 @@ class SetupView(discord.ui.LayoutView):
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
         color_list = ""
         for i in range(1, PALETTE_SIZE + 1):
-            color_val = self.colors_data.get(f"hex_{i}")
-            if color_val:
-                color_list += f"**{i}.** {format_color_label(color_val)}\n"
+            style = decode_style(self.colors_data.get(f"hex_{i}"))
+            if style:
+                color_list += f"**{i}.** {format_colors_label(*style)}\n"
             else:
                 color_list += f"**{i}.** -\n"
 
@@ -121,6 +121,15 @@ class ColorSelectionModal(Modal):
         )
         self.add_item(self.color_input)
 
+        self.secondary_input = TextInput(
+            label=self.msg['setup_select_form_secondary'],
+            placeholder=self.msg['setup_select_form_pl_secondary'],
+            style=discord.TextStyle.short,
+            required=False,
+            max_length=32,
+        )
+        self.add_item(self.secondary_input)
+
     async def on_submit(self, interaction: discord.Interaction):
         try:
             digits = re.sub(r"\D", "", self.color_index.value)
@@ -129,14 +138,13 @@ class ColorSelectionModal(Modal):
                 raise ValueError
 
             raw = self.color_input.value.strip()
+            secondary_raw = self.secondary_input.value.strip()
             if raw == "":
                 new_color_value = None
             else:
-                parsed = color_parser(raw)
-                if parsed is None:
-                    # Invalid input must not silently clear the slot.
-                    raise ValueError
-                new_color_value = NEAR_BLACK_HEX if parsed == BLACK_HEX else parsed
+                # Invalid input raises ValueError, so it never silently clears the slot.
+                colors, _ = parse_static_style(raw, secondary_raw or None)
+                new_color_value = encode_style(colors)
 
             criteria = {"server_id": interaction.guild.id}
             await self.db.upsert(model.Select, criteria, {f"hex_{index_value}": new_color_value})

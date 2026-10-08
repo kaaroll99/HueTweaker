@@ -36,11 +36,28 @@ vote_gradient: |
 check_title: "### Details for color: {}"
 check_css: "<:star:1362879443625971783> The most similar CSS colors:"
 
+#gradient
+gradient_needs_two: |
+  ### <:warn:1362879461468672130> A gradient needs two colors or a preset name
+
+  <:bubble:1362879391423533226> Give two colors, e.g. `/gradient royalblue tomato`, or a preset, e.g. `/gradient sunset`. See the presets in `/colors`.
+
+#match
+match_title: |
+  **<:star:1362879443625971783> Colors from your avatar:**
+
+  <:bubble:1362879391423533226> Press a number to set that color, or 🌈 for the two main colors as a gradient.
+match_no_colors: "### <:warn:1362879461468672130> Couldn't find colors in your avatar that would be visible as a username."
+
 #colors
 colors_title: |
   ### <:star:1362879443625971783> {} colors
 
   <:bubble:1362879391423533226> Use a name or HEX with `/set`, e.g. `/set {}`.
+colors_gradients_title: |
+  ### <:star:1362879443625971783> Gradients
+
+  <:bubble:1362879391423533226> Use a name with `/gradient`, e.g. `/gradient sunset`, or try `/holographic`. Needs Server Boost and a top.gg vote.
 
 #force set
 force_set_set: "### <:ok:1362879418640498748> Color has been set for {} to __{}__"
@@ -161,14 +178,17 @@ revert_not_found: "<:warn:1362879461468672130> **The color role no longer exists
 revert_removed: "<:ok:1362879418640498748> **Color has been removed. You had no color before this change.**"
 
 setup_select_embed_desc: |
-  <:bubble:1362879391423533226> Use the button below to add or edit existing colors using hex codes or CSS names.
+  <:bubble:1362879391423533226> Use the button below to add or edit colors: a HEX code, a CSS name, two colors for a gradient, or a preset name (e.g. sunset).
+  <:bubble:1362879391423533226> Gradients work only on servers with Server Boost (gradient role colors).
   <:bubble:1362879391423533226> Using the index number for an existing color will overwrite it.
   <:bubble:1362879391423533226> To remove an item from the list, leave the color field in the form blank.
 setup_select_form_title: "Color edit form"
 setup_select_form_pl_index: "1"
 setup_select_form_index: "Index number to edit, e.g. 1, 2..., 10"
-setup_select_form_pl_color: "F5DF4D or royalblue"
-setup_select_form_color: "Color to set or leave blank to remove"
+setup_select_form_pl_color: "F5DF4D, royalblue or sunset"
+setup_select_form_color: "Color or preset, or leave blank to remove"
+setup_select_form_secondary: "Second color for a gradient (optional)"
+setup_select_form_pl_secondary: "tomato"
 
 
 #history

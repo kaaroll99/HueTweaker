@@ -16,6 +16,9 @@ VOTE_URL = f"https://top.gg/bot/{BOT_ID}/vote"
 FREE_SET_USES = 2
 FREE_SET_WINDOW = 30 * 60
 
+# Discord's holographic role style: allowed only with exactly these primary, secondary and tertiary colors.
+HOLOGRAPHIC_COLORS = (0xA9C9FF, 0xFFBBEC, 0xFFC3A0)
+
 # Discord allows at most 250 roles per guild (HTTP 30005 when exceeded).
 DISCORD_ROLE_LIMIT = 250
 HTTP_MAX_ROLES_REACHED = 30005

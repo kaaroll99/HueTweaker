@@ -24,7 +24,7 @@ class ForceCog(BaseCog):
     @app_commands.checks.has_permissions(administrator=True)
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(username="Username",
-                           color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)",
+                           color="HEX, CSS name, rgb/hsl/cmyk, random, @user or a preset (sunset, holographic)",
                            secondary_color="Secondary color for gradient (optional)")
     @app_commands.guild_only()
     async def forceset(self, interaction: discord.Interaction, username: discord.Member, color: str, secondary_color: str = None) -> None:
@@ -33,11 +33,13 @@ class ForceCog(BaseCog):
         try:
             await interaction.response.defer(ephemeral=True)
 
-            primary_val, secondary_val, is_black = await parse_color_pair(interaction, self.db, color, secondary_color)
-            label = format_colors_label(primary_val, secondary_val)
+            colors, is_black = await parse_color_pair(interaction, self.db, color, secondary_color)
+            primary_val, secondary_val, tertiary_val = colors
+            label = format_colors_label(*colors)
 
             result = await apply_color_role(
-                interaction.guild, username, primary_val, secondary_val, self.db, interaction.client.user.id
+                interaction.guild, username, primary_val, secondary_val, self.db, interaction.client.user.id,
+                tertiary_val=tertiary_val,
             )
 
             if not result.changed:
@@ -45,7 +47,7 @@ class ForceCog(BaseCog):
             else:
                 template = self.msg['force_set_black'] if is_black else self.msg['force_set_set']
                 description = template.format(username.name, label)
-                await update_history(self.db, username.id, interaction.guild.id, primary_val, secondary_val)
+                await update_history(self.db, username.id, interaction.guild.id, *colors)
 
             view = Layout.from_result(self.msg, result, primary_val, interaction.user.id, description)
             await self.respond(interaction, view)

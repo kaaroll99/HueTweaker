@@ -1,5 +1,5 @@
 ---
-description: Set up the color list for /select.
+description: Set up the list of colors and gradients for /select.
 ---
 
 # setup select
@@ -8,7 +8,7 @@ description: Set up the color list for /select.
 Administrators only.
 {% endhint %}
 
-Set up the list of colors members can pick with [`/select`](select.md). Up to 10 colors.
+Set up the list of colors and gradients members can pick with [`/select`](select.md). Up to 10 positions.
 
 **Syntax:** `/setup select`
 
@@ -16,11 +16,12 @@ Set up the list of colors members can pick with [`/select`](select.md). Up to 10
 
 1. Run `/setup select`. The panel shows the current list.
 2. Press **Create color list** (first time) or **Add/Edit color on list**.
-3. Enter the position (1–10) and the color. Leave the color empty to clear that position.
+3. Enter the position (1–10) and the color. Fill in the second color to make a gradient. Leave the color empty to clear that position.
 
 **Good to know:**
 
-* Colors can be HEX, CSS names or rgb/hsl/cmyk ([color formats](../main/colors.md#color-formats)). `random` and `@user` don't work here.
+* Colors can be HEX, CSS names or rgb/hsl/cmyk ([color formats](../main/colors.md#color-formats)), or a preset name like `sunset` or `holographic` (see [`/colors`](colors.md)). `random` and `@user` don't work here.
+* Gradients work only on servers with Server Boost. Members don't need to vote for them.
 * Set [`/setup toprole`](setup-toprole.md) too, so other colored roles don't cover the colors.
 
 ***

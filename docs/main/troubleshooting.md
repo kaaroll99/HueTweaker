@@ -25,9 +25,9 @@ Each member with a color has their own role, and Discord allows at most 250 role
 
 Without a vote, `/set` allows **2 changes per 30 minutes**. The bot shows when your next free change is available. [Voting on top.gg](voting.md) removes the limit for 12 hours.
 
-## Gradients don't work
+## Gradients or holographic don't work
 
-A gradient needs two things:
+Gradients, presets and holographic need two things:
 
 * **Server Boost.** Gradient role colors are a Discord boost perk. Without it, voting doesn't help.
 * **A top.gg vote** from you. See [Voting](voting.md).

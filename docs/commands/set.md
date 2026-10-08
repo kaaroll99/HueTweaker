@@ -32,7 +32,7 @@ Set or change your username color. The bot shows a preview and applies the color
 
 **Syntax:** `/set <color>`
 
-`<color>` can be any [color format](../main/colors.md#color-formats): HEX, CSS name, rgb/hsl/cmyk, `random` or `@user`.
+`<color>` can be any [color format](../main/colors.md#color-formats): HEX, CSS name, rgb/hsl/cmyk, `random`, `@user`, or a gradient preset name like `sunset`.
 
 **Examples:**
 
@@ -46,7 +46,7 @@ Set or change your username color. The bot shows a preview and applies the color
 * The first time, the bot creates a role named `🎨 <your display name>`. The name updates every time you change your color.
 * **Undo** in the result message brings back your previous color.
 * Only accepted changes count toward the free limit. Cancelling or pressing **Undo** doesn't.
-* Copying a user who has a gradient copies the whole gradient. That needs the same as [`/gradient`](gradient.md): Server Boost and a vote.
+* A preset name, or copying a user with a gradient or the holographic style, sets the whole style. That needs the same as [`/gradient`](gradient.md): Server Boost and a vote.
 * For two colors, use [`/gradient`](gradient.md).
 * Cooldown: 10 seconds.
 

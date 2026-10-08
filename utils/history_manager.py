@@ -2,10 +2,12 @@
 
 Each slot is one BigInteger. A solid color is stored as its plain 24-bit value, so rows written
 before gradients existed still decode. A gradient is packed as
-``primary | secondary << 24 | GRADIENT_FLAG`` (49 bits, fits a signed 64-bit column)."""
+``primary | secondary << 24 | GRADIENT_FLAG`` (49 bits, fits a signed 64-bit column). The holographic
+style adds ``HOLOGRAPHIC_FLAG``; its tertiary color is fixed by Discord, so it is not stored."""
 
 import logging
 
+from constants import HOLOGRAPHIC_COLORS
 from database import model
 from database.database import DatabaseError
 
@@ -14,22 +16,26 @@ logger = logging.getLogger(__name__)
 HISTORY_SIZE = 5
 _COLOR_MASK = 0xFFFFFF
 GRADIENT_FLAG = 1 << 48
+HOLOGRAPHIC_FLAG = 1 << 49
 
 
-def pack_color(primary: int, secondary: int | None) -> int:
+def pack_color(primary: int, secondary: int | None, tertiary: int | None = None) -> int:
     if secondary is None:
         return primary & _COLOR_MASK
-    return (primary & _COLOR_MASK) | ((secondary & _COLOR_MASK) << 24) | GRADIENT_FLAG
+    packed = (primary & _COLOR_MASK) | ((secondary & _COLOR_MASK) << 24) | GRADIENT_FLAG
+    return packed | HOLOGRAPHIC_FLAG if tertiary is not None else packed
 
 
-def unpack_color(value: int) -> tuple[int, int | None]:
+def unpack_color(value: int) -> tuple[int, int | None, int | None]:
+    if value & HOLOGRAPHIC_FLAG:
+        return value & _COLOR_MASK, (value >> 24) & _COLOR_MASK, HOLOGRAPHIC_COLORS[2]
     if value & GRADIENT_FLAG:
-        return value & _COLOR_MASK, (value >> 24) & _COLOR_MASK
-    return value & _COLOR_MASK, None
+        return value & _COLOR_MASK, (value >> 24) & _COLOR_MASK, None
+    return value & _COLOR_MASK, None, None
 
 
-def history_colors(row: dict | None) -> list[tuple[int, int | None]]:
-    """``[(primary, secondary), ...]`` newest first, skipping empty slots."""
+def history_colors(row: dict | None) -> list[tuple[int, int | None, int | None]]:
+    """``[(primary, secondary, tertiary), ...]`` newest first, skipping empty slots."""
     colors = []
     if row:
         for i in range(1, HISTORY_SIZE + 1):
@@ -39,17 +45,21 @@ def history_colors(row: dict | None) -> list[tuple[int, int | None]]:
     return colors
 
 
-async def update_history(db, user_id: int, guild_id: int, primary: int, secondary: int | None = None) -> None:
+async def update_history(
+    db, user_id: int, guild_id: int, primary: int, secondary: int | None = None, tertiary: int | None = None
+) -> None:
     """Record the color as the newest history entry. History is best-effort: a database failure
     is logged and swallowed, because the color itself has already been applied."""
     try:
-        await _update_history(db, user_id, guild_id, primary, secondary)
+        await _update_history(db, user_id, guild_id, primary, secondary, tertiary)
     except DatabaseError as e:
         logger.warning("History not updated for user %s in guild %s: %s", user_id, guild_id, e)
 
 
-async def _update_history(db, user_id: int, guild_id: int, primary: int, secondary: int | None) -> None:
-    packed = pack_color(primary, secondary)
+async def _update_history(
+    db, user_id: int, guild_id: int, primary: int, secondary: int | None, tertiary: int | None
+) -> None:
+    packed = pack_color(primary, secondary, tertiary)
     criteria = {"user_id": user_id, "guild_id": guild_id}
     history = await db.select_one(model.History, criteria)
 

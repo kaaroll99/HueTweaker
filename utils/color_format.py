@@ -7,6 +7,7 @@ from PIL import Image, ImageDraw, ImageFont
 from colormath.color_conversions import convert_color
 from colormath.color_objects import sRGBColor, CMYKColor, HSLColor, LabColor
 
+from constants import HOLOGRAPHIC_COLORS
 from utils.data_loader import load_json
 
 # One regex per notation, used both for validation and for extracting the numbers.
@@ -60,6 +61,8 @@ def _int_to_rgb(color_int: int) -> tuple[int, int, int]:
 _BOOK_BACKGROUND = (50, 51, 57, 255)
 _BOOK_TEXT = (219, 222, 225)
 _BOOK_MUTED_TEXT = (148, 155, 164)
+# Below this contrast ratio against the dark background, a username color is hard to read.
+_MIN_READABLE_CONTRAST = 2.0
 
 
 def _relative_luminance(rgb: tuple[int, int, int]) -> float:
@@ -101,11 +104,131 @@ def format_color_label(color: int | str) -> str:
     return formatted_hex if label == formatted_hex else f"{label} ({formatted_hex})"
 
 
-def format_colors_label(primary: int, secondary: int | None = None) -> str:
-    """Label for a solid color or a ``primary + secondary`` gradient."""
+HOLOGRAPHIC_NAME = "Holographic"
+
+# (primary, secondary, tertiary): a solid color, a gradient, or the holographic style.
+Colors = tuple[int, int | None, int | None]
+
+
+@lru_cache(maxsize=1)
+def color_presets() -> dict[str, tuple[str, Colors]]:
+    """Named styles usable as a color: ``css_name_key(name) -> (display name, colors)``. The gradient
+    presets from ``assets/gradient-presets.json`` in file order, then the holographic style."""
+    presets = {
+        css_name_key(name): (name, (int(primary, 16), int(secondary, 16), None))
+        for name, (primary, secondary) in load_json("assets/gradient-presets.json").items()
+    }
+    presets[css_name_key(HOLOGRAPHIC_NAME)] = (HOLOGRAPHIC_NAME, HOLOGRAPHIC_COLORS)
+    # A preset is looked up before colors, so a name that is also a color would silently replace it.
+    for key, (name, _) in presets.items():
+        if key == "random" or key in _load_css_color_cache() or hex_regex.match(key):
+            raise ValueError(f"Preset name {name!r} collides with a color name, HEX code or 'random'")
+    return presets
+
+
+def preset_colors(text: str) -> Colors | None:
+    preset = color_presets().get(css_name_key(text))
+    return preset[1] if preset else None
+
+
+_stored_hex_re = re.compile(r"^#?[0-9a-fA-F]{6}$")
+
+
+def encode_style(colors: Colors) -> str:
+    """Text form of a style for the ``hex_n`` columns of ``favorites`` / ``server_selections``:
+    ``ff0000``, ``ff0000+00ff00`` or ``a9c9ff+ffbbec+ffc3a0`` (holographic)."""
+    return "+".join(f"{c:06x}" for c in colors if c is not None)
+
+
+def decode_style(text: str | None) -> Colors | None:
+    """Inverse of ``encode_style``; also reads the older single-HEX values (with or without ``#``).
+    Returns ``None`` for an empty or malformed value."""
+    if not isinstance(text, str) or not text.strip():
+        return None
+    parts = text.strip().split("+")
+    if len(parts) > 3 or not all(_stored_hex_re.match(part) for part in parts):
+        return None
+    values = [int(part.lstrip("#"), 16) for part in parts]
+    return values[0], (values[1] if len(values) > 1 else None), (values[2] if len(values) > 2 else None)
+
+
+def preset_name(colors: Colors) -> str | None:
+    return next((name for name, value in color_presets().values() if value == colors), None)
+
+
+def format_colors_label(primary: int, secondary: int | None = None, tertiary: int | None = None) -> str:
+    """Label for a solid color, a ``primary + secondary`` gradient (prefixed with the preset name
+    when it is one) or the holographic style."""
+    if tertiary is not None:
+        return HOLOGRAPHIC_NAME
     if secondary is None:
         return format_color_label(primary)
-    return f"{format_color_label(primary)} + {format_color_label(secondary)}"
+    pair = f"{format_color_label(primary)} + {format_color_label(secondary)}"
+    name = preset_name((primary, secondary, None))
+    return f"{name} ({pair})" if name else pair
+
+
+def _color_stops(primary: int, secondary: int | None = None, tertiary: int | None = None) -> list[tuple[int, int, int]]:
+    return [_int_to_rgb(c) for c in (primary, secondary, tertiary) if c is not None]
+
+
+def _paint_text(image: Image.Image, xy: tuple[float, float], text: str, font, stops: list[tuple[int, int, int]]) -> None:
+    """Draw ``text`` filled with one color, or with a left-to-right gradient through all ``stops``."""
+    if len(stops) == 1:
+        ImageDraw.Draw(image).text(xy, text, fill=(*stops[0], 255), font=font)
+        return
+
+    mask = Image.new('L', image.size, 0)
+    ImageDraw.Draw(mask).text(xy, text, font=font, fill=255)
+    bbox = mask.getbbox()
+    if bbox is None:
+        return
+
+    left, right = bbox[0], bbox[2]
+    span = max(1, right - left)
+    stops_arr = np.array(stops, dtype=float)
+    position = np.linspace(0, len(stops) - 1, span)
+    index = np.minimum(position.astype(int), len(stops) - 2)
+    fraction = (position - index)[:, None]
+    row = stops_arr[index] * (1 - fraction) + stops_arr[index + 1] * fraction
+
+    fill = np.zeros((image.height, image.width, 3), dtype=np.uint8)
+    fill[:, :left] = stops_arr[0]
+    fill[:, left:left + span] = row.astype(np.uint8)[:image.width - left]
+    fill[:, left + span:] = stops_arr[-1]
+    image.paste(Image.fromarray(fill, 'RGB'), (0, 0), mask)
+
+
+def dominant_colors(image_bytes: bytes, count: int = 5, min_distance: float = 20.0) -> list[int]:
+    """Up to ``count`` distinct main colors of an image (e.g. an avatar), most common first.
+    Transparent pixels are ignored, and so are colors that would be unreadable as a username
+    on Discord's dark theme. Colors closer than ``min_distance`` (CIE76 in Lab) count as one."""
+    with Image.open(BytesIO(image_bytes)) as source:
+        image = source.convert('RGBA')
+    image.thumbnail((64, 64))
+    pixels = [pixel[:3] for pixel in image.getdata() if pixel[3] >= 128]
+    if not pixels:
+        return []
+
+    strip = Image.new('RGB', (len(pixels), 1))
+    strip.putdata(pixels)
+    quantized = strip.quantize(colors=16, method=Image.Quantize.MEDIANCUT)
+    palette = quantized.getpalette()
+
+    picked: list[int] = []
+    picked_lab: list[np.ndarray] = []
+    for _, index in sorted(quantized.getcolors(), reverse=True):
+        rgb = tuple(palette[index * 3:index * 3 + 3])
+        if _contrast_ratio(rgb, _BOOK_BACKGROUND[:3]) < _MIN_READABLE_CONTRAST:
+            continue
+        lab = np.array(convert_color(sRGBColor(*rgb, is_upscaled=True), LabColor).get_value_tuple())
+        if any(np.linalg.norm(lab - other) < min_distance for other in picked_lab):
+            continue
+        picked.append((rgb[0] << 16) | (rgb[1] << 8) | rgb[2])
+        picked_lab.append(lab)
+        if len(picked) == count:
+            break
+    return picked
 
 
 def _in_range(values, limits) -> bool:
@@ -207,20 +330,20 @@ class ColorUtils:
     @staticmethod
     def generate_color_list_image(nick, colors):
         """Render a numbered list where each line is ``{i}. {nick} {label}`` drawn in its own
-        color. ``colors`` may be ints, hex strings, or ``(primary, secondary)`` tuples."""
+        color (gradients and holographic as a gradient). ``colors`` may be ints, hex strings, or
+        ``(primary, secondary[, tertiary])`` tuples."""
         font = _get_font()
 
         padding = 10
         line_height = 30
 
-        lines, fills = [], []
+        lines, stops = [], []
         for i, color in enumerate(colors):
-            secondary = None
-            if isinstance(color, tuple):
-                color, secondary = color
-            color_int = color if isinstance(color, int) else int(str(color).lstrip('#'), 16)
-            lines.append(f"{i + 1}. {nick} {format_colors_label(color_int, secondary)}")
-            fills.append(_int_to_rgb(color_int))
+            parts = color if isinstance(color, tuple) else (color,)
+            primary = parts[0] if isinstance(parts[0], int) else int(str(parts[0]).lstrip('#'), 16)
+            rest = tuple(parts[1:]) + (None,) * (3 - len(parts))
+            lines.append(f"{i + 1}. {nick} {format_colors_label(primary, *rest)}")
+            stops.append(_color_stops(primary, *rest))
 
         height = (len(colors) * line_height) + padding * 2
         measure = ImageDraw.Draw(Image.new('RGBA', (1, 1)))
@@ -228,15 +351,8 @@ class ColorUtils:
         width = max(400, int(max_text + padding * 3))
 
         image = Image.new('RGBA', (width, height), (50, 51, 57, 255))
-        draw = ImageDraw.Draw(image)
-
-        for i, (line, fill) in enumerate(zip(lines, fills)):
-            draw.text(
-                (padding * 1.5, padding + i * line_height),
-                line,
-                fill=(*fill, 255),
-                font=font,
-            )
+        for i, (line, line_stops) in enumerate(zip(lines, stops)):
+            _paint_text(image, (padding * 1.5, padding + i * line_height), line, font, line_stops)
         return image
 
     @staticmethod
@@ -268,66 +384,47 @@ class ColorUtils:
 
             draw.rounded_rectangle((x, y + 2, x + swatch, y + 2 + swatch), radius=5, fill=fill,
                                    outline=_BOOK_MUTED_TEXT, width=1)
-            readable = _contrast_ratio(fill, _BOOK_BACKGROUND[:3]) >= 2.0
+            readable = _contrast_ratio(fill, _BOOK_BACKGROUND[:3]) >= _MIN_READABLE_CONTRAST
             draw.text((x + swatch + gap, y + 2), name, fill=fill if readable else _BOOK_TEXT, font=font)
             draw.text((x + swatch + gap + name_width + gap * 2, y + 2), f"#{hex_value}",
                       fill=_BOOK_MUTED_TEXT, font=font)
         return image
 
     @staticmethod
-    def generate_preview_image(text, color_int, secondary_color_int=None):
+    def generate_preset_book_image():
+        """Render every named style (gradient presets, holographic) as ``Name  #A → #B`` rows,
+        the name painted in its own gradient."""
+        font = _get_font()
+        padding, line_height, gap = 14, 32, 24
+
+        rows = []
+        for name, colors in color_presets().values():
+            codes = " → ".join(f"#{c:06X}" for c in colors if c is not None)
+            rows.append((name, codes, _color_stops(*colors)))
+
+        measure = ImageDraw.Draw(Image.new('RGBA', (1, 1)))
+        name_width = max(measure.textlength(name, font=font) for name, _, _ in rows)
+        codes_width = max(measure.textlength(codes, font=font) for _, codes, _ in rows)
+        width = int(padding * 2 + name_width + gap + codes_width)
+        height = padding * 2 + len(rows) * line_height
+
+        image = Image.new('RGBA', (width, height), _BOOK_BACKGROUND)
+        draw = ImageDraw.Draw(image)
+        for i, (name, codes, stops) in enumerate(rows):
+            y = padding + i * line_height + 2
+            _paint_text(image, (padding, y), name, font, stops)
+            draw.text((padding + name_width + gap, y), codes, fill=_BOOK_MUTED_TEXT, font=font)
+        return image
+
+    @staticmethod
+    def generate_preview_image(text, color_int, secondary_color_int=None, tertiary_color_int=None):
         font = _get_font()
 
         padding = 10
         line_height = 30
-        height = line_height + padding * 2
-        width = 400
-
-        image = Image.new('RGBA', (width, height), (50, 51, 57, 255))
-
-        if secondary_color_int is None:
-            draw = ImageDraw.Draw(image)
-            r, g, b = _int_to_rgb(color_int)
-
-            draw.text(
-                (padding * 1.5, padding),
-                text,
-                fill=(r, g, b, 255),
-                font=font,
-            )
-        else:
-            mask = Image.new('L', (width, height), 0)
-            draw_mask = ImageDraw.Draw(mask)
-            draw_mask.text((padding * 1.5, padding), text, font=font, fill=255)
-
-            bbox = mask.getbbox()
-            if bbox:
-                text_start = bbox[0]
-                text_end = bbox[2]
-                text_width = text_end - text_start
-            else:
-                text_start = 0
-                text_end = width
-                text_width = 0
-
-            c1 = np.array(_int_to_rgb(color_int))
-            c2 = np.array(_int_to_rgb(secondary_color_int))
-
-            gradient_arr = np.zeros((height, width, 3), dtype=np.uint8)
-
-            if text_width > 0:
-                steps = text_end - text_start
-                gradient_row = np.linspace(c1, c2, steps, dtype=np.uint8)
-
-                gradient_arr[:, :text_start] = c1
-                gradient_arr[:, text_start:text_end] = gradient_row
-                gradient_arr[:, text_end:] = c2
-            else:
-                gradient_arr[:, :] = c1
-
-            gradient_img = Image.fromarray(gradient_arr, 'RGB')
-            image.paste(gradient_img, (0, 0), mask)
-
+        image = Image.new('RGBA', (400, line_height + padding * 2), (50, 51, 57, 255))
+        _paint_text(image, (padding * 1.5, padding), text, font,
+                    _color_stops(color_int, secondary_color_int, tertiary_color_int))
         return image
 
     @staticmethod

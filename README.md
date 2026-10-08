@@ -41,13 +41,15 @@ Give every member a **name color of their own**: HEX, CSS names, **gradients** o
 | --- | --- |
 | `/help` | Bot info and the full command list. |
 | `/set <color>` | Set your color: HEX, CSS name, copy a mention, or `random`. |
-| `/gradient <color> <secondary_color>` | Blend two colors into a gradient name color. |
+| `/gradient <color> [secondary_color]` | Blend two colors into a gradient, or pick a preset (`/gradient sunset`). |
+| `/holographic` | Discord's shimmering holographic style. |
+| `/match` | Colors (and a gradient) that match your avatar. |
 | `/select` | Pick a server preset from an interactive menu (with preview). |
 | `/favorites add <color>` | Save a color to your personal list (up to 10, global). |
 | `/favorites list` | Set a favorite with a button, or remove it via dropdown. |
 | `/history` | View your last 5 colors and restore one with a button. |
 | `/check <color>` | Show HEX/RGB/HSL/CMYK, similar names and a preview. |
-| `/colors` | Browse CSS color names and HEX codes by color group. |
+| `/colors` | Browse gradient presets and CSS color names with HEX codes. |
 | `/remove` | Remove your color. |
 
 `/set`, `/gradient` and `/select` show a preview before applying, and the result comes with an **Undo to previous color** button.

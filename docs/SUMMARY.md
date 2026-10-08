@@ -12,6 +12,8 @@
 
 * [set](commands/set.md)
 * [gradient](commands/gradient.md)
+* [holographic](commands/holographic.md)
+* [match](commands/match.md)
 * [remove](commands/remove.md)
 * [select](commands/select.md)
 * [history](commands/history.md)

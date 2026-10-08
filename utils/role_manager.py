@@ -38,7 +38,8 @@ TOPROLE_MODES = {TOPROLE_MODE_AUTO, TOPROLE_MODE_CUSTOM, TOPROLE_MODE_OFF}
 _color_role_re = re.compile(COLOR_ROLE_PATTERN)
 _guild_locks: dict[int, asyncio.Lock] = {}
 
-Colors = Tuple[int, Optional[int]]
+# (primary, secondary, tertiary): a solid color, a gradient, or the holographic style.
+Colors = Tuple[int, Optional[int], Optional[int]]
 
 
 class ColorRoleError(Exception):
@@ -112,7 +113,11 @@ async def color_role_ids(db, guild: discord.Guild, roles: list[discord.Role]) ->
 
 
 def role_colors(role: discord.Role) -> Colors:
-    return role.color.value, (role.secondary_color.value if role.secondary_color else None)
+    return (
+        role.color.value,
+        role.secondary_color.value if role.secondary_color else None,
+        role.tertiary_color.value if role.tertiary_color else None,
+    )
 
 
 def get_toprole_mode(guild_obj: Optional[dict]) -> str:
@@ -248,10 +253,12 @@ async def place_color_roles(
     return await move_roles_to_block(guild, block_ids, top_position, roles=roles, max_position=max_position)
 
 
-def _color_kwargs(primary_val: int, secondary_val: Optional[int]) -> dict:
+def _color_kwargs(primary_val: int, secondary_val: Optional[int], tertiary_val: Optional[int] = None) -> dict:
+    # Always send all three, so a switch to a solid color also clears the gradient/holographic parts.
     return {
         "color": discord.Color(primary_val),
         "secondary_color": discord.Color(secondary_val) if secondary_val is not None else None,
+        "tertiary_color": discord.Color(tertiary_val) if tertiary_val is not None else None,
     }
 
 
@@ -262,15 +269,16 @@ async def apply_color_role(
     secondary_val: Optional[int],
     db,
     bot_user_id: int,
+    tertiary_val: Optional[int] = None,
 ) -> ApplyResult:
     """Give ``member`` the color: create or recolor their color role (renaming a legacy or outdated
     name in the same edit), bind it in ``member_color_roles``, assign it, and keep the color-role block
     positioned. ``changed`` is False when the role already had these colors (a rename alone is not
-    a change)."""
+    a change). ``tertiary_val`` is only valid for the holographic style (``HOLOGRAPHIC_COLORS``)."""
     async with get_guild_lock(guild.id):
         roles = await guild.fetch_roles()
         role, row = await _lookup_color_role(db, guild, member.id, roles)
-        new_colors: Colors = (primary_val, secondary_val)
+        new_colors: Colors = (primary_val, secondary_val, tertiary_val)
         name = color_role_name(member)
         changed = False
         prev_colors: Optional[Colors] = None
@@ -282,7 +290,7 @@ async def apply_color_role(
                 role = await guild.create_role(
                     name=name,
                     reason="HueTweaker color role",
-                    **_color_kwargs(primary_val, secondary_val),
+                    **_color_kwargs(*new_colors),
                 )
             except discord.HTTPException as e:
                 if e.code == HTTP_MAX_ROLES_REACHED:
@@ -303,7 +311,7 @@ async def apply_color_role(
             current_colors = role_colors(role)
             if current_colors != new_colors:
                 prev_colors = current_colors
-                edits.update(_color_kwargs(primary_val, secondary_val))
+                edits.update(_color_kwargs(*new_colors))
                 changed = True
             if role.name != name:
                 edits["name"] = name

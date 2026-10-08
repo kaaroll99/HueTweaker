@@ -4,10 +4,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-from cogs._base import BaseCog
+from cogs._base import BaseCog, preset_choices
 from database import model
-from utils.color_format import format_color_label
-from utils.color_parse import BLACK_HEX, NEAR_BLACK_HEX, fetch_color_representation, color_parser
+from utils.color_format import encode_style, format_colors_label
+from utils.color_parse import parse_color_pair
 from views.favorites import FAVORITES_LIMIT, FavoritesView, extract_favorite_colors
 from views.global_view import GlobalLayout
 
@@ -21,25 +21,26 @@ class FavoritesCog(BaseCog):
 
     group = app_commands.Group(name="favorites", description="Manage your personal favorite colors")
 
-    @group.command(name="add", description="Add a color to your favorites (HEX code or CSS color name)")
-    @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
+    @group.command(name="add", description="Add a color, gradient or preset to your favorites")
+    @app_commands.describe(
+        color="Color (HEX, CSS name, rgb/hsl/cmyk, random, @user) or a preset (sunset, holographic)",
+        secondary_color="Second color, to save a gradient (optional)",
+    )
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.guild_only()
-    async def add(self, interaction: discord.Interaction, color: str) -> None:
+    async def add(self, interaction: discord.Interaction, color: str, secondary_color: str | None = None) -> None:
         try:
             await interaction.response.defer(ephemeral=True)
 
-            parsed = color_parser(await fetch_color_representation(interaction, self.db, color))
-            if parsed is None:
-                raise ValueError
-
-            hex_value = NEAR_BLACK_HEX if parsed == BLACK_HEX else parsed
-            display = format_color_label(hex_value)
+            # Saving is allowed on any server; gradients are gated when a favorite is applied.
+            colors, _ = await parse_color_pair(interaction, self.db, color, secondary_color)
+            hex_value = encode_style(colors)
+            display = format_colors_label(*colors)
 
             row = await self.db.select_one(model.Favorites, {"user_id": interaction.user.id})
             existing = extract_favorite_colors(row)
 
-            if any(hex_value == hx.lower() for _, hx in existing):
+            if any(colors == saved for _, saved in existing):
                 await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_duplicate'].format(display), DOCS_ADD))
                 return
 
@@ -64,7 +65,12 @@ class FavoritesCog(BaseCog):
             self.log_command_error(interaction, "favorites add", e)
 
         finally:
-            logger.info("%s[%s] issued bot command: /favorites add %s", interaction.user.name, interaction.locale, color)
+            log_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
+            logger.info("%s[%s] issued bot command: /favorites add %s", interaction.user.name, interaction.locale, log_color)
+
+    @add.autocomplete("color")
+    async def add_color_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice[str]]:
+        return preset_choices(current)
 
     @group.command(name="list", description="Show your favorite colors, set or remove one")
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))

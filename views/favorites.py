@@ -4,10 +4,12 @@ import discord
 
 from constants import ACCENT_COLOR
 from database import model
-from utils.color_format import ColorUtils, format_color_label
+from utils.color_format import ColorUtils, Colors, decode_style, format_colors_label
 from utils.history_manager import update_history
 from utils.role_manager import apply_color_role
-from views.global_view import GlobalLayout, error_description, make_docs_button, make_invite_button, safe_defer
+from views.global_view import (
+    GlobalLayout, error_description, gradient_gate, make_docs_button, make_invite_button, safe_defer,
+)
 from views.set import Layout
 
 logger = logging.getLogger(__name__)
@@ -16,20 +18,20 @@ FAVORITES_LIMIT = 10
 FAVORITES_IMAGE_NAME = "favorites.png"
 
 
-def extract_favorite_colors(row: dict | None) -> list[tuple[int, str]]:
-    """Return ``[(slot, hex), ...]`` for non-empty favorite slots."""
-    colors: list[tuple[int, str]] = []
+def extract_favorite_colors(row: dict | None) -> list[tuple[int, Colors]]:
+    """Return ``[(slot, colors), ...]`` for the non-empty favorite slots (solid, gradient or holographic,
+    see ``encode_style``). Malformed values are skipped."""
+    colors: list[tuple[int, Colors]] = []
     if row:
         for i in range(1, FAVORITES_LIMIT + 1):
-            value = row.get(f"hex_{i}")
-            if isinstance(value, str) and value.strip():
-                colors.append((i, value.strip()))
+            decoded = decode_style(row.get(f"hex_{i}"))
+            if decoded is not None:
+                colors.append((i, decoded))
     return colors
 
 
-def render_favorites_file(nick: str, colors: list[tuple[int, str]]) -> discord.File:
-    int_colors = [int(hx, 16) for _, hx in colors]
-    image = ColorUtils.generate_color_list_image(nick, int_colors)
+def render_favorites_file(nick: str, colors: list[tuple[int, Colors]]) -> discord.File:
+    image = ColorUtils.generate_color_list_image(nick, [style for _, style in colors])
     return discord.File(fp=ColorUtils.to_bytes(image), filename=FAVORITES_IMAGE_NAME)
 
 
@@ -43,8 +45,8 @@ class RemoveSelect(discord.ui.ActionRow['FavoritesView']):
         self.docs_page = docs_page
 
         self.children[0].options = [
-            discord.SelectOption(label=f"{pos}. {format_color_label(hx)}", value=str(slot))
-            for pos, (slot, hx) in enumerate(colors, start=1)
+            discord.SelectOption(label=f"{pos}. {format_colors_label(*style)}"[:100], value=str(slot))
+            for pos, (slot, style) in enumerate(colors, start=1)
         ]
 
     @discord.ui.select(placeholder="Remove a favorite...", min_values=1, max_values=1, options=[])
@@ -100,9 +102,9 @@ class FavoritesView(discord.ui.LayoutView):
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
 
         buttons = []
-        for pos, (slot, hx) in enumerate(colors, start=1):
+        for pos, (slot, style) in enumerate(colors, start=1):
             button = discord.ui.Button(label=str(pos), style=discord.ButtonStyle.secondary)
-            button.callback = self._make_apply_callback(int(hx, 16))
+            button.callback = self._make_apply_callback(style)
             buttons.append(button)
         for start in range(0, len(buttons), 5):
             container.add_item(discord.ui.ActionRow(*buttons[start:start + 5]))
@@ -119,12 +121,12 @@ class FavoritesView(discord.ui.LayoutView):
         view = cls(messages, bot, author_id, colors, nick, docs_page)
         return view, file
 
-    def _make_apply_callback(self, color_int: int):
+    def _make_apply_callback(self, colors: Colors):
         async def _callback(interaction: discord.Interaction):
-            await self._apply_favorite(interaction, color_int)
+            await self._apply_favorite(interaction, colors)
         return _callback
 
-    async def _apply_favorite(self, interaction: discord.Interaction, color_int: int) -> None:
+    async def _apply_favorite(self, interaction: discord.Interaction, colors: Colors) -> None:
         if self.author_id is not None and interaction.user.id != self.author_id:
             await interaction.response.send_message(
                 self.msg['revert_not_author'], ephemeral=True)
@@ -133,19 +135,29 @@ class FavoritesView(discord.ui.LayoutView):
         if not await safe_defer(interaction, ephemeral=True, thinking=True):
             return
 
-        label = format_color_label(color_int)
+        primary, secondary, tertiary = colors
+        label = format_colors_label(*colors)
         try:
+            # Favorites are global: a gradient saved on a boosted server may be used on one without
+            # gradient support, which gets the same answer as /gradient there.
+            if secondary is not None:
+                blocked = await gradient_gate(self.msg, self.bot.votes, interaction.guild, interaction.user.id, self.docs_page)
+                if blocked is not None:
+                    await interaction.followup.send(view=blocked, ephemeral=True)
+                    return
+
             result = await apply_color_role(
-                interaction.guild, interaction.user, color_int, None, self.bot.db, self.bot.user.id
+                interaction.guild, interaction.user, primary, secondary, self.bot.db, self.bot.user.id,
+                tertiary_val=tertiary,
             )
 
             if result.changed:
                 description = self.msg['favorites_applied'].format(label)
-                await update_history(self.bot.db, interaction.user.id, interaction.guild.id, color_int)
+                await update_history(self.bot.db, interaction.user.id, interaction.guild.id, *colors)
             else:
                 description = self.msg['color_same']
 
-            view = Layout.from_result(self.msg, result, color_int, interaction.user.id, description)
+            view = Layout.from_result(self.msg, result, primary, interaction.user.id, description)
             await interaction.followup.send(view=view, ephemeral=True)
             logger.info("%s[%s] applied favorite color %s", interaction.user.name, interaction.locale, label)
 

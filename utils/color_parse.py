@@ -3,7 +3,7 @@ import re
 
 import discord
 
-from utils.color_format import ColorUtils
+from utils.color_format import ColorUtils, Colors, preset_colors
 from utils.role_manager import find_color_role
 
 MAX_COLOR_INPUT_LEN = 32
@@ -18,14 +18,15 @@ class MentionedUserHasNoColor(ValueError):
     """The mentioned user has no bot-managed color role."""
 
 
-def _role_colors(role: discord.Role) -> tuple[str, str | None]:
+def _role_colors(role: discord.Role) -> tuple[str, str | None, str | None]:
     primary = f"{role.color.value:06x}"
     secondary = f"{role.secondary_color.value:06x}" if role.secondary_color else None
-    return primary, secondary
+    tertiary = f"{role.tertiary_color.value:06x}" if role.tertiary_color else None
+    return primary, secondary, tertiary
 
 
-async def resolve_mention(interaction: discord.Interaction, db, text: str) -> tuple[str, str | None] | None:
-    """If ``text`` mentions a user, return that user's ``(primary, secondary)`` hex; else ``None``.
+async def resolve_mention(interaction: discord.Interaction, db, text: str) -> tuple[str, str | None, str | None] | None:
+    """If ``text`` mentions a user, return that user's ``(primary, secondary, tertiary)`` hex; else ``None``.
     Raises ``MentionedUserHasNoColor`` when the user has no color role (or a colorless one)."""
     match = _mention_re.match(text.strip())
     if match is None:
@@ -71,20 +72,44 @@ def check_black(primary_hex: str | None, secondary_hex: str | None) -> tuple[str
     return primary_hex, secondary_hex, is_black
 
 
+def parse_static_style(color: str, secondary_color: str | None = None) -> tuple[Colors, bool]:
+    """Like ``parse_color_pair`` without ``@mention`` and ``random``: for values stored as they are
+    (the server palette). Accepts a preset name, one color, or two colors. Raises ``ValueError``."""
+    if not secondary_color:
+        preset = preset_colors(color)
+        if preset is not None:
+            return preset, False
+    primary_hex = color_parser(color)
+    secondary_hex = color_parser(secondary_color) if secondary_color else None
+    if primary_hex is None or (secondary_color and secondary_hex is None):
+        raise ValueError
+    primary_hex, secondary_hex, is_black = check_black(primary_hex, secondary_hex)
+    return (int(primary_hex, 16), (int(secondary_hex, 16) if secondary_hex else None), None), is_black
+
+
 async def parse_color_pair(
     interaction: discord.Interaction, db, color: str, secondary_color: str | None
-) -> tuple[int, int | None, bool]:
-    """Resolve the ``/set``, ``/gradient`` and ``/force set`` inputs into ``(primary, secondary, is_black)``
-    integer values. Mentioning a user with a gradient (and giving no secondary color) copies the
-    whole gradient. Raises ``ValueError`` on invalid input."""
+) -> tuple[Colors, bool]:
+    """Resolve the ``/set``, ``/gradient``, ``/holographic`` and ``/force set`` inputs into
+    ``((primary, secondary, tertiary), is_black)``. Without a secondary color, a preset name
+    (``sunset``, ``holographic``) or a mention of a user with a gradient or the holographic style
+    gives the whole style. Raises ``ValueError`` on invalid input."""
+    if len(color) > MAX_COLOR_INPUT_LEN:
+        raise ValueError
+    if secondary_color is None:
+        preset = preset_colors(color)
+        if preset is not None:
+            return preset, False
+
     primary_hex: str | None
     secondary_hex: str | None = None
+    tertiary_hex: str | None = None
 
-    mentioned = await resolve_mention(interaction, db, color) if len(color) <= MAX_COLOR_INPUT_LEN else None
+    mentioned = await resolve_mention(interaction, db, color)
     if mentioned is not None:
-        primary_hex, copied_secondary = mentioned
+        primary_hex, copied_secondary, copied_tertiary = mentioned
         if secondary_color is None:
-            secondary_hex = copied_secondary
+            secondary_hex, tertiary_hex = copied_secondary, copied_tertiary
     else:
         primary_hex = color_parser(await fetch_color_representation(interaction, db, color))
 
@@ -96,5 +121,8 @@ async def parse_color_pair(
     if primary_hex is None:
         raise ValueError
 
+    if tertiary_hex is not None:
+        return (int(primary_hex, 16), int(secondary_hex, 16), int(tertiary_hex, 16)), False
+
     primary_hex, secondary_hex, is_black = check_black(primary_hex, secondary_hex)
-    return int(primary_hex, 16), (int(secondary_hex, 16) if secondary_hex else None), is_black
+    return (int(primary_hex, 16), (int(secondary_hex, 16) if secondary_hex else None), None), is_black

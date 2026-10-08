@@ -46,7 +46,8 @@ Color not showing or an error? See [Troubleshooting](main/troubleshooting.md).
 ## Features
 
 * 🖌️ Set your username color with a HEX code, CSS color name, rgb/hsl/cmyk, `random`, or copy it from another user ([color formats](main/colors.md#color-formats)).
-* 🌈 Two-color gradients (needs Server Boost and a [top.gg vote](main/voting.md)).
+* 🌈 Two-color gradients, ready-made gradient presets and the holographic style (need Server Boost and a [top.gg vote](main/voting.md)).
+* 🖼️ Colors that match your avatar.
 * 🗂️ A server color list members pick from.
 * ⭐ Personal favorite colors and color history.
 * 🔎 Color info: HEX, RGB, HSL, CMYK and similar color names.

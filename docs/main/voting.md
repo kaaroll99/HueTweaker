@@ -33,10 +33,13 @@ HueTweaker is free to use. Voting for it on top.gg helps other servers find the 
 | | Without a vote | With a vote |
 | --- | --- | --- |
 | [`/set`](../commands/set.md) | 2 color changes per 30 minutes | No limit (only the usual 10-second cooldown) |
-| [`/gradient`](../commands/gradient.md) | Not available | Available |
-| `/set @user` copying a gradient | Not available | Available |
+| [`/gradient`](../commands/gradient.md) and gradient presets | Not available | Available |
+| [`/holographic`](../commands/holographic.md) | Not available | Available |
+| [`/match`](../commands/match.md) 🌈 gradient button | Not available | Available |
+| `/set @user` copying a gradient or holographic | Not available | Available |
+| Gradients from [`/favorites list`](../commands/favorites-list.md) and [`/history`](../commands/history.md) | Not available | Available |
 
-All other commands work without voting.
+All other commands work without voting. Gradients from the server's [`/select`](../commands/select.md) list don't need a vote either, only Server Boost.
 
 ## How it works
 
@@ -46,5 +49,5 @@ All other commands work without voting.
 * When you reach the `/set` limit, the bot shows when your next free change is available and a button that opens the vote page.
 
 {% hint style="info" %}
-Gradients also need Discord's Enhanced Role Colors, which requires a Server Boost level on the server. Without it a vote doesn't help, and the bot tells you so before asking for a vote.
+Gradients and holographic also need Discord's Enhanced Role Colors, which requires a Server Boost level on the server. Without it a vote doesn't help, and the bot tells you so before asking for a vote.
 {% endhint %}

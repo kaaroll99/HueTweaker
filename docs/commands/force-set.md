@@ -33,7 +33,7 @@ Set or change another member's username color, solid or gradient. The color is a
 **Syntax:** `/force set <username> <color> [secondary_color]`
 
 * `<username>`: the member.
-* `<color>`: any [color format](../main/colors.md#color-formats).
+* `<color>`: any [color format](../main/colors.md#color-formats), or a preset name (`sunset`, `holographic`).
 * `[secondary_color]`: optional, makes a gradient.
 
 **Examples:**

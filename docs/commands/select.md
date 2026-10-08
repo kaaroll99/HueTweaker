@@ -1,5 +1,5 @@
 ---
-description: Pick one of the colors prepared by the server admins.
+description: Pick one of the colors or gradients prepared by the server admins.
 ---
 
 # select
@@ -8,13 +8,14 @@ description: Pick one of the colors prepared by the server admins.
 An admin has to set up the color list first with [`/setup select`](setup-select.md).
 {% endhint %}
 
-Pick one of the colors prepared on your server. The bot shows your name in each color; choose one from the menu below the preview.
+Pick one of the colors or gradients prepared on your server. The bot shows your name in each; choose one from the menu below the preview.
 
 **Syntax:** `/select`
 
 **Good to know:**
 
-* The list has up to 10 colors.
+* The list has up to 10 positions.
+* Gradients from the list need Server Boost on the server, but no vote: the admins chose them.
 * Cooldown: 10 seconds.
 
 ***

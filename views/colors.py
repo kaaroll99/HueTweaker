@@ -5,14 +5,17 @@ from io import BytesIO
 import discord
 
 from constants import ACCENT_COLOR
-from utils.color_format import ColorUtils
+from utils.color_format import ColorUtils, color_presets
 from utils.data_loader import load_json
 from views.global_view import make_docs_button, make_invite_button
 
 logger = logging.getLogger(__name__)
 
+# The gradient presets (and holographic) are shown as one more group, first in the menu.
+GRADIENTS = "Gradients"
+
 GROUP_EMOJI = {
-    "Red": "🟥", "Pink": "🩷", "Orange": "🟧", "Yellow": "🟨", "Purple": "🟪",
+    GRADIENTS: "🌈", "Red": "🟥", "Pink": "🩷", "Orange": "🟧", "Yellow": "🟨", "Purple": "🟪",
     "Green": "🟩", "Blue": "🟦", "Brown": "🟫", "White": "⬜", "Gray": "⬛",
 }
 
@@ -23,10 +26,19 @@ def color_groups() -> dict[str, list[str]]:
     return load_json("assets/css-color-groups.json")
 
 
+def book_groups() -> dict[str, int]:
+    """Menu entries: group name -> number of entries."""
+    return {GRADIENTS: len(color_presets()), **{group: len(names) for group, names in color_groups().items()}}
+
+
 @lru_cache(maxsize=None)
 def _group_png(group: str) -> bytes:
     # The images never change, so each group is rendered once per process.
-    return ColorUtils.to_bytes(ColorUtils.generate_color_book_image(color_groups()[group])).getvalue()
+    if group == GRADIENTS:
+        image = ColorUtils.generate_preset_book_image()
+    else:
+        image = ColorUtils.generate_color_book_image(color_groups()[group])
+    return ColorUtils.to_bytes(image).getvalue()
 
 
 def group_file(group: str) -> discord.File:
@@ -38,13 +50,13 @@ class GroupSelect(discord.ui.ActionRow['ColorBookView']):
         super().__init__()
         self.children[0].options = [
             discord.SelectOption(
-                label=f"{group} colors",
+                label=group if group == GRADIENTS else f"{group} colors",
                 value=group,
                 emoji=GROUP_EMOJI.get(group),
-                description=f"{len(names)} colors",
+                description=f"{count} presets" if group == GRADIENTS else f"{count} colors",
                 default=group == selected,
             )
-            for group, names in color_groups().items()
+            for group, count in book_groups().items()
         ]
 
     @discord.ui.select(
@@ -66,9 +78,12 @@ class ColorBookView(discord.ui.LayoutView):
         self.docs_page = docs_page
         self.file = group_file(group)
 
-        example = color_groups()[group][0].lower()
         container = discord.ui.Container(accent_colour=discord.Color(ACCENT_COLOR))
-        container.add_item(discord.ui.TextDisplay(self.msg['colors_title'].format(group, example)))
+        if group == GRADIENTS:
+            title = self.msg['colors_gradients_title']
+        else:
+            title = self.msg['colors_title'].format(group, color_groups()[group][0].lower())
+        container.add_item(discord.ui.TextDisplay(title))
 
         gallery = discord.ui.MediaGallery()
         gallery.add_item(media="attachment://" + self.file.filename)

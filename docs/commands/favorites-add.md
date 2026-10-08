@@ -1,20 +1,23 @@
 # favorites add
 
-Save a color to your favorites. Favorites belong to your account, so you see the same list on every server with HueTweaker.
+Save a color, gradient or preset to your favorites. Favorites belong to your account, so you see the same list on every server with HueTweaker.
 
-**Syntax:** `/favorites add <color>`
+**Syntax:** `/favorites add <color> [secondary_color]`
 
-`<color>` can be any [color format](../main/colors.md#color-formats).
+* `<color>`: any [color format](../main/colors.md#color-formats), or a preset name (`sunset`, `holographic`). The field suggests preset names as you type.
+* `[secondary_color]`: optional, saves a gradient.
 
 **Examples:**
 
 * `/favorites add f5df4d`
-* `/favorites add royalblue`
-* `/favorites add random`
+* `/favorites add royalblue tomato`
+* `/favorites add sunset`
+* `/favorites add @kaaroll99` (saves their color or gradient)
 
 **Good to know:**
 
-* Up to 10 colors. The same color can't be added twice.
+* Up to 10 favorites. The same one can't be added twice.
+* Saving works on any server. Using a saved gradient or holographic needs Server Boost on that server and your [vote](../main/voting.md), like [`/gradient`](gradient.md).
 * Use your favorites with [`/favorites list`](favorites-list.md).
 * Cooldown: 10 seconds.
 

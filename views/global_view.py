@@ -95,3 +95,16 @@ class VoteLayout(discord.ui.LayoutView):
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
         container.add_item(discord.ui.ActionRow(make_vote_button(), make_docs_button(docs_page)))
         self.add_item(container)
+
+
+async def gradient_gate(
+    messages: dict, votes, guild: discord.Guild, user_id: int, docs_page: str = "", require_vote: bool = True
+) -> discord.ui.LayoutView | None:
+    """A gradient or the holographic style needs the guild's Enhanced Role Colors first, then the
+    user's top.gg vote (skipped with ``require_vote=False``, e.g. for the admins' server palette).
+    Returns the view to show instead, or ``None`` when the user may proceed."""
+    if "ENHANCED_ROLE_COLORS" not in guild.features:
+        return GlobalLayout(messages, messages['err_670006'], docs_page)
+    if require_vote and not await votes.has_voted(user_id):
+        return VoteLayout(messages, messages['vote_gradient'], docs_page)
+    return None

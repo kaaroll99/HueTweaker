@@ -5,10 +5,22 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from utils.color_format import color_presets
 from views.cooldown import CooldownLayout
 from views.global_view import GlobalLayout, error_description, http_error_description
 
 logger = logging.getLogger(__name__)
+
+
+def preset_choices(current: str) -> list[app_commands.Choice[str]]:
+    """Autocomplete for color fields: the presets matching the typed text. Suggestions only, any
+    other input (HEX, names, @user) is still accepted as typed."""
+    typed = current.strip().lower()
+    return [
+        app_commands.Choice(name=name, value=name.lower())
+        for name, _ in color_presets().values()
+        if typed in name.lower()
+    ][:25]
 
 
 class BaseCog(commands.Cog):
