@@ -45,6 +45,7 @@ Set or change your username color. The bot shows a preview and applies the color
 
 * The first time, the bot creates a role named `🎨 <your display name>`. The name updates every time you change your color.
 * **Undo** in the result message brings back your previous color.
+* Under the result there's a short tip about another feature, such as [`/match`](match.md), [`/favorites add`](favorites-add.md) or, on a boosted server, [`/gradient`](gradient.md).
 * Only accepted changes count toward the free limit. Cancelling or pressing **Undo** doesn't.
 * A preset name, or copying a user with a gradient or the holographic style, sets the whole style. That needs the same as [`/gradient`](gradient.md): Server Boost and a vote.
 * For two colors, use [`/gradient`](gradient.md).

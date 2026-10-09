@@ -1,4 +1,5 @@
 import logging
+import random
 import time
 from typing import Optional
 
@@ -18,6 +19,8 @@ from views.global_view import GlobalLayout, VoteLayout, gradient_gate
 from views.set import Layout, ConfirmationView
 
 logger = logging.getLogger(__name__)
+
+TIP_COMMANDS = ("set", "gradient", "holographic", "match", "favorites add", "history", "colors", "check")
 
 
 class SetCog(BaseCog):
@@ -116,7 +119,7 @@ class SetCog(BaseCog):
                 description = self.msg['color_same']
             else:
                 template = self.msg['color_set_black'] if is_black else self.msg['color_set']
-                description = template.format(label)
+                description = template.format(label) + await self._tip(interaction, command_name, colors)
                 await update_history(self.db, member.id, guild.id, *colors)
                 recorder.color(interaction, command_name, colors)
 
@@ -150,6 +153,26 @@ class SetCog(BaseCog):
             retry_at = f"<t:{int(time.time() + retry_after)}:R>"
             return VoteLayout(self.msg, self.msg['vote_set_limit'].format(FREE_SET_USES, retry_at), docs_page)
         return None
+
+    async def _tip(self, interaction: discord.Interaction, command_name: str, colors) -> str:
+        _, secondary_val, tertiary_val = colors
+        mentions = {name.replace(" ", "_"): await self.mention(name) for name in TIP_COMMANDS}
+
+        if secondary_val is None:
+            retry_after = self.set_quota.retry_after(interaction.user.id)
+            if retry_after > 0 and not await self.votes.has_voted(interaction.user.id):
+                return self.msg['tip_set_limit'].format(time=f"<t:{int(time.time() + retry_after)}:R>", **mentions)
+
+        # match, favorites and gradient twice: the features most /set users don't know about yet.
+        tips = ["match", "match", "favorites", "favorites", "history", "colors", "check"]
+        if command_name == "set":
+            tips.append("random")
+        if "ENHANCED_ROLE_COLORS" in interaction.guild.features:
+            if secondary_val is None:
+                tips += ["gradient", "gradient"]
+            if tertiary_val is None:
+                tips.append("holographic")
+        return self.msg['tip_' + random.choice(tips)].format(**mentions)
 
     @set.error
     async def set_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):

@@ -8,6 +8,17 @@ color_set_black: |
 color_same: |
   ### <:ok:1362879418640498748> This color is already set
 
+# One of these is added under color_set at random (cogs/set.py, _tip)
+tip_match: "-# 💡 Not sure what suits you? {match} suggests colors that match your avatar."
+tip_favorites: "-# 💡 Like this one? Save it with {favorites_add} and set it again in one click, on any server."
+tip_gradient: "-# 💡 This server supports gradients: try {gradient} with two colors or a preset like `sunset`."
+tip_holographic: "-# 💡 This server supports {holographic}, Discord's shimmering username style."
+tip_history: "-# 💡 Changed your mind later? {history} brings back any of your last 5 colors."
+tip_colors: "-# 💡 Looking for ideas? {colors} lists named colors and gradient presets with their HEX codes."
+tip_check: "-# 💡 {check} shows any color in HEX, RGB, HSL and CMYK, with similar named colors."
+tip_random: "-# 💡 Feeling lucky? {set} `random` picks a color for you."
+tip_set_limit: "-# 💡 That was your last free {set} for now, the next one unlocks {time}. A vote on top.gg lifts the limit."
+
 
 #remove
 color_remove: "### <:ok:1362879418640498748> Color has been removed"

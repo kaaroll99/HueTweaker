@@ -7,6 +7,7 @@ import discord
 from discord import app_commands, Embed
 from discord.ext import commands
 
+from cogs._base import BaseCog
 from constants import BANNER_URL, DEV_GUILD_ID
 from utils.migration import TOP_GUILDS_LIMIT, migrate_all
 
@@ -59,7 +60,7 @@ class DevCog(commands.Cog):
                     embed.description = f"Dane zapisano do pliku CSV: {csv_file}"
                     file = discord.File(csv_file)
                 elif action == "tree":
-                    await self.bot.tree.sync()
+                    BaseCog.remember_commands(await self.bot.tree.sync())
                     embed.description = "Command tree synchronization completed."
                 elif action == "migrate":
                     embed.description = await self._start_migration(interaction, mode, guild_id)

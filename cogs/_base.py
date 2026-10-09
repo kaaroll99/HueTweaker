@@ -22,11 +22,27 @@ def preset_choices(current: str) -> list[app_commands.Choice[str]]:
 
 
 class BaseCog(commands.Cog):
+    _command_ids: dict[str, int] | None = None
+
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
         self.db = bot.db
         self.msg = bot.messages
         self.votes = bot.votes
+
+    @staticmethod
+    def remember_commands(app_commands_list: list[app_commands.AppCommand]) -> None:
+        BaseCog._command_ids = {cmd.name: cmd.id for cmd in app_commands_list}
+
+    async def mention(self, name: str) -> str:
+        """Clickable ``</name:id>`` mention; plain text while the command ids are unknown."""
+        if BaseCog._command_ids is None:
+            try:
+                self.remember_commands(await self.bot.tree.fetch_commands())
+            except discord.HTTPException:
+                return f"`/{name}`"
+        command_id = BaseCog._command_ids.get(name.split()[0])
+        return f"</{name}:{command_id}>" if command_id else f"`/{name}`"
 
     async def handle_cooldown_error(
         self, interaction: discord.Interaction, error: app_commands.CommandOnCooldown
