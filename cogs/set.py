@@ -16,7 +16,7 @@ from utils.history_manager import update_history
 from utils.role_manager import apply_color_role
 from utils.vote_manager import UsageQuota, in_grace_period
 from views.global_view import GlobalLayout, VoteLayout, gradient_gate
-from views.set import Layout, ConfirmationView, hiding_role
+from views.set import Layout, ConfirmationView, hidden_warning
 
 logger = logging.getLogger(__name__)
 
@@ -119,14 +119,13 @@ class SetCog(BaseCog):
                 description = self.msg['color_same']
             else:
                 template = self.msg['color_set_black'] if is_black else self.msg['color_set']
-                description = template.format(label)
-                # A hidden color gets a warning from Layout instead of a tip.
-                if hiding_role(member, result.role) is None:
-                    description += await self._tip(interaction, command_name, colors)
+                # A hidden color gets a warning instead of a tip.
+                warning = await hidden_warning(self.db, self.msg, member, result)
+                description = template.format(label) + (warning or await self._tip(interaction, command_name, colors))
                 await update_history(self.db, member.id, guild.id, *colors)
                 recorder.color(interaction, command_name, colors)
 
-            view = Layout.from_result(self.msg, result, primary_val, member.id, description, member)
+            view = Layout.from_result(self.msg, result, primary_val, member.id, description)
             await self.respond(interaction, view)
 
         except ValueError:

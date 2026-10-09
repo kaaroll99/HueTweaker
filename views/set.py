@@ -3,8 +3,10 @@ from typing import Optional, Tuple
 
 import discord
 
+from database import model
 from utils.color_format import format_colors_label
-from utils.role_manager import ApplyResult, colored_roles_above, revert_color_role
+from utils.role_manager import (TOPROLE_MODE_AUTO, ApplyResult, colored_roles_above, get_toprole_mode,
+                                revert_color_role)
 from views.global_view import error_description, make_invite_button, safe_defer
 
 logger = logging.getLogger(__name__)
@@ -14,6 +16,26 @@ def hiding_role(member: discord.Member, role: discord.Role) -> discord.Role | No
     # The cached role is the fresh one: placing the block replaces the guild's roles in the cache.
     above = colored_roles_above(member.roles, member.guild.get_role(role.id) or role)
     return max(above) if above else None
+
+
+async def hidden_warning(db, messages: dict, member: discord.Member, result: ApplyResult) -> str:
+    """Warning for a changed color that a higher colored role hides, with the fix that applies here."""
+    hidden = hiding_role(member, result.role) if result.changed else None
+    if hidden is None:
+        return ""
+    me = member.guild.me
+    try:
+        mode = get_toprole_mode(await db.select_one(model.Guilds, {"server": member.guild.id}))
+    except Exception as e:
+        logger.warning("Could not read the placement mode of guild %s: %r", member.guild.id, e)
+        mode = None
+    # auto places the block right below the bot's role, so it helps only when the bot is above the hiding role
+    # (already in auto, running it again re-places a block that could not be moved before).
+    if me is not None and hidden < me.top_role:
+        fix = "color_hidden_fix_mode"
+    else:
+        fix = "color_hidden_fix_bot_role" if mode == TOPROLE_MODE_AUTO else "color_hidden_fix_both"
+    return messages['color_hidden'].format(role=hidden.mention, fix=messages[fix].format(role=hidden.mention))
 
 
 class Layout(discord.ui.LayoutView):
@@ -65,12 +87,7 @@ class Layout(discord.ui.LayoutView):
         primary_val: int,
         author_id: int,
         description: str,
-        member: discord.Member | None = None,
     ) -> "Layout":
-        """With ``member``, a changed color that a higher colored role hides gets a warning."""
-        hidden = hiding_role(member, result.role) if member is not None and result.changed else None
-        if hidden is not None:
-            description += messages['color_hidden'].format(role=hidden.mention)
         return cls(
             messages=messages,
             color=discord.Color(primary_val),

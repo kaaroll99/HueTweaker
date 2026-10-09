@@ -12,7 +12,7 @@ from utils.history_manager import update_history
 from utils.role_manager import apply_color_role, remove_color_role
 from views.global_view import GlobalLayout
 from views.purge import PurgeView
-from views.set import Layout
+from views.set import Layout, hidden_warning
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,8 @@ class ForceCog(BaseCog):
                 await update_history(self.db, username.id, interaction.guild.id, *colors)
                 recorder.color(interaction, "force set", colors)
 
-            view = Layout.from_result(self.msg, result, primary_val, interaction.user.id, description, username)
+            description += await hidden_warning(self.db, self.msg, username, result)
+            view = Layout.from_result(self.msg, result, primary_val, interaction.user.id, description)
             await self.respond(interaction, view)
 
         except ValueError:

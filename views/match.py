@@ -8,7 +8,7 @@ from utils.color_format import format_colors_label
 from utils.history_manager import update_history
 from utils.role_manager import apply_color_role
 from views.global_view import error_description, gradient_gate, make_docs_button, safe_defer
-from views.set import Layout
+from views.set import Layout, hidden_warning
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,8 @@ class MatchView(discord.ui.LayoutView):
             else:
                 description = self.msg['color_same']
 
-            view = Layout.from_result(self.msg, result, primary, interaction.user.id, description, interaction.user)
+            description += await hidden_warning(self.bot.db, self.msg, interaction.user, result)
+            view = Layout.from_result(self.msg, result, primary, interaction.user.id, description)
             await interaction.followup.send(view=view, ephemeral=True)
             logger.info("%s[%s] applied color %s from /match", interaction.user.name, interaction.locale, label)
         except Exception as e:

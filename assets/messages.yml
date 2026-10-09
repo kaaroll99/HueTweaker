@@ -8,8 +8,12 @@ color_set_black: |
 color_same: |
   ### <:ok:1362879418640498748> This color is already set
 
+# color_hidden + one fix, chosen by the placement mode and the bot's role position (views/set.py, hidden_warning)
 color_hidden: |
-  <:warn:1362879461468672130> **{role} is higher in the role list and has its own color, so that color shows instead.** An admin can fix it with `/setup toprole mode:auto` or by moving the bot's role above {role} in **Server Settings → Roles**.
+  <:warn:1362879461468672130> **{role} is higher in the role list and has its own color, so that color shows instead.** {fix}
+color_hidden_fix_mode: "An admin can fix it with `/setup toprole mode:auto`."
+color_hidden_fix_bot_role: "An admin can fix it by moving the bot's role above {role} in **Server Settings → Roles**."
+color_hidden_fix_both: "An admin can fix it by moving the bot's role above {role} in **Server Settings → Roles**, then running `/setup toprole mode:auto`."
 
 # One of these is added under color_set at random (cogs/set.py, _tip)
 tip_match: "-# 💡 Not sure what suits you? {match} suggests colors that match your avatar."
