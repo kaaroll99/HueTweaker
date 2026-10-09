@@ -9,7 +9,9 @@ from discord.ext import commands
 
 from cogs._base import BaseCog
 from constants import BANNER_URL, DEV_GUILD_ID
+from cogs.joinListener import welcome_channel
 from utils.migration import TOP_GUILDS_LIMIT, migrate_all
+from views.welcome import WelcomeLayout
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +64,17 @@ class DevCog(commands.Cog):
                 elif action == "tree":
                     BaseCog.remember_commands(await self.bot.tree.sync())
                     embed.description = "Command tree synchronization completed."
+                elif action == "welcome":
+                    # Preview of the on_guild_join message for this server; mode "post" sends it where a join would.
+                    view = WelcomeLayout(await self.bot.get_cog("JoinListenerCog").welcome_text(interaction.guild))
+                    channel = welcome_channel(interaction.guild)
+                    target = channel.mention if channel else "no channel (nothing would be sent)"
+                    if mode == "post" and channel:
+                        await channel.send(view=view, allowed_mentions=discord.AllowedMentions.none())
+                        embed.description = f"Welcome message posted in {target}."
+                    else:
+                        await interaction.followup.send(view=view, ephemeral=True)
+                        embed.description = f"On join it would be posted in {target}. `mode:post` sends it there."
                 elif action == "migrate":
                     embed.description = await self._start_migration(interaction, mode, guild_id)
                 elif action == "stats":
@@ -98,9 +111,9 @@ class DevCog(commands.Cog):
             embed.set_image(url=BANNER_URL)
 
             if file:
-                await interaction.followup.send(embed=embed, file=file)
+                await interaction.followup.send(embed=embed, file=file, ephemeral=True)
             else:
-                await interaction.followup.send(embed=embed)
+                await interaction.followup.send(embed=embed, ephemeral=True)
 
             logger.warning("%s[%s] issued bot command: /dev %s", interaction.user.name, interaction.locale, action)
 

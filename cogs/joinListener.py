@@ -3,16 +3,30 @@ import logging
 import discord
 from discord.ext import commands
 
+from cogs._base import BaseCog
 from database import model
 from utils.role_manager import TOPROLE_MODE_CUSTOM, TOPROLE_MODE_OFF, looks_like_color_role, remove_color_role
+from views.welcome import WelcomeLayout
 
 logger = logging.getLogger(__name__)
 
 
-class JoinListenerCog(commands.Cog):
-    def __init__(self, bot: commands.Bot) -> None:
-        self.bot = bot
-        self.db = bot.db
+WELCOME_COMMANDS = ("setup toprole", "set", "match", "colors", "gradient", "holographic", "help")
+
+
+def welcome_channel(guild: discord.Guild) -> discord.TextChannel | None:
+    """The system channel, else the highest text channel the bot can write in."""
+    candidates = [guild.system_channel] + sorted(guild.text_channels, key=lambda c: c.position)
+    for channel in candidates:
+        if channel is None:
+            continue
+        perms = channel.permissions_for(guild.me)
+        if perms.view_channel and perms.send_messages:
+            return channel
+    return None
+
+
+class JoinListenerCog(BaseCog):
 
     @commands.Cog.listener()
     async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent):
@@ -41,8 +55,33 @@ class JoinListenerCog(commands.Cog):
             logger.warning("Could not check toprole reference after role %s was deleted: %r", role.id, e)
 
     @commands.Cog.listener()
-    async def on_guild_join(self, guild):
+    async def on_guild_join(self, guild: discord.Guild):
         logger.info("Bot has been added to guild: %s", guild.name)
+        channel = welcome_channel(guild)
+        if channel is None:
+            logger.info("No channel to send the welcome message to in guild %s", guild.id)
+            return
+        try:
+            await channel.send(view=WelcomeLayout(await self.welcome_text(guild)),
+                               allowed_mentions=discord.AllowedMentions.none())
+        except discord.HTTPException as e:
+            logger.warning("Could not send the welcome message in guild %s: %s", guild.id, e)
+
+    async def welcome_text(self, guild: discord.Guild) -> str:
+        mentions = {name.replace(" ", "_"): await self.mention(name) for name in WELCOME_COMMANDS}
+        me = guild.me
+        # Invited without permissions, the bot has no role of its own.
+        role = f"**{me.display_name}**" if me.top_role.is_default() else me.top_role.mention
+        warnings = ""
+        if not me.guild_permissions.manage_roles:
+            warnings += self.msg['welcome_no_manage_roles'].format(role=role)
+        covering = [r for r in guild.roles if r > me.top_role and r.colour.value]
+        if covering:
+            warnings += self.msg['welcome_roles_above'].format(count=len(covering), role=role)
+        extras = ""
+        if "ENHANCED_ROLE_COLORS" in guild.features:
+            extras = self.msg['welcome_gradients'].format(**mentions)
+        return self.msg['welcome'].format(warnings=warnings, extras=extras, **mentions)
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):

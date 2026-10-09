@@ -20,6 +20,22 @@ tip_random: "-# 💡 Feeling lucky? {set} `random` picks a color for you."
 tip_set_limit: "-# 💡 That was your last free {set} for now, the next one unlocks {time}. A vote on top.gg lifts the limit."
 
 
+#welcome (sent once when the bot joins a server, cogs/joinListener.py)
+welcome: |
+  ## 👋 Thanks for adding HueTweaker!
+  Every member can now pick their own username color.
+
+  **<:star:1362879443625971783> Admins: one step first**
+  Run {setup_toprole} `mode:auto`. Without it color roles sit at the bottom of the role list and other colored roles cover them.
+  {warnings}
+  **<:star:1362879443625971783> Everyone**
+  {set} `royalblue` sets your color. A HEX code, a color name, `random` or `@user` work too.
+  {match} suggests colors that match your avatar, {colors} lists named colors.
+  {extras}{help} shows every command.
+welcome_no_manage_roles: "<:warn:1362879461468672130> I don't have the **Manage Roles** permission, so I can't create color roles yet. Turn it on for {role} in **Server Settings → Roles**.\n"
+welcome_roles_above: "<:warn:1362879461468672130> {count} colored role(s) sit above {role} and would cover member colors. Drag {role} above them in **Server Settings → Roles**.\n"
+welcome_gradients: "This server is boosted, so {gradient} and {holographic} work too (after a [top.gg vote](https://top.gg/bot/1209187999934578738/vote)).\n"
+
 #remove
 color_remove: "### <:ok:1362879418640498748> Color has been removed"
 color_remove_no_color: "### <:warn:1362879461468672130> No color to remove"

@@ -41,6 +41,8 @@ HueTweaker lets every member pick their own username color with one command. Adm
 2. **Admin:** run [`/setup toprole auto`](commands/setup-toprole.md). Without it color roles sit at the bottom of the role list and other colored roles cover them.
 3. **Everyone:** run [`/set`](commands/set.md) with a color, e.g. `/set royalblue`.
 
+Right after joining, the bot posts these steps in the server's system channel (or the first channel it can write in) and warns if it lacks **Manage Roles** or if colored roles sit above its own role.
+
 Color not showing or an error? See [Troubleshooting](main/troubleshooting.md).
 
 ## Features
