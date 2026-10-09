@@ -76,7 +76,7 @@ class MatchView(discord.ui.LayoutView):
             else:
                 description = self.msg['color_same']
 
-            view = Layout.from_result(self.msg, result, primary, interaction.user.id, description)
+            view = Layout.from_result(self.msg, result, primary, interaction.user.id, description, interaction.user)
             await interaction.followup.send(view=view, ephemeral=True)
             logger.info("%s[%s] applied color %s from /match", interaction.user.name, interaction.locale, label)
         except Exception as e:

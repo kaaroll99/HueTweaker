@@ -32,7 +32,7 @@ HueTweaker is free to use. Voting for it on top.gg helps other servers find the 
 
 | | Without a vote | With a vote |
 | --- | --- | --- |
-| [`/set`](../commands/set.md) | 2 color changes per 30 minutes | No limit (only the usual 10-second cooldown) |
+| [`/set`](../commands/set.md) | 2 color changes per 30 minutes (no limit for 24 hours after the bot joins a server) | No limit (only the usual 10-second cooldown) |
 | [`/gradient`](../commands/gradient.md) and gradient presets | Not available | Available |
 | [`/holographic`](../commands/holographic.md) | Not available | Available |
 | [`/match`](../commands/match.md) 🌈 gradient button | Not available | Available |

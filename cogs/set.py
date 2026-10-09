@@ -14,9 +14,9 @@ from utils.color_format import ColorUtils, format_colors_label
 from utils.color_parse import parse_color_pair
 from utils.history_manager import update_history
 from utils.role_manager import apply_color_role
-from utils.vote_manager import UsageQuota
+from utils.vote_manager import UsageQuota, in_grace_period
 from views.global_view import GlobalLayout, VoteLayout, gradient_gate
-from views.set import Layout, ConfirmationView
+from views.set import Layout, ConfirmationView, hiding_role
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +109,7 @@ class SetCog(BaseCog):
                 await self.respond(interaction, GlobalLayout(self.msg, self.msg['cancelled'], docs_page))
                 return
 
-            if secondary_val is None:
+            if secondary_val is None and not in_grace_period(guild):
                 self.set_quota.consume(member.id)
 
             result = await apply_color_role(guild, member, primary_val, secondary_val, self.db, bot_user.id,
@@ -119,11 +119,14 @@ class SetCog(BaseCog):
                 description = self.msg['color_same']
             else:
                 template = self.msg['color_set_black'] if is_black else self.msg['color_set']
-                description = template.format(label) + await self._tip(interaction, command_name, colors)
+                description = template.format(label)
+                # A hidden color gets a warning from Layout instead of a tip.
+                if hiding_role(member, result.role) is None:
+                    description += await self._tip(interaction, command_name, colors)
                 await update_history(self.db, member.id, guild.id, *colors)
                 recorder.color(interaction, command_name, colors)
 
-            view = Layout.from_result(self.msg, result, primary_val, member.id, description)
+            view = Layout.from_result(self.msg, result, primary_val, member.id, description, member)
             await self.respond(interaction, view)
 
         except ValueError:
@@ -142,9 +145,11 @@ class SetCog(BaseCog):
     ) -> Optional[discord.ui.LayoutView]:
         """The view to show instead of applying the color, or ``None`` when the user may proceed.
         A gradient needs server support first, then a vote. A solid color is free for
-        ``FREE_SET_USES`` changes per window, then needs a vote."""
+        ``FREE_SET_USES`` changes per window, then needs a vote, except on a newly joined server."""
         if secondary_val is not None:
             return await gradient_gate(self.msg, self.votes, interaction, source, docs_page)
+        if in_grace_period(interaction.guild):
+            return None
 
         user_id = interaction.user.id
         retry_after = self.set_quota.retry_after(user_id)
@@ -158,7 +163,7 @@ class SetCog(BaseCog):
         _, secondary_val, tertiary_val = colors
         mentions = {name.replace(" ", "_"): await self.mention(name) for name in TIP_COMMANDS}
 
-        if secondary_val is None:
+        if secondary_val is None and not in_grace_period(interaction.guild):
             retry_after = self.set_quota.retry_after(interaction.user.id)
             if retry_after > 0 and not await self.votes.has_voted(interaction.user.id):
                 return self.msg['tip_set_limit'].format(time=f"<t:{int(time.time() + retry_after)}:R>", **mentions)

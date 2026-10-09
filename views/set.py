@@ -4,10 +4,16 @@ from typing import Optional, Tuple
 import discord
 
 from utils.color_format import format_colors_label
-from utils.role_manager import ApplyResult, revert_color_role
+from utils.role_manager import ApplyResult, colored_roles_above, revert_color_role
 from views.global_view import error_description, make_invite_button, safe_defer
 
 logger = logging.getLogger(__name__)
+
+
+def hiding_role(member: discord.Member, role: discord.Role) -> discord.Role | None:
+    # The cached role is the fresh one: placing the block replaces the guild's roles in the cache.
+    above = colored_roles_above(member.roles, member.guild.get_role(role.id) or role)
+    return max(above) if above else None
 
 
 class Layout(discord.ui.LayoutView):
@@ -59,7 +65,12 @@ class Layout(discord.ui.LayoutView):
         primary_val: int,
         author_id: int,
         description: str,
+        member: discord.Member | None = None,
     ) -> "Layout":
+        """With ``member``, a changed color that a higher colored role hides gets a warning."""
+        hidden = hiding_role(member, result.role) if member is not None and result.changed else None
+        if hidden is not None:
+            description += messages['color_hidden'].format(role=hidden.mention)
         return cls(
             messages=messages,
             color=discord.Color(primary_val),

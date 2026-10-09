@@ -8,6 +8,9 @@ color_set_black: |
 color_same: |
   ### <:ok:1362879418640498748> This color is already set
 
+color_hidden: |
+  <:warn:1362879461468672130> **{role} is higher in the role list and has its own color, so that color shows instead.** An admin can fix it with `/setup toprole mode:auto` or by moving the bot's role above {role} in **Server Settings → Roles**.
+
 # One of these is added under color_set at random (cogs/set.py, _tip)
 tip_match: "-# 💡 Not sure what suits you? {match} suggests colors that match your avatar."
 tip_favorites: "-# 💡 Like this one? Save it with {favorites_add} and set it again in one click, on any server."
@@ -25,8 +28,8 @@ welcome: |
   ## 👋 Thanks for adding HueTweaker!
   Every member can now pick their own username color.
 
-  **<:star:1362879443625971783> Admins: one step first**
-  Run {setup_toprole} `mode:auto`. Without it color roles sit at the bottom of the role list and other colored roles cover them.
+  **<:star:1362879443625971783> Admins**
+  Color roles go right below my role {role}. Keep it above other colored roles, or their colors cover member colors. {setup_toprole} changes where color roles go.
   {warnings}
   **<:star:1362879443625971783> Everyone**
   {set} `royalblue` sets your color. A HEX code, a color name, `random` or `@user` work too.

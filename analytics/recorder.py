@@ -49,13 +49,21 @@ class AnalyticsRecorder:
     def blocked(self, interaction: discord.Interaction, source: str, reason: str) -> None:
         self._add("blocked", source, interaction, reason)
 
+    def guild(self, name: str, guild: discord.Guild, **details) -> None:
+        """``guild`` / ``join`` or ``leave``: no user; the value is ``key=value;…``, the locale the server's."""
+        value = ";".join(f"{key}={'' if v is None else int(v)}" for key, v in details.items())
+        self._append("guild", name, str(guild.id), "", value, guild.preferred_locale)
+
     def _add(self, event: str, name: str, interaction: discord.Interaction, value: str) -> None:
+        self._append(event, name, str(interaction.guild_id or ""),
+                     user_hash(self._salt, str(interaction.user.id)), value, interaction.locale)
+
+    def _append(self, event: str, name: str, guild_id: str, user: str, value: str, locale) -> None:
         if self._dir is None:
             return
         timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
-        locale = getattr(interaction.locale, "value", interaction.locale) or ""
-        self._buffer.append([timestamp, event, name, str(interaction.guild_id or ""),
-                             user_hash(self._salt, str(interaction.user.id)), value, str(locale)])
+        locale = getattr(locale, "value", locale) or ""
+        self._buffer.append([timestamp, event, name, guild_id, user, value, str(locale)])
 
     async def _flush_loop(self) -> None:
         while True:

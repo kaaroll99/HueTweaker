@@ -3,9 +3,11 @@ import logging
 import discord
 from discord.ext import commands
 
+from analytics.recorder import recorder
 from cogs._base import BaseCog
 from database import model
-from utils.role_manager import TOPROLE_MODE_CUSTOM, TOPROLE_MODE_OFF, looks_like_color_role, remove_color_role
+from utils.role_manager import (TOPROLE_MODE_AUTO, TOPROLE_MODE_CUSTOM, TOPROLE_MODE_OFF, colored_roles_above,
+                                looks_like_color_role, remove_color_role)
 from views.welcome import WelcomeLayout
 
 logger = logging.getLogger(__name__)
@@ -57,6 +59,18 @@ class JoinListenerCog(BaseCog):
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
         logger.info("Bot has been added to guild: %s", guild.name)
+        me = guild.me
+        recorder.guild("join", guild, members=guild.member_count,
+                       boosted="ENHANCED_ROLE_COLORS" in guild.features,
+                       manage_roles=me.guild_permissions.manage_roles,
+                       covered=len(colored_roles_above(guild.roles, me.top_role)))
+        try:
+            # New servers start in auto placement; a row left from an earlier stay keeps its mode.
+            if await self.db.select_one(model.Guilds, {"server": guild.id}) is None:
+                await self.db.create(model.Guilds, {"server": guild.id, "mode": TOPROLE_MODE_AUTO, "role": 0})
+        except Exception as e:
+            logger.warning("Could not save the default placement for guild %s: %r", guild.id, e)
+
         channel = welcome_channel(guild)
         if channel is None:
             logger.info("No channel to send the welcome message to in guild %s", guild.id)
@@ -75,17 +89,20 @@ class JoinListenerCog(BaseCog):
         warnings = ""
         if not me.guild_permissions.manage_roles:
             warnings += self.msg['welcome_no_manage_roles'].format(role=role)
-        covering = [r for r in guild.roles if r > me.top_role and r.colour.value]
+        covering = colored_roles_above(guild.roles, me.top_role)
         if covering:
             warnings += self.msg['welcome_roles_above'].format(count=len(covering), role=role)
         extras = ""
         if "ENHANCED_ROLE_COLORS" in guild.features:
             extras = self.msg['welcome_gradients'].format(**mentions)
-        return self.msg['welcome'].format(warnings=warnings, extras=extras, **mentions)
+        return self.msg['welcome'].format(role=role, warnings=warnings, extras=extras, **mentions)
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
         logger.info("Bot has been removed from guild: %s", guild.name)
+        joined = guild.me.joined_at if guild.me is not None else None
+        recorder.guild("leave", guild, members=guild.member_count,
+                       age=(discord.utils.utcnow() - joined).total_seconds() if joined else None)
         try:
             await self.db.delete_all(model.Guilds, {"server": guild.id})
             await self.db.delete_all(model.History, {"guild_id": guild.id})

@@ -8,9 +8,9 @@ description: Common problems and how to fix them.
 
 Discord shows the color of your **highest colored role**. If another colored role is above your HueTweaker role, you see that color instead.
 
-By default, HueTweaker keeps color roles at the bottom of the role list. An admin can fix this:
+When this happens, the bot says so under the result and names the role that covers the color. An admin can fix it:
 
-1. Run [`/setup toprole auto`](../commands/setup-toprole.md). Color roles move as high as the bot can reach.
+1. Run [`/setup toprole auto`](../commands/setup-toprole.md). Color roles move as high as the bot can reach. Servers that added the bot before October 2026 start with color roles at the bottom of the role list.
 2. If some colored roles are still above them, move the **HueTweaker** role higher in **Server Settings → Roles** and run `/setup toprole auto` again.
 
 ## "The bot does not have permissions to perform this operation"
@@ -23,7 +23,7 @@ Each member with a color has their own role, and Discord allows at most 250 role
 
 ## I can't change my color anymore
 
-Without a vote, `/set` allows **2 changes per 30 minutes**. The bot shows when your next free change is available. [Voting on top.gg](voting.md) removes the limit for 12 hours.
+Without a vote, `/set` allows **2 changes per 30 minutes** (no limit during the first 24 hours after the bot joins a server). The bot shows when your next free change is available. [Voting on top.gg](voting.md) removes the limit for 12 hours.
 
 ## Gradients or holographic don't work
 

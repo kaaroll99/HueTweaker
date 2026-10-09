@@ -2,8 +2,9 @@ import logging
 import time
 
 import aiohttp
+import discord
 
-from constants import BOT_ID
+from constants import BOT_ID, NEW_GUILD_GRACE
 
 logger = logging.getLogger(__name__)
 
@@ -84,3 +85,9 @@ class UsageQuota:
         if len(self._stamps) > 10_000:
             for key in list(self._stamps):
                 self._recent(key, now)
+
+
+def in_grace_period(guild: discord.Guild) -> bool:
+    """True during the first ``NEW_GUILD_GRACE`` seconds after the bot joined ``guild``."""
+    joined = guild.me.joined_at if guild.me is not None else None
+    return joined is not None and (discord.utils.utcnow() - joined).total_seconds() < NEW_GUILD_GRACE

@@ -119,6 +119,11 @@ def role_colors(role: discord.Role) -> Colors:
     )
 
 
+def colored_roles_above(roles: list[discord.Role], role: discord.Role) -> list[discord.Role]:
+    """Discord shows the color of a member's highest colored role, so these hide ``role``'s color."""
+    return [r for r in roles if r > role and r.colour.value]
+
+
 def get_toprole_mode(guild_obj: Optional[dict]) -> str:
     if not isinstance(guild_obj, dict):
         return TOPROLE_MODE_OFF

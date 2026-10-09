@@ -111,7 +111,7 @@ class SelectView(discord.ui.LayoutView):
             else:
                 description = self.msg['color_same']
 
-            view = Layout.from_result(self.msg, result, primary, interaction.user.id, description)
+            view = Layout.from_result(self.msg, result, primary, interaction.user.id, description, interaction.user)
             await interaction.followup.send(view=view, ephemeral=True)
             logger.info("%s[%s] selected palette color %s", interaction.user.name, interaction.locale, label)
 

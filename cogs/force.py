@@ -51,7 +51,7 @@ class ForceCog(BaseCog):
                 await update_history(self.db, username.id, interaction.guild.id, *colors)
                 recorder.color(interaction, "force set", colors)
 
-            view = Layout.from_result(self.msg, result, primary_val, interaction.user.id, description)
+            view = Layout.from_result(self.msg, result, primary_val, interaction.user.id, description, username)
             await self.respond(interaction, view)
 
         except ValueError:
