@@ -40,7 +40,7 @@ class MyBot(commands.AutoShardedBot):
             except Exception:
                 logger.exception("Failed to load extension %s", cog)
 
-    @tasks.loop(hours=2)
+    @tasks.loop(hours=1)
     async def update_stats_task(self) -> None:
         try:
             if str(self.config.get('SYSTEM')).upper() == 'DEV':
