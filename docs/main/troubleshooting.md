@@ -10,7 +10,7 @@ Discord shows the color of your **highest colored role**. If another colored rol
 
 When this happens, the bot says so under the result and names the role that covers the color. An admin can fix it:
 
-1. Run [`/setup toprole auto`](../commands/setup-toprole.md). Color roles move as high as the bot can reach. Servers that added the bot before October 2026 start with color roles at the bottom of the role list.
+1. Run [`/setup toprole auto`](../commands/setup-toprole.md). Color roles move as high as the bot can reach.
 2. If some colored roles are still above them, move the **HueTweaker** role higher in **Server Settings → Roles** and run `/setup toprole auto` again.
 
 ## "The bot does not have permissions to perform this operation"

@@ -34,9 +34,9 @@ Choose where HueTweaker's color roles sit in the role list. Discord shows the co
 
 | Mode | Where color roles go |
 | --- | --- |
-| `auto` | As high as the bot can reach (just below the bot's highest role). **Recommended, and the default on servers that add the bot now.** |
+| `auto` | As high as the bot can reach (just below the bot's highest role). **Default.** |
 | `custom` | Directly below the role given in `role_name`. |
-| `off` | At the bottom of the role list. The default on servers that added the bot before October 2026. |
+| `off` | At the bottom of the role list. |
 
 **Examples:**
 
