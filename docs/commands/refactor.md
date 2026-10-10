@@ -42,6 +42,8 @@ Color roles used to be named `color-<USER_ID>`. Now they're named after their me
 * Deletes old color roles of members who left the server.
 * Reports how many roles were renamed, deleted and skipped.
 
+<div align="left"><figure><img src="../.gitbook/assets/refactor-before-after.png" alt="Old color roles named by user ID renamed to member names, roles of members who left deleted" width="600"><figcaption></figcaption></figure></div>
+
 **Good to know:**
 
 * Colors and role positions don't change, and `/set` keeps working meanwhile.

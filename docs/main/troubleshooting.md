@@ -13,9 +13,13 @@ When this happens, the bot says so under the result and names the role that cove
 1. Run [`/setup toprole auto`](../commands/setup-toprole.md). Color roles move as high as the bot can reach.
 2. If some colored roles are still above them, move the **HueTweaker** role higher in **Server Settings → Roles** and run `/setup toprole auto` again.
 
+<div align="left"><figure><img src="../.gitbook/assets/troubleshooting-color-covered.png" alt="A colored role above the color roles covers members' colors" width="600"><figcaption></figcaption></figure></div>
+
 ## "The bot does not have permissions to perform this operation"
 
 The bot needs the **Manage Roles** permission and can only manage roles **below its own highest role**. In **Server Settings → Roles**, drag the **HueTweaker** role above the color roles, then try again.
+
+<div align="left"><figure><img src="../.gitbook/assets/troubleshooting-bot-too-low.png" alt="A color role above the bot's role can't be changed by the bot" width="600"><figcaption></figcaption></figure></div>
 
 ## "This server has reached Discord's limit of 250 roles"
 
