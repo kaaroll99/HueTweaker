@@ -78,7 +78,7 @@ If the chosen role is above the bot's highest role, the bot places color roles a
 
 <div align="left"><figure><img src="../.gitbook/assets/toprole-problem-role-above-bot.png" alt="The chosen role is above the bot's role, so color roles stop right below the bot" width="600"><figcaption></figcaption></figure></div>
 
-**A colored role is above the color roles.** Members with that role see its color instead of their HueTweaker color. Move that role below the color roles or remove its color.
+**A colored role is above the color roles.** Members with that role see its color instead of their HueTweaker color. Unless that's on purpose (like staff in custom mode), move that role below the color roles or remove its color.
 
 <div align="left"><figure><img src="../.gitbook/assets/toprole-problem-colored-role-above.png" alt="A colored role above the color roles covers members' colors" width="600"><figcaption></figcaption></figure></div>
 
