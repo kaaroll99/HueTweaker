@@ -1,3 +1,5 @@
+"""Color notations and conversions, user-facing labels, style encoding and generated images."""
+
 import re
 from functools import lru_cache
 from io import BytesIO
@@ -64,6 +66,7 @@ _MIN_READABLE_CONTRAST = 2.0
 
 
 def _relative_luminance(rgb: tuple[int, int, int]) -> float:
+    """Return the WCAG relative luminance of an 8-bit sRGB color."""
     def channel(value: int) -> float:
         c = value / 255
         return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
@@ -72,6 +75,7 @@ def _relative_luminance(rgb: tuple[int, int, int]) -> float:
 
 
 def _contrast_ratio(a: tuple[int, int, int], b: tuple[int, int, int]) -> float:
+    """Return the WCAG contrast ratio of two colors, from 1 (same) to 21 (black on white)."""
     la, lb = sorted((_relative_luminance(a), _relative_luminance(b)), reverse=True)
     return (la + 0.05) / (lb + 0.05)
 
@@ -82,6 +86,7 @@ def css_name_key(text: str) -> str:
 
 
 def name_and_hex(color: int | str) -> tuple[str, str]:
+    """Return ``(label, "#RRGGBB")``; the label is the CSS name when one matches, else the HEX."""
     if isinstance(color, int):
         hex_value = f"{color:06x}"
     else:
@@ -109,6 +114,10 @@ Colors = tuple[int, int | None, int | None]
 
 @lru_cache(maxsize=1)
 def color_presets() -> dict[str, tuple[str, Colors]]:
+    """Return the named presets as ``{css_name_key(name): (name, colors)}``, holographic included.
+
+    Raises ``ValueError`` when a preset name collides with a CSS name, a HEX code or ``random``.
+    """
     presets = {
         css_name_key(name): (name, (int(primary, 16), int(secondary, 16), None))
         for name, (primary, secondary) in load_json("assets/gradient-presets.json").items()
@@ -130,10 +139,15 @@ _stored_hex_re = re.compile(r"^#?[0-9a-fA-F]{6}$")
 
 
 def encode_style(colors: Colors) -> str:
+    """Encode a style for the palette and favorites columns: ``rrggbb``, ``rrggbb+rrggbb`` or three parts."""
     return "+".join(f"{c:06x}" for c in colors if c is not None)
 
 
 def decode_style(text: str | None) -> Colors | None:
+    """Decode ``encode_style`` text, including older ``#RRGGBB`` values.
+
+    Return None for empty or malformed text, so a bad slot is skipped instead of failing.
+    """
     if not isinstance(text, str) or not text.strip():
         return None
     parts = text.strip().split("+")
@@ -148,7 +162,7 @@ def preset_name(colors: Colors) -> str | None:
 
 
 def format_colors_label(primary: int, secondary: int | None = None, tertiary: int | None = None) -> str:
-    """Label for a solid color, a ``primary + secondary`` gradient or the holographic style."""
+    """Return the label of a solid color, a ``primary + secondary`` gradient or the holographic style."""
     if tertiary is not None:
         return HOLOGRAPHIC_NAME
     if secondary is None:
@@ -163,6 +177,7 @@ def _color_stops(primary: int, secondary: int | None = None, tertiary: int | Non
 
 
 def _paint_text(image: Image.Image, xy: tuple[float, float], text: str, font, stops: list[tuple[int, int, int]]) -> None:
+    """Draw ``text`` filled with a horizontal gradient through ``stops``; one stop draws it solid."""
     if len(stops) == 1:
         ImageDraw.Draw(image).text(xy, text, fill=(*stops[0], 255), font=font)
         return
@@ -189,6 +204,11 @@ def _paint_text(image: Image.Image, xy: tuple[float, float], text: str, font, st
 
 
 def dominant_colors(image_bytes: bytes, count: int = 5, min_distance: float = 20.0) -> list[int]:
+    """Return up to ``count`` dominant colors of an image, most common first.
+
+    Transparent pixels are ignored. Colors unreadable on Discord's dark theme are skipped, and so
+    are colors closer than ``min_distance`` (in Lab) to one already picked.
+    """
     with Image.open(BytesIO(image_bytes)) as source:
         image = source.convert('RGBA')
     image.thumbnail((64, 64))
@@ -222,6 +242,8 @@ def _in_range(values, limits) -> bool:
 
 
 class ColorUtils:
+    """Parse a color in any supported notation, convert it and render color images."""
+
     __slots__ = ['color', 'color_format', 'find_similar_colors', '_values']
 
     def __init__(self, color, color_format=None, find_similar_colors=False):
@@ -231,7 +253,11 @@ class ColorUtils:
         self._values: tuple[float, ...] = ()
 
     def __determine_color_format(self):
-        """Detect the notation and extract its numbers. Invalid or out-of-range input -> ``None``."""
+        """Detect the notation and extract its numbers.
+
+        CSS names and HEX are normalized to six hex digits in ``color``; invalid or out-of-range
+        input leaves ``color_format`` as None.
+        """
         self.color = self.color.strip()
         self.color_format = None
         self._values = ()
@@ -265,6 +291,12 @@ class ColorUtils:
                 return
 
     def color_converter(self):
+        """Return the color in every notation, or None for invalid input.
+
+        The keys are ``Input``, ``Hex``, ``RGB``, ``HSL``, ``CMYK`` and ``Similars`` (CSS names,
+        filled only with ``find_similar_colors``). Values are colormath tuples: RGB, saturation,
+        lightness and CMYK are 0..1 floats, hue is in degrees.
+        """
         self.__determine_color_format()
         if self.color_format is None:
             return None
@@ -301,6 +333,7 @@ class ColorUtils:
 
     @staticmethod
     def generate_image(color):
+        """Return a 300x50 swatch of an RGB color given as 0..1 floats."""
         rgb_color = np.array(color) * 255
         rgb_color = rgb_color.astype(np.uint8)
         image_array = np.full((50, 300, 3), rgb_color, dtype=np.uint8)
@@ -315,9 +348,10 @@ class ColorUtils:
 
     @staticmethod
     def generate_color_list_image(nick, colors):
-        """Render a numbered list where each line is ``{i}. {nick} {label}`` drawn in its own
-        color. ``colors`` may be ints, hex strings, or
-        ``(primary, secondary[, tertiary])`` tuples."""
+        """Render a numbered list where each line is ``{i}. {nick} {label}`` drawn in its own color.
+
+        ``colors`` may be ints, hex strings or ``(primary, secondary[, tertiary])`` tuples.
+        """
         font = _get_font()
 
         padding = 10
@@ -343,6 +377,7 @@ class ColorUtils:
 
     @staticmethod
     def generate_color_book_image(names):
+        """Render CSS color names with swatches and HEX codes, in two columns above 12 names."""
         font = _get_font()
         css = _load_css_color_cache()
 
@@ -411,7 +446,7 @@ class ColorUtils:
 
     @staticmethod
     def __find_similar_colors(rgb_color: sRGBColor, threshold: float = SIMILAR_COLOR_THRESHOLD):
-        """CSS colors sorted by perceptual distance (CIE76 in Lab), closest first."""
+        """Return the CSS color names within ``threshold`` (CIE76 distance in Lab), closest first."""
         target = np.array(convert_color(rgb_color, LabColor).get_value_tuple())
         similar_colors = []
         for color_name, lab in _load_css_lab_cache().items():

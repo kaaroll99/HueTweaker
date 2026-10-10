@@ -1,3 +1,5 @@
+"""User input -> ``(primary, secondary, tertiary)``: presets, ``@mention``, ``random`` and color notations."""
+
 import random
 import re
 
@@ -26,8 +28,10 @@ def _role_colors(role: discord.Role) -> tuple[str, str | None, str | None]:
 
 
 async def resolve_mention(interaction: discord.Interaction, db, text: str) -> tuple[str, str | None, str | None] | None:
-    """If ``text`` mentions a user, return that user's ``(primary, secondary, tertiary)`` hex; else ``None``.
-    Raises ``MentionedUserHasNoColor`` when the user has no color role (or a colorless one)."""
+    """Return the mentioned user's ``(primary, secondary, tertiary)`` HEX, or None if ``text`` is no mention.
+
+    Raises ``MentionedUserHasNoColor`` when the user has no color role (or a colorless one).
+    """
     match = _mention_re.match(text.strip())
     if match is None:
         return None
@@ -40,7 +44,11 @@ async def resolve_mention(interaction: discord.Interaction, db, text: str) -> tu
 
 
 async def fetch_color_representation(interaction: discord.Interaction, db, color: str) -> str:
-    """Turn ``@mention`` / ``random`` into a hex string; other input is returned unchanged."""
+    """Turn ``@mention`` / ``random`` into a HEX string; other input is returned unchanged.
+
+    Only the mentioned user's primary color is used. Raises ``ValueError`` for input longer than
+    ``MAX_COLOR_INPUT_LEN``.
+    """
     if len(color) > MAX_COLOR_INPUT_LEN:
         raise ValueError
     mentioned = await resolve_mention(interaction, db, color)
@@ -62,6 +70,7 @@ def color_parser(color: str) -> str | None:
 
 
 def check_black(primary_hex: str | None, secondary_hex: str | None) -> tuple[str | None, str | None, bool]:
+    """Replace pure black with ``NEAR_BLACK_HEX``; the flag tells whether anything was replaced."""
     is_black = False
     if primary_hex == BLACK_HEX:
         is_black = True
@@ -73,6 +82,11 @@ def check_black(primary_hex: str | None, secondary_hex: str | None) -> tuple[str
 
 
 def parse_static_style(color: str, secondary_color: str | None = None) -> tuple[Colors, bool]:
+    """Parse a preset name or one or two colors, without ``@mention`` or ``random``.
+
+    Used where there is no interaction to resolve them against (the palette editor, log import).
+    Return ``(colors, is_black)``; raise ``ValueError`` on invalid input.
+    """
     if not secondary_color:
         preset = preset_colors(color)
         if preset is not None:
@@ -88,9 +102,12 @@ def parse_static_style(color: str, secondary_color: str | None = None) -> tuple[
 async def parse_color_pair(
     interaction: discord.Interaction, db, color: str, secondary_color: str | None
 ) -> tuple[Colors, bool]:
-    """Resolve the ``/set``, ``/gradient`` and ``/force set`` inputs into
-    ``((primary, secondary, tertiary), is_black)``. A preset name or a mention of a user with a
-    gradient (and no secondary color) gives the whole style. Raises ``ValueError`` on invalid input."""
+    """Resolve color command input into ``((primary, secondary, tertiary), is_black)``.
+
+    The single entry point for ``/set``, ``/gradient``, ``/holographic``, ``/force set`` and
+    ``/favorites add``. Without a secondary color, a preset name or a mention of a user with a
+    gradient gives the whole style. Raises ``ValueError`` on invalid input.
+    """
     if len(color) > MAX_COLOR_INPUT_LEN:
         raise ValueError
     if secondary_color is None:

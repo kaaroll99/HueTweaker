@@ -28,7 +28,7 @@ _legacy_role_re = re.compile(COLOR_ROLE_PATTERN)
 
 
 def role_colors_key(role: discord.Role) -> str:
-    """Normalized color key: ``RRGGBB`` or ``RRGGBB+RRGGBB`` for gradients."""
+    """Return the role's color key: ``RRGGBB``, or ``RRGGBB+RRGGBB`` for a gradient."""
     primary = role.color.value if role.color else 0
     key = f"{primary:06X}"
     if role.secondary_color:
@@ -109,6 +109,7 @@ async def _owner_present(guild: discord.Guild, user_id: int) -> bool:
 
 
 async def analyze_guild(guild: discord.Guild) -> GuildMigrationReport:
+    """Count the legacy roles, orphans and distinct colors of one guild; errors go into the report."""
     report = GuildMigrationReport(guild_id=guild.id, guild_name=guild.name)
     try:
         roles = await guild.fetch_roles()
@@ -142,7 +143,10 @@ def select_top_guilds(guilds, limit: int = TOP_GUILDS_LIMIT) -> list:
 
 
 async def migrate_all(bot, apply: bool, guild_id: Optional[int] = None) -> MigrationSummary:
-    """Dry-run analysis only in this build; ``apply`` raises ``NotImplementedError``."""
+    """Analyze ``guild_id``, or the ``TOP_GUILDS_LIMIT`` largest guilds when it is not given.
+
+    Only the dry run exists in this build; ``apply=True`` raises ``NotImplementedError``.
+    """
     if apply:
         raise NotImplementedError("apply mode is not available in this build")
 

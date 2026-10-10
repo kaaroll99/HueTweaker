@@ -20,7 +20,7 @@ FAVORITES_IMAGE_NAME = "favorites.png"
 
 
 def extract_favorite_colors(row: dict | None) -> list[tuple[int, Colors]]:
-    """Return ``[(slot, colors), ...]`` for non-empty favorite slots."""
+    """Return ``(slot, colors)`` for the non-empty favorite slots."""
     colors: list[tuple[int, Colors]] = []
     if row:
         for i in range(1, FAVORITES_LIMIT + 1):
@@ -117,6 +117,7 @@ class FavoritesView(discord.ui.LayoutView):
 
     @classmethod
     def build(cls, messages, bot, author_id, colors, nick, docs_page: str = ""):
+        """Return the view and the image file it shows; send both in the same message."""
         file = render_favorites_file(nick, colors)
         view = cls(messages, bot, author_id, colors, nick, docs_page)
         return view, file

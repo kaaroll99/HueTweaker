@@ -14,6 +14,8 @@ logger = logging.getLogger(__name__)
 
 
 class MatchView(discord.ui.LayoutView):
+    """``/match`` result: one button per avatar color, plus a 🌈 gradient of the first two."""
+
     def __init__(self, messages, description, bot, file, colors: list[int], author_id: int,
                  docs_page: str = "commands/match"):
         super().__init__()

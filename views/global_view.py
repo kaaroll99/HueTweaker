@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 async def safe_defer(interaction: discord.Interaction, **kwargs) -> bool:
-    """Acknowledge a component interaction. Returns False if it can no longer be answered."""
+    """Acknowledge a component interaction; return False if it can no longer be answered."""
     try:
         await interaction.response.defer(**kwargs)
         return True
@@ -30,7 +30,7 @@ def http_error_description(messages: dict, error: discord.HTTPException) -> str:
 
 
 def error_description(messages: dict, error: Exception) -> str:
-    """User-facing text for any failure of a color operation."""
+    """Return the user-facing text for any failure of a color operation."""
     if isinstance(error, ColorRoleError):
         return messages[error.message_key]
     if isinstance(error, discord.HTTPException):
@@ -66,6 +66,8 @@ def make_docs_button(page: str = "", label: str = "See documentation") -> discor
 
 
 class GlobalLayout(discord.ui.LayoutView):
+    """Info or error message with documentation and invite buttons."""
+
     def __init__(
         self,
         messages: dict,
@@ -101,6 +103,11 @@ class VoteLayout(discord.ui.LayoutView):
 async def gradient_gate(
     messages: dict, votes, interaction: discord.Interaction, source: str, docs_page: str = "", require_vote: bool = True
 ) -> discord.ui.LayoutView | None:
+    """Return the view to show instead of applying a gradient, or None when it is allowed.
+
+    The server needs ``ENHANCED_ROLE_COLORS`` (Server Boost) and, with ``require_vote``, the user
+    needs a top.gg vote. Every block is recorded as a ``blocked`` analytics event.
+    """
     if "ENHANCED_ROLE_COLORS" not in interaction.guild.features:
         recorder.blocked(interaction, source, "gradient_unsupported")
         return GlobalLayout(messages, messages['err_670006'], docs_page)

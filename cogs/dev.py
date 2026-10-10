@@ -118,7 +118,10 @@ class DevCog(commands.Cog):
             logger.warning("%s[%s] issued bot command: /dev %s", interaction.user.name, interaction.locale, action)
 
     async def _start_migration(self, interaction: discord.Interaction, mode: Optional[str], guild_id: Optional[str]) -> str:
-        """Kick off the legacy -> per-color role migration analysis in the background."""
+        """Validate the arguments and start the migration analysis in the background.
+
+        Return the text for the reply; the report itself is posted by ``_run_migration``.
+        """
         mode = (mode or "dry-run").strip().lower()
         if mode not in ("dry-run", "apply"):
             return "Unknown mode. Use `dry-run` (default) or `apply`."
@@ -144,6 +147,7 @@ class DevCog(commands.Cog):
         )
 
     async def _run_migration(self, interaction: discord.Interaction, apply: bool, guild_id: Optional[int]) -> None:
+        """Run the analysis, save the report under ``logs/`` and post it as a follow-up."""
         started = datetime.datetime.now()
         try:
             summary = await migrate_all(self.bot, apply=apply, guild_id=guild_id)

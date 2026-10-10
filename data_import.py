@@ -1,3 +1,8 @@
+"""Legacy CSV export and import of the ``guilds`` table.
+
+Reference only: it calls a synchronous database API that no longer exists, so it does not run.
+"""
+
 import csv
 
 from dotenv import load_dotenv

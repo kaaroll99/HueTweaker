@@ -64,6 +64,11 @@ class SetCog(BaseCog):
         color: str,
         secondary_color: Optional[str],
     ) -> None:
+        """Run the shared flow of ``/set``, ``/gradient`` and ``/holographic``.
+
+        Parse the input, check access, ask for confirmation with a preview, apply the color and
+        reply with the result. A solid color counts against the free quota on Accept.
+        """
         docs_page = f"commands/{command_name}"
         log_color = f"{color}" + (f", {secondary_color}" if secondary_color else "")
 
@@ -119,7 +124,6 @@ class SetCog(BaseCog):
                 description = self.msg['color_same']
             else:
                 template = self.msg['color_set_black'] if is_black else self.msg['color_set']
-                # A hidden color gets a warning instead of a tip.
                 warning = await hidden_warning(self.db, self.msg, member, result)
                 description = template.format(label) + (warning or await self._tip(interaction, command_name, colors))
                 await update_history(self.db, member.id, guild.id, *colors)
@@ -142,9 +146,11 @@ class SetCog(BaseCog):
     async def _access_gate(
         self, interaction: discord.Interaction, source: str, secondary_val: Optional[int], docs_page: str
     ) -> Optional[discord.ui.LayoutView]:
-        """The view to show instead of applying the color, or ``None`` when the user may proceed.
+        """Return the view to show instead of applying the color, or None when the user may proceed.
+
         A gradient needs server support first, then a vote. A solid color is free for
-        ``FREE_SET_USES`` changes per window, then needs a vote, except on a newly joined server."""
+        ``FREE_SET_USES`` changes per window, then needs a vote, except on a newly joined server.
+        """
         if secondary_val is not None:
             return await gradient_gate(self.msg, self.votes, interaction, source, docs_page)
         if in_grace_period(interaction.guild):
@@ -159,6 +165,7 @@ class SetCog(BaseCog):
         return None
 
     async def _tip(self, interaction: discord.Interaction, command_name: str, colors) -> str:
+        """Return a random tip about another feature, or the free-limit tip when the quota is used up."""
         _, secondary_val, tertiary_val = colors
         mentions = {name.replace(" ", "_"): await self.mention(name) for name in TIP_COMMANDS}
 

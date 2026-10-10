@@ -17,7 +17,7 @@ WELCOME_COMMANDS = ("setup toprole", "set", "match", "colors", "gradient", "holo
 
 
 def welcome_channel(guild: discord.Guild) -> discord.TextChannel | None:
-    """The system channel, else the highest text channel the bot can write in."""
+    """Return the system channel, else the highest text channel the bot can write in, else None."""
     candidates = [guild.system_channel] + sorted(guild.text_channels, key=lambda c: c.position)
     for channel in candidates:
         if channel is None:
@@ -32,7 +32,10 @@ class JoinListenerCog(BaseCog):
 
     @commands.Cog.listener()
     async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent):
-        """Fires for every leaver, cached or not (``chunk_guilds_at_startup=False``)."""
+        """Delete the leaver's color role, history and binding row.
+
+        The raw event fires for every leaver, cached or not (``chunk_guilds_at_startup=False``).
+        """
         user_id = payload.user.id
         guild = self.bot.get_guild(payload.guild_id)
         try:
@@ -45,7 +48,7 @@ class JoinListenerCog(BaseCog):
 
     @commands.Cog.listener()
     async def on_guild_role_delete(self, role: discord.Role):
-        """If the reference role of ``custom`` placement is deleted, fall back to ``off``."""
+        """Reset ``custom`` placement to ``off`` when its reference role is deleted."""
         if looks_like_color_role(role):
             return
         try:
@@ -58,6 +61,7 @@ class JoinListenerCog(BaseCog):
 
     @commands.Cog.listener()
     async def on_guild_join(self, guild: discord.Guild):
+        """Record the join, default a new server to ``auto`` placement and post the welcome message."""
         logger.info("Bot has been added to guild: %s", guild.name)
         me = guild.me
         recorder.guild("join", guild, members=guild.member_count,
@@ -82,6 +86,7 @@ class JoinListenerCog(BaseCog):
             logger.warning("Could not send the welcome message in guild %s: %s", guild.id, e)
 
     async def welcome_text(self, guild: discord.Guild) -> str:
+        """Return the welcome message, warning about a missing Manage Roles and roles hiding colors."""
         mentions = {name.replace(" ", "_"): await self.mention(name) for name in WELCOME_COMMANDS}
         me = guild.me
         # Invited without permissions, the bot has no role of its own.
@@ -99,6 +104,7 @@ class JoinListenerCog(BaseCog):
 
     @commands.Cog.listener()
     async def on_guild_remove(self, guild):
+        """Record the leave and delete the server's config, history, palette and bindings."""
         logger.info("Bot has been removed from guild: %s", guild.name)
         joined = guild.me.joined_at if guild.me is not None else None
         recorder.guild("leave", guild, members=guild.member_count,

@@ -16,7 +16,7 @@ PALETTE_SIZE = 10
 
 
 def extract_palette(row: dict | None) -> list[tuple[int, Colors]]:
-    """``[(slot, colors), ...]`` for the non-empty slots of a ``server_selections`` row."""
+    """Return ``(slot, colors)`` for the non-empty slots of a ``server_selections`` row."""
     colors: list[tuple[int, Colors]] = []
     if row:
         for i in range(1, PALETTE_SIZE + 1):
@@ -79,6 +79,7 @@ class SelectView(discord.ui.LayoutView):
         self.add_item(container)
 
     async def apply_palette_color(self, interaction: discord.Interaction, colors: Colors | None) -> None:
+        """Apply a palette style; a gradient needs Server Boost but, unlike elsewhere, no vote."""
         if self.author_id is not None and interaction.user.id != self.author_id:
             await interaction.response.send_message(
                 self.msg['revert_not_author'], ephemeral=True)

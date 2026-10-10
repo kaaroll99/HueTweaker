@@ -96,6 +96,8 @@ class SetupView(discord.ui.LayoutView):
 
 
 class ColorSelectionModal(Modal):
+    """Set one palette slot to a color, gradient or preset; an empty color clears the slot."""
+
     def __init__(self, bot: commands.Bot):
         super().__init__(title=bot.messages['setup_select_form_title'])
         self.bot = bot

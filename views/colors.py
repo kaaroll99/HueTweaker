@@ -25,11 +25,13 @@ def color_groups() -> dict[str, list[str]]:
 
 
 def book_groups() -> dict[str, int]:
+    """Return the dropdown groups with their sizes, the gradient presets first."""
     return {GRADIENTS: len(color_presets()), **{group: len(names) for group, names in color_groups().items()}}
 
 
 @lru_cache(maxsize=None)
 def _group_png(group: str) -> bytes:
+    """Return a group's PNG, rendered once per process."""
     if group == GRADIENTS:
         image = ColorUtils.generate_preset_book_image()
     else:

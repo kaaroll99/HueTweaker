@@ -1,3 +1,5 @@
+"""Async database access returning rows as plain dicts."""
+
 import logging
 from typing import Any
 
@@ -14,6 +16,8 @@ class DatabaseError(Exception):
 
 
 class Database:
+    """Thin async wrapper over SQLAlchemy; every query raises ``DatabaseError`` on failure."""
+
     def __init__(self, url: str, pool_size: int = 5, max_overflow: int = 10):
         self._engine = create_async_engine(
             url,
@@ -29,6 +33,7 @@ class Database:
         )
 
     async def database_init(self) -> None:
+        """Create missing tables; existing tables are not altered (constraints included)."""
         async with self._engine.begin() as conn:
             await conn.run_sync(model.Base.metadata.create_all)
 
@@ -41,7 +46,7 @@ class Database:
 
     @staticmethod
     def _ordered(stmt, table_class):
-        # Deterministic "first row" even if duplicates slipped into the table.
+        """Order by primary key, so the "first row" is deterministic even if duplicates slipped in."""
         return stmt.order_by(*table_class.__table__.primary_key.columns)
 
     async def select(self, table_class, parameters: dict | None = None) -> list[dict]:
@@ -57,6 +62,7 @@ class Database:
                 raise DatabaseError(str(e)) from e
 
     async def select_one(self, table_class, parameters: dict | None = None) -> dict | None:
+        """Return the matching row with the lowest primary key, or None."""
         async with self._session_factory() as session:
             try:
                 stmt = select(table_class)
@@ -81,7 +87,7 @@ class Database:
                 raise DatabaseError(str(e)) from e
 
     async def update(self, table_class, criteria: dict, values: dict) -> bool:
-        """Update the first row matching ``criteria``. Returns False when no row matched."""
+        """Update the first row matching ``criteria``; return False when no row matched."""
         async with self._session_factory() as session:
             try:
                 stmt = self._ordered(select(table_class).filter_by(**criteria), table_class)

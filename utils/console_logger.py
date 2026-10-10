@@ -1,3 +1,5 @@
+"""Logging setup: colored console, daily rotated ``logs/app.log`` and one file per error."""
+
 import logging
 import os
 from datetime import datetime
@@ -25,7 +27,7 @@ def _is_missing_permissions(value) -> bool:
 
 
 def _is_routine_error(record: logging.LogRecord) -> bool:
-    """Expected failures (Missing Permissions, shard reconnects) that shouldn't be reported as errors."""
+    """Return True for expected failures (Missing Permissions, shard reconnects) that aren't errors."""
     if record.exc_info and _is_missing_permissions(record.exc_info[1]):
         return True
     args = record.args if isinstance(record.args, tuple) else (record.args,)
@@ -85,6 +87,7 @@ class ErrorFileHandler(logging.Handler):
 
 
 def setup_logger():
+    """Configure the root logger once and return it; later calls only reinstall the downgrade factory."""
     log_dir = 'logs'
     history_dir = os.path.join(log_dir, 'history')
     errors_dir = os.path.join(log_dir, 'errors')

@@ -42,6 +42,7 @@ class MyBot(commands.AutoShardedBot):
 
     @tasks.loop(hours=1)
     async def update_stats_task(self) -> None:
+        """Post the server count and command list to the bot lists (skipped when ``SYSTEM=DEV``)."""
         try:
             if str(self.config.get('SYSTEM')).upper() == 'DEV':
                 logger.debug("DEV mode detected - skipping stats API post")
@@ -58,6 +59,7 @@ class MyBot(commands.AutoShardedBot):
         await self.wait_until_ready()
 
     async def setup_hook(self) -> None:
+        """Load the cogs and start analytics and stats; slash commands are synced only by ``/dev tree``."""
         await self.load_cogs()
         logger.info("Sharding configuration: total shards = %d", self.shard_count or -1)
         logger.warning("Skipping sync- Manual sync required via /dev tree")

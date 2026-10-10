@@ -1,3 +1,10 @@
+"""Analytics events buffered in memory and appended to monthly CSV files.
+
+The CSV format (``COLUMNS``, ``working.csv`` renamed to ``YYYY-MM.csv`` when the month changes)
+is a contract with the private ``huetweaker-analytics`` repo that reads these files. User ids
+are stored only as salted hashes.
+"""
+
 import asyncio
 import csv
 import hashlib
@@ -21,6 +28,8 @@ FLUSH_INTERVAL = 60
 
 
 class AnalyticsRecorder:
+    """Collect events and write them every ``FLUSH_INTERVAL`` seconds; a no-op until ``start``."""
+
     def __init__(self) -> None:
         self._dir: Path | None = None
         self._salt = b""
@@ -34,6 +43,7 @@ class AnalyticsRecorder:
         self._task = asyncio.create_task(self._flush_loop())
 
     async def stop(self) -> None:
+        """Stop the flush loop and write the events still in the buffer."""
         if self._task is not None:
             self._task.cancel()
             self._task = None
@@ -50,7 +60,11 @@ class AnalyticsRecorder:
         self._add("blocked", source, interaction, reason)
 
     def guild(self, name: str, guild: discord.Guild, **details) -> None:
-        """``guild`` / ``join`` or ``leave``: no user; the value is ``key=value;…``, the locale the server's."""
+        """Record a server ``join`` or ``leave``.
+
+        There is no user. ``details`` become the value ``key=value;…`` (ints, empty for None) and
+        the locale is the server's preferred one.
+        """
         value = ";".join(f"{key}={'' if v is None else int(v)}" for key, v in details.items())
         self._append("guild", name, str(guild.id), "", value, guild.preferred_locale)
 
@@ -71,6 +85,7 @@ class AnalyticsRecorder:
             await self.flush()
 
     async def flush(self) -> None:
+        """Write the buffered events in a worker thread; on a write error they are dropped and logged."""
         if self._dir is None or not self._buffer:
             return
         rows, self._buffer = self._buffer, []
@@ -80,6 +95,7 @@ class AnalyticsRecorder:
             logger.warning("Analytics: could not write %d event(s): %s", len(rows), e)
 
     def _write(self, rows: list[list[str]]) -> None:
+        """Append rows to the working file, rotating it whenever the month changes."""
         working = self._dir / WORKING_FILE
         working_month = _first_month(working)
         for month, group in groupby(rows, key=lambda row: row[0][:7]):
@@ -94,6 +110,7 @@ class AnalyticsRecorder:
             working_month = month
 
     def _rotate(self, working: Path, month: str) -> None:
+        """Move the working file's rows into ``<month>.csv``."""
         target = self._dir / f"{month}.csv"
         if not target.exists():
             working.rename(target)
@@ -104,7 +121,9 @@ class AnalyticsRecorder:
             dst.writelines(src)
         working.unlink()
 
+
 def load_salt(data_dir: Path) -> bytes:
+    """Return the salt for user hashes, creating ``.salt`` (owner-only) on first use."""
     path = data_dir / ".salt"
     if not path.exists():
         path.write_text(secrets.token_hex(16))
@@ -117,6 +136,7 @@ def user_hash(salt: bytes, user_key: str) -> str:
 
 
 def _first_month(path: Path) -> str | None:
+    """Return the ``YYYY-MM`` of the file's first event, or None for a missing or empty file."""
     if not path.exists():
         return None
     with path.open(newline="", encoding="utf-8") as f:

@@ -1,3 +1,9 @@
+"""One-time import of the command history from the bot logs into the analytics CSV files.
+
+Run from the repository root: ``python -m analytics.import_logs [--dry-run] [--tz-offset HOURS]``.
+Users are hashed by username, since the logs have no user ids.
+"""
+
 import argparse
 import csv
 import json
@@ -36,6 +42,7 @@ LOCALE = re.compile(r"^[a-z]{2,3}(-[A-Za-z0-9]{2,3})?$")
 
 
 def _split_command(text: str) -> tuple[str, str]:
+    """Split a logged command into its name (one or two words) and its arguments."""
     for name in MULTI_WORD:
         if text == name or text.startswith(name + " "):
             return name, text[len(name):].strip()
@@ -44,6 +51,7 @@ def _split_command(text: str) -> tuple[str, str]:
 
 
 def _command_colors(name: str, args: str):
+    """Return the style a logged color command set, or None when the line can't tell (random, @user)."""
     if name == "holographic":
         return HOLOGRAPHIC_COLORS
     if not args or args.lower() == "random" or "<@" in args:
@@ -57,6 +65,7 @@ def _command_colors(name: str, args: str):
 
 
 def _button_colors(label: str):
+    """Return the style named in a button log line (HEX codes or Holographic), or None."""
     if "holographic" in label.lower():
         return HOLOGRAPHIC_COLORS
     found = [int(h, 16) for h in HEX.findall(label)][:2]
@@ -73,6 +82,7 @@ def log_files() -> list[Path]:
 
 
 def parse_logs(files: list[Path], salt: bytes, tz_offset: int) -> tuple[list[list[str]], Counter]:
+    """Return the analytics rows found in the logs, sorted by time, and counts per kind of line."""
     rows, stats = [], Counter()
     flagged: dict[str, datetime] = {}
     for path in files:
@@ -120,6 +130,7 @@ def parse_logs(files: list[Path], salt: bytes, tz_offset: int) -> tuple[list[lis
 
 
 def _existing_start(data_dir: Path) -> str | None:
+    """Return the earliest timestamp already recorded, where the import has to stop."""
     earliest = None
     for path in data_dir.glob("*.csv"):
         with path.open(newline="", encoding="utf-8") as f:

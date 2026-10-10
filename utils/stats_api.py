@@ -1,3 +1,5 @@
+"""Server count and command list posts to the bot lists (top.gg, discordbotlist.com)."""
+
 import asyncio
 import logging
 import random
@@ -16,6 +18,7 @@ JITTER = 0.3
 
 
 async def post_data(url: str, headers: dict, data: dict, message: str = "server count") -> dict:
+    """POST ``data`` as JSON and return ``{"status", "success"[, "reason"]}``; never raises."""
     try:
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=headers, json=data, timeout=aiohttp.ClientTimeout(total=10)) as response:
@@ -35,6 +38,7 @@ async def post_data(url: str, headers: dict, data: dict, message: str = "server 
 
 
 async def post_with_retry(url: str, headers: dict, data: dict, message: str) -> dict:
+    """Call ``post_data`` up to ``MAX_RETRIES`` times with jittered exponential backoff."""
     for attempt in range(1, MAX_RETRIES + 1):
         result = await post_data(url, headers, data, message)
         if result.get("success"):
@@ -49,9 +53,9 @@ async def post_with_retry(url: str, headers: dict, data: dict, message: str) -> 
 
 
 async def api_request(server_count: int, user_count: int, command_list: list[dict], shard_count: int = 1) -> None:
+    """Post the stats to every bot list concurrently; failures are only logged."""
     tasks = []
 
-    # top.gg
     tasks.append(asyncio.create_task(post_with_retry(
         f'https://top.gg/api/bots/{BOT_ID}/stats',
         {
@@ -62,7 +66,6 @@ async def api_request(server_count: int, user_count: int, command_list: list[dic
         'stats to Top.gg'
     )))
 
-    # discordbotlist.com stats
     tasks.append(asyncio.create_task(post_with_retry(
         f'https://discordbotlist.com/api/v1/bots/{BOT_ID}/stats',
         {
@@ -73,7 +76,6 @@ async def api_request(server_count: int, user_count: int, command_list: list[dic
         'stats to discordbotlist.com'
     )))
 
-    # discordbotlist.com commands list
     tasks.append(asyncio.create_task(post_with_retry(
         f'https://discordbotlist.com/api/v1/bots/{BOT_ID}/commands',
         {
@@ -96,7 +98,6 @@ async def api_request(server_count: int, user_count: int, command_list: list[dic
     # )))
 
     results = await asyncio.gather(*tasks, return_exceptions=True)
-    # Summarize
     failures = [r for r in results if isinstance(r, Exception) or (isinstance(r, dict) and not r.get('success'))]
     if failures:
         logging.warning("API stats update finished with %d failure(s)", len(failures))

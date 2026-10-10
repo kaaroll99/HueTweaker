@@ -13,13 +13,18 @@ logger = logging.getLogger(__name__)
 
 
 def hiding_role(member: discord.Member, role: discord.Role) -> discord.Role | None:
+    """Return the member's highest colored role above ``role``, whose color shows instead, or None."""
     # The cached role is the fresh one: placing the block replaces the guild's roles in the cache.
     above = colored_roles_above(member.roles, member.guild.get_role(role.id) or role)
     return max(above) if above else None
 
 
 async def hidden_warning(db, messages: dict, member: discord.Member, result: ApplyResult) -> str:
-    """Warning for a changed color that a higher colored role hides, with the fix that applies here."""
+    """Return a warning when a higher colored role hides the changed color, else an empty string.
+
+    The warning names the fix that works here: ``/setup toprole auto`` when the bot's role is
+    above the hiding role, otherwise moving the bot's role.
+    """
     hidden = hiding_role(member, result.role) if result.changed else None
     if hidden is None:
         return ""
@@ -42,7 +47,8 @@ class Layout(discord.ui.LayoutView):
     """Result of a color change with an "Undo to previous color" button.
 
     ``prev_colors=None`` means the role did not exist before the change, so undo deletes it.
-    ``undo_lock=True`` disables the button (nothing changed)."""
+    ``undo_lock=True`` disables the button (nothing changed).
+    """
 
     def __init__(
         self,
@@ -88,6 +94,7 @@ class Layout(discord.ui.LayoutView):
         author_id: int,
         description: str,
     ) -> "Layout":
+        """Build the result view from an ``ApplyResult``; Undo is disabled when nothing changed."""
         return cls(
             messages=messages,
             color=discord.Color(primary_val),
@@ -143,6 +150,8 @@ class Layout(discord.ui.LayoutView):
 
 
 class ConfirmationView(discord.ui.LayoutView):
+    """Accept/Cancel prompt; after ``wait()``, ``value`` is True, False, or None on timeout."""
+
     def __init__(self, author_id, text, color=discord.Color.default(), image_url=None):
         super().__init__(timeout=60)
         self.author_id = author_id
