@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from cogs._base import BaseCog
-from database import model
+from core.database import model
 from utils.role_manager import (
     TOPROLE_MODE_AUTO,
     TOPROLE_MODE_CUSTOM,

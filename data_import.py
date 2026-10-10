@@ -7,7 +7,7 @@ import csv
 
 from dotenv import load_dotenv
 
-from database import model, database
+from core.database import model, database
 
 load_dotenv(".env")
 

@@ -26,7 +26,7 @@ from constants import (
     DISCORD_ROLE_NAME_MAX,
     HTTP_MAX_ROLES_REACHED,
 )
-from database import model
+from core.database import model
 
 logger = logging.getLogger(__name__)
 

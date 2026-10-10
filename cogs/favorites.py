@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from cogs._base import BaseCog, preset_choices
-from database import model
+from core.database import model
 from utils.color_format import encode_style, format_colors_label
 from utils.color_parse import parse_color_pair
 from views.favorites import FAVORITES_LIMIT, FavoritesView, extract_favorite_colors

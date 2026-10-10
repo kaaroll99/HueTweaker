@@ -9,8 +9,8 @@ style adds ``HOLOGRAPHIC_FLAG``; its tertiary color is fixed by Discord, so it i
 import logging
 
 from constants import HOLOGRAPHIC_COLORS
-from database import model
-from database.database import DatabaseError
+from core.database import model
+from core.database.database import DatabaseError
 
 logger = logging.getLogger(__name__)
 

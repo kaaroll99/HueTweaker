@@ -3,7 +3,7 @@ from typing import Optional, Tuple
 
 import discord
 
-from database import model
+from core.database import model
 from utils.color_format import format_colors_label
 from utils.role_manager import (TOPROLE_MODE_AUTO, ApplyResult, colored_roles_above, get_toprole_mode,
                                 revert_color_role)

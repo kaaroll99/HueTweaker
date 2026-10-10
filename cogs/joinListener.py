@@ -5,7 +5,7 @@ from discord.ext import commands
 
 from analytics.recorder import recorder
 from cogs._base import BaseCog
-from database import model
+from core.database import model
 from utils.role_manager import (TOPROLE_MODE_AUTO, TOPROLE_MODE_CUSTOM, TOPROLE_MODE_OFF, colored_roles_above,
                                 looks_like_color_role, remove_color_role)
 from views.welcome import WelcomeLayout

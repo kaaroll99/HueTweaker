@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from cogs._base import BaseCog
-from database import model
+from core.database import model
 from utils.color_format import ColorUtils
 from views.global_view import GlobalLayout
 from views.select import SelectView, extract_palette

@@ -4,7 +4,7 @@ import discord
 
 from constants import ACCENT_COLOR
 from analytics.recorder import recorder
-from database import model
+from core.database import model
 from utils.color_format import ColorUtils, Colors, decode_style, format_colors_label
 from utils.history_manager import update_history
 from utils.role_manager import apply_color_role

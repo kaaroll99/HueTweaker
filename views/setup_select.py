@@ -6,7 +6,7 @@ from discord.ext import commands
 from discord.ui import Button, Modal, TextInput
 
 from constants import ACCENT_COLOR
-from database import model
+from core.database import model
 from utils.color_format import decode_style, encode_style, format_colors_label
 from utils.color_parse import parse_static_style
 from views.global_view import error_description, make_docs_button
