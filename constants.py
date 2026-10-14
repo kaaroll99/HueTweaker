@@ -16,7 +16,7 @@ VOTE_URL = f"https://top.gg/bot/{BOT_ID}/vote"
 FREE_SET_USES = 2
 FREE_SET_WINDOW = 30 * 60
 # No /set limit on a server for this long after the bot joins it, so new servers can try colors freely.
-NEW_GUILD_GRACE = 24 * 60 * 60
+NEW_GUILD_GRACE = 12 * 60 * 60
 
 # Discord's holographic role style: allowed only with exactly these primary, secondary and tertiary colors.
 HOLOGRAPHIC_COLORS = (0xA9C9FF, 0xFFBBEC, 0xFFC3A0)

@@ -27,7 +27,7 @@ Each member with a color has their own role, and Discord allows at most 250 role
 
 ## I can't change my color anymore
 
-Without a vote, `/set` allows **2 changes per 30 minutes** (no limit during the first 24 hours after the bot joins a server). The bot shows when your next free change is available. [Voting on top.gg](voting.md) removes the limit for 12 hours.
+Without a vote, `/set` allows **2 changes per 30 minutes** (no limit during the first 12 hours after the bot joins a server). The bot shows when your next free change is available. [Voting on top.gg](voting.md) removes the limit for 12 hours.
 
 ## Gradients or holographic don't work
 
