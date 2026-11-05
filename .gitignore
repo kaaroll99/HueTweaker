@@ -172,6 +172,9 @@ DEV_README.md
 update.sh
 stats.sh
 
+# graphify output: the graph includes the private core submodule
+graphify-out/
+
 # Analytics: the data lives only on the server; the repo holds just the code
 /analytics/data/
 /analytics/history/
