@@ -1,16 +1,8 @@
-import logging
-
 import discord
 
-from analytics.recorder import recorder
 from constants import ACCENT_COLOR
-from utils.color_format import format_colors_label
-from utils.history_manager import update_history
-from utils.role_manager import apply_color_role
-from views.global_view import error_description, gradient_gate, make_docs_button, safe_defer
-from views.set import Layout, hidden_warning
-
-logger = logging.getLogger(__name__)
+from views.global_view import make_docs_button
+from views.set import apply_from_button
 
 
 class MatchView(discord.ui.LayoutView):
@@ -49,42 +41,5 @@ class MatchView(discord.ui.LayoutView):
 
     def _make_callback(self, primary: int, secondary: int | None):
         async def _callback(interaction: discord.Interaction):
-            await self._apply(interaction, primary, secondary)
+            await apply_from_button(self, interaction, (primary, secondary, None), "match", "color_set")
         return _callback
-
-    async def _apply(self, interaction: discord.Interaction, primary: int, secondary: int | None) -> None:
-        if interaction.user.id != self.author_id:
-            await interaction.response.send_message(self.msg['revert_not_author'], ephemeral=True)
-            return
-
-        if not await safe_defer(interaction, ephemeral=True, thinking=True):
-            return
-
-        label = format_colors_label(primary, secondary)
-        try:
-            if secondary is not None:
-                blocked = await gradient_gate(self.msg, self.bot.votes, interaction, "match", self.docs_page)
-                if blocked is not None:
-                    await interaction.followup.send(view=blocked, ephemeral=True)
-                    return
-
-            result = await apply_color_role(
-                interaction.guild, interaction.user, primary, secondary, self.bot.db, self.bot.user.id
-            )
-            if result.changed:
-                description = self.msg['color_set'].format(label)
-                await update_history(self.bot.db, interaction.user.id, interaction.guild.id, primary, secondary)
-                recorder.color(interaction, "match", (primary, secondary, None))
-            else:
-                description = self.msg['color_same']
-
-            description += await hidden_warning(self.bot.db, self.msg, interaction.user, result)
-            view = Layout.from_result(self.msg, result, primary, interaction.user.id, description)
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.info("%s[%s] applied color %s from /match", interaction.user.name, interaction.locale, label)
-        except Exception as e:
-            logger.warning("%s[%s] failed to apply color from /match: %r", interaction.user.name, interaction.locale, e)
-            try:
-                await interaction.followup.send(error_description(self.msg, e), ephemeral=True)
-            except discord.HTTPException:
-                pass

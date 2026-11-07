@@ -3,31 +3,14 @@ import logging
 import discord
 
 from constants import ACCENT_COLOR
-from analytics.recorder import recorder
 from core.database import model
-from utils.color_format import ColorUtils, Colors, decode_style, format_colors_label
-from utils.history_manager import update_history
-from utils.role_manager import apply_color_role
-from views.global_view import (
-    GlobalLayout, error_description, gradient_gate, make_docs_button, make_invite_button, safe_defer,
-)
-from views.set import Layout, hidden_warning
+from utils.color_format import ColorUtils, Colors, decode_slots, format_colors_label
+from views.global_view import GlobalLayout, error_description, make_docs_button, make_invite_button, safe_defer
+from views.set import apply_from_button
 
 logger = logging.getLogger(__name__)
 
-FAVORITES_LIMIT = 10
 FAVORITES_IMAGE_NAME = "favorites.png"
-
-
-def extract_favorite_colors(row: dict | None) -> list[tuple[int, Colors]]:
-    """Return ``(slot, colors)`` for the non-empty favorite slots."""
-    colors: list[tuple[int, Colors]] = []
-    if row:
-        for i in range(1, FAVORITES_LIMIT + 1):
-            decoded = decode_style(row.get(f"hex_{i}"))
-            if decoded is not None:
-                colors.append((i, decoded))
-    return colors
 
 
 def render_favorites_file(nick: str, colors: list[tuple[int, Colors]]) -> discord.File:
@@ -64,7 +47,7 @@ class RemoveSelect(discord.ui.ActionRow['FavoritesView']):
             await self.bot.db.update(model.Favorites, {"user_id": interaction.user.id}, {f"hex_{slot}": None})
 
             row = await self.bot.db.select_one(model.Favorites, {"user_id": interaction.user.id})
-            colors = extract_favorite_colors(row)
+            colors = decode_slots(row)
 
             if not colors:
                 view = GlobalLayout(messages=self.msg, description=self.msg['favorites_no_colors'], docs_page=self.docs_page)
@@ -124,47 +107,5 @@ class FavoritesView(discord.ui.LayoutView):
 
     def _make_apply_callback(self, colors: Colors):
         async def _callback(interaction: discord.Interaction):
-            await self._apply_favorite(interaction, colors)
+            await apply_from_button(self, interaction, colors, "favorites", "favorites_applied")
         return _callback
-
-    async def _apply_favorite(self, interaction: discord.Interaction, colors: Colors) -> None:
-        if self.author_id is not None and interaction.user.id != self.author_id:
-            await interaction.response.send_message(
-                self.msg['revert_not_author'], ephemeral=True)
-            return
-
-        if not await safe_defer(interaction, ephemeral=True, thinking=True):
-            return
-
-        primary, secondary, tertiary = colors
-        label = format_colors_label(*colors)
-        try:
-            if secondary is not None:
-                blocked = await gradient_gate(self.msg, self.bot.votes, interaction, "favorites", self.docs_page)
-                if blocked is not None:
-                    await interaction.followup.send(view=blocked, ephemeral=True)
-                    return
-
-            result = await apply_color_role(
-                interaction.guild, interaction.user, primary, secondary, self.bot.db, self.bot.user.id,
-                tertiary_val=tertiary,
-            )
-
-            if result.changed:
-                description = self.msg['favorites_applied'].format(label)
-                await update_history(self.bot.db, interaction.user.id, interaction.guild.id, *colors)
-                recorder.color(interaction, "favorites", colors)
-            else:
-                description = self.msg['color_same']
-
-            description += await hidden_warning(self.bot.db, self.msg, interaction.user, result)
-            view = Layout.from_result(self.msg, result, primary, interaction.user.id, description)
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.info("%s[%s] applied favorite color %s", interaction.user.name, interaction.locale, label)
-
-        except Exception as e:
-            logger.warning("%s[%s] failed to apply favorite: %r", interaction.user.name, interaction.locale, e)
-            try:
-                await interaction.followup.send(error_description(self.msg, e), ephemeral=True)
-            except discord.HTTPException:
-                pass

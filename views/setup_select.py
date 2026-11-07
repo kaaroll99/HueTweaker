@@ -7,13 +7,11 @@ from discord.ui import Button, Modal, TextInput
 
 from constants import ACCENT_COLOR
 from core.database import model
-from utils.color_format import decode_style, encode_style, format_colors_label
+from utils.color_format import SLOT_COUNT, decode_style, encode_style, format_colors_label
 from utils.color_parse import parse_static_style
 from views.global_view import error_description, make_docs_button
 
 logger = logging.getLogger(__name__)
-
-PALETTE_SIZE = 10
 
 
 def _error_view(text: str) -> discord.ui.LayoutView:
@@ -44,7 +42,7 @@ class SetupView(discord.ui.LayoutView):
         container.add_item(discord.ui.TextDisplay(self.msg['setup_select_embed_desc']))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.small))
         color_list = ""
-        for i in range(1, PALETTE_SIZE + 1):
+        for i in range(1, SLOT_COUNT + 1):
             style = decode_style(self.colors_data.get(f"hex_{i}"))
             if style:
                 color_list += f"**{i}.** {format_colors_label(*style)}\n"
@@ -136,7 +134,7 @@ class ColorSelectionModal(Modal):
         try:
             digits = re.sub(r"\D", "", self.color_index.value)
             index_value = int(digits) if digits else 0
-            if not 1 <= index_value <= PALETTE_SIZE:
+            if not 1 <= index_value <= SLOT_COUNT:
                 raise ValueError
 
             raw = self.color_input.value.strip()

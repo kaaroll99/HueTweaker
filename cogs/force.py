@@ -52,7 +52,7 @@ class ForceCog(BaseCog):
                 recorder.color(interaction, "force set", colors)
 
             description += await hidden_warning(self.db, self.msg, username, result)
-            view = Layout.from_result(self.msg, result, primary_val, interaction.user.id, description)
+            view = Layout.from_result(self.msg, result, interaction.user.id, description)
             await self.respond(interaction, view)
 
         except ValueError:
@@ -103,15 +103,6 @@ class ForceCog(BaseCog):
             self.log_command_error(interaction, "force purge", e)
         finally:
             logger.info("%s[%s] issued bot command: /force purge", interaction.user.name, interaction.locale)
-
-    @forceset.error
-    @forceremove.error
-    @purge.error
-    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if isinstance(error, app_commands.CommandOnCooldown):
-            await self.handle_cooldown_error(interaction, error)
-        elif isinstance(error, app_commands.MissingPermissions):
-            await self.handle_permission_error(interaction)
 
 
 async def setup(bot: commands.Bot) -> None:

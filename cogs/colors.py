@@ -29,11 +29,6 @@ class ColorsCog(BaseCog):
         finally:
             logger.info("%s[%s] issued bot command: /colors", interaction.user.name, interaction.locale)
 
-    @colors.error
-    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if isinstance(error, app_commands.CommandOnCooldown):
-            await self.handle_cooldown_error(interaction, error)
-
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(ColorsCog(bot))

@@ -31,12 +31,6 @@ One row per event:
 
 `command` is recorded once a command finishes (cooldown and permission errors are not counted, `/dev` is skipped). `color` only when the color actually changed. The reporting repo reads this format; change both together.
 
-## Importing the history from the logs (once)
+## Imported history
 
-`python3 -m analytics.import_logs` turns the `issued bot command` lines of `logs/history/*.log` and `logs/app.log` into the same CSV files, so the reports cover the time before the recorder existed. `--dry-run` only prints the counts.
-
-- Both log formats are read (before and after 2025-08-18). Times without a `Z` are taken as UTC; `--tz-offset 2` if the server logged local time.
-- A failed `/set` logs an extra `(invalid format)` / `(blocked …)` line; it is not counted as a second use (the log-based `stats.sh` counts it).
-- The client language comes from the `name[en-US]` part of each line.
-- Imported rows have no `guild_id` (not in the logs) and no `blocked` events; `user` is a hash of the username, so unique users across the import boundary are counted twice once. `color` rows are the colors typed into `/set`, `/gradient`, `/force set` and the palette / favorites / history buttons; a preview cancelled in the old logs can't be told apart.
-- It stops at the first event already recorded by the bot, refuses to run twice (`analytics/data/.imported`), and never overwrites a month file.
+Months before the recorder existed were imported once from the `issued bot command` log lines. Those rows have no `guild_id` and no `blocked` events, and `user` is a hash of the username, so unique users across the import boundary are counted twice once. The import script was removed after use; it is in git history (`analytics/import_logs.py`).

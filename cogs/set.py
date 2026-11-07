@@ -114,22 +114,22 @@ class SetCog(BaseCog):
                 await self.respond(interaction, GlobalLayout(self.msg, self.msg['cancelled'], docs_page))
                 return
 
-            if secondary_val is None and not in_grace_period(guild):
-                self.set_quota.consume(member.id)
-
             result = await apply_color_role(guild, member, primary_val, secondary_val, self.db, bot_user.id,
                                             tertiary_val=tertiary_val)
 
             if not result.changed:
                 description = self.msg['color_same']
             else:
+                # Counted only for a real change: a failed or same-color attempt keeps the free use.
+                if secondary_val is None and not in_grace_period(guild):
+                    self.set_quota.consume(member.id)
                 template = self.msg['color_set_black'] if is_black else self.msg['color_set']
                 warning = await hidden_warning(self.db, self.msg, member, result)
                 description = template.format(label) + (warning or await self._tip(interaction, command_name, colors))
                 await update_history(self.db, member.id, guild.id, *colors)
                 recorder.color(interaction, command_name, colors)
 
-            view = Layout.from_result(self.msg, result, primary_val, member.id, description)
+            view = Layout.from_result(self.msg, result, member.id, description)
             await self.respond(interaction, view)
 
         except ValueError:
@@ -184,21 +184,6 @@ class SetCog(BaseCog):
             if tertiary_val is None:
                 tips.append("holographic")
         return self.msg['tip_' + random.choice(tips)].format(**mentions)
-
-    @set.error
-    async def set_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if isinstance(error, app_commands.CommandOnCooldown):
-            await self.handle_cooldown_error(interaction, error)
-
-    @gradient.error
-    async def gradient_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if isinstance(error, app_commands.CommandOnCooldown):
-            await self.handle_cooldown_error(interaction, error)
-
-    @holographic.error
-    async def holographic_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if isinstance(error, app_commands.CommandOnCooldown):
-            await self.handle_cooldown_error(interaction, error)
 
 
 async def setup(bot: commands.Bot) -> None:

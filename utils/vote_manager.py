@@ -25,6 +25,11 @@ class VoteChecker:
     def __init__(self, token: str | None) -> None:
         self._token = token
         self._cache: dict[int, tuple[bool, float]] = {}
+        self._session: aiohttp.ClientSession | None = None
+
+    async def close(self) -> None:
+        if self._session is not None:
+            await self._session.close()
 
     async def has_voted(self, user_id: int) -> bool:
         """Return whether top.gg reports a vote by the user.
@@ -50,18 +55,19 @@ class VoteChecker:
         """Return the vote status from top.gg, or None when it could not be checked."""
         url = f"https://top.gg/api/bots/{BOT_ID}/check"
         try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(
-                    url,
-                    params={"userId": str(user_id)},
-                    headers={"Authorization": self._token},
-                    timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
-                ) as response:
-                    if response.status != 200:
-                        logger.warning("top.gg vote check for %s failed: HTTP %s", user_id, response.status)
-                        return None
-                    data = await response.json()
-                    return bool(data.get("voted"))
+            if self._session is None or self._session.closed:
+                self._session = aiohttp.ClientSession()
+            async with self._session.get(
+                url,
+                params={"userId": str(user_id)},
+                headers={"Authorization": self._token},
+                timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
+            ) as response:
+                if response.status != 200:
+                    logger.warning("top.gg vote check for %s failed: HTTP %s", user_id, response.status)
+                    return None
+                data = await response.json()
+                return bool(data.get("voted"))
         except Exception as e:
             logger.warning("top.gg vote check for %s failed: %r", user_id, e)
             return None

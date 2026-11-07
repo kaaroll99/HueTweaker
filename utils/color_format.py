@@ -157,6 +157,20 @@ def decode_style(text: str | None) -> Colors | None:
     return values[0], (values[1] if len(values) > 1 else None), (values[2] if len(values) > 2 else None)
 
 
+# Palette and favorites rows both have ``hex_1`` .. ``hex_<SLOT_COUNT>`` columns.
+SLOT_COUNT = 10
+
+
+def decode_slots(row: dict | None) -> list[tuple[int, Colors]]:
+    """Return ``(slot, colors)`` for the non-empty, readable ``hex_<n>`` slots of a palette or favorites row."""
+    slots: list[tuple[int, Colors]] = []
+    for i in range(1, SLOT_COUNT + 1):
+        decoded = decode_style(row.get(f"hex_{i}")) if row else None
+        if decoded is not None:
+            slots.append((i, decoded))
+    return slots
+
+
 def preset_name(colors: Colors) -> str | None:
     return next((name for name, value in color_presets().values() if value == colors), None)
 

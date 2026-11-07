@@ -1,29 +1,9 @@
-import logging
-
 import discord
 
-from analytics.recorder import recorder
 from constants import ACCENT_COLOR, BANNER_URL
-from utils.color_format import Colors, decode_style, format_colors_label
-from utils.history_manager import update_history
-from utils.role_manager import apply_color_role
-from views.global_view import error_description, gradient_gate, make_docs_button, make_invite_button, safe_defer
-from views.set import Layout, hidden_warning
-
-logger = logging.getLogger(__name__)
-
-PALETTE_SIZE = 10
-
-
-def extract_palette(row: dict | None) -> list[tuple[int, Colors]]:
-    """Return ``(slot, colors)`` for the non-empty slots of a ``server_selections`` row."""
-    colors: list[tuple[int, Colors]] = []
-    if row:
-        for i in range(1, PALETTE_SIZE + 1):
-            decoded = decode_style(row.get(f"hex_{i}"))
-            if decoded is not None:
-                colors.append((i, decoded))
-    return colors
+from utils.color_format import Colors, format_colors_label
+from views.global_view import make_docs_button, make_invite_button
+from views.set import apply_from_button
 
 
 class ColorSelect(discord.ui.ActionRow['SelectView']):
@@ -80,46 +60,9 @@ class SelectView(discord.ui.LayoutView):
 
     async def apply_palette_color(self, interaction: discord.Interaction, colors: Colors | None) -> None:
         """Apply a palette style; a gradient needs Server Boost but, unlike elsewhere, no vote."""
-        if self.author_id is not None and interaction.user.id != self.author_id:
-            await interaction.response.send_message(
-                self.msg['revert_not_author'], ephemeral=True)
-            return
         if not colors:
             return
-        if not await safe_defer(interaction, ephemeral=True, thinking=True):
-            return
-
         primary, secondary, tertiary = colors
         if primary == 0 and secondary is None:
-            primary = 1  # Discord treats #000000 as "no color"
-        label = format_colors_label(primary, secondary, tertiary)
-        try:
-            if secondary is not None:
-                blocked = await gradient_gate(self.msg, self.bot.votes, interaction, "select", self.docs_page,
-                                              require_vote=False)
-                if blocked is not None:
-                    await interaction.followup.send(view=blocked, ephemeral=True)
-                    return
-
-            result = await apply_color_role(
-                interaction.guild, interaction.user, primary, secondary, self.bot.db, self.bot.user.id,
-                tertiary_val=tertiary,
-            )
-            if result.changed:
-                description = self.msg['select_set'].format(label)
-                await update_history(self.bot.db, interaction.user.id, interaction.guild.id, primary, secondary, tertiary)
-                recorder.color(interaction, "select", (primary, secondary, tertiary))
-            else:
-                description = self.msg['color_same']
-
-            description += await hidden_warning(self.bot.db, self.msg, interaction.user, result)
-            view = Layout.from_result(self.msg, result, primary, interaction.user.id, description)
-            await interaction.followup.send(view=view, ephemeral=True)
-            logger.info("%s[%s] selected palette color %s", interaction.user.name, interaction.locale, label)
-
-        except Exception as e:
-            logger.warning("%s[%s] failed to apply palette color: %r", interaction.user.name, interaction.locale, e)
-            try:
-                await interaction.followup.send(error_description(self.msg, e), ephemeral=True)
-            except discord.HTTPException:
-                pass
+            colors = (1, None, tertiary)  # Discord treats #000000 as "no color"
+        await apply_from_button(self, interaction, colors, "select", "select_set", require_vote=False)

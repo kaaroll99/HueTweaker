@@ -7,7 +7,7 @@ from discord.ext import commands
 
 from utils.color_format import color_presets
 from views.cooldown import CooldownLayout
-from views.global_view import GlobalLayout, error_description, http_error_description
+from views.global_view import GlobalLayout, error_description
 
 logger = logging.getLogger(__name__)
 
@@ -63,15 +63,19 @@ class BaseCog(commands.Cog):
                 view=view, ephemeral=True, delete_after=error.retry_after
             )
 
+    async def cog_app_command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
+        """Answer cooldown and missing-permission errors of every command in the cog."""
+        if isinstance(error, app_commands.CommandOnCooldown):
+            await self.handle_cooldown_error(interaction, error)
+        elif isinstance(error, app_commands.MissingPermissions):
+            await self.handle_permission_error(interaction)
+
     async def handle_permission_error(self, interaction: discord.Interaction) -> None:
         view = GlobalLayout(messages=self.msg, description=self.msg["no_permissions"])
         if interaction.response.is_done():
             await interaction.followup.send(view=view, ephemeral=True)
         else:
             await interaction.response.send_message(view=view, ephemeral=True)
-
-    def get_http_error_description(self, error: discord.HTTPException) -> str:
-        return http_error_description(self.msg, error)
 
     def describe_error(self, error: Exception) -> str:
         """Return the user-facing text for a failed color operation (role, Discord or other error)."""

@@ -84,7 +84,7 @@ def check_black(primary_hex: str | None, secondary_hex: str | None) -> tuple[str
 def parse_static_style(color: str, secondary_color: str | None = None) -> tuple[Colors, bool]:
     """Parse a preset name or one or two colors, without ``@mention`` or ``random``.
 
-    Used where there is no interaction to resolve them against (the palette editor, log import).
+    Used where there is no interaction to resolve them against (the palette editor).
     Return ``(colors, is_black)``; raise ``ValueError`` on invalid input.
     """
     if not secondary_color:

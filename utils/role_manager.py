@@ -53,18 +53,25 @@ class RoleLimitReached(ColorRoleError):
     message_key = "err_role_limit"
 
 
+class ColorChangedSince(ColorRoleError):
+    """Undo refused: the role no longer has the colors the change set."""
+
+    message_key = "revert_changed"
+
+
 @dataclass
 class ApplyResult:
     """Outcome of ``apply_color_role``.
 
     ``changed`` is True only when the role was created or recolored; a position move alone does
     not count. ``prev_colors`` holds the colors before the change and is None for a freshly
-    created role.
+    created role. ``colors`` are the colors the role has now.
     """
 
     role: discord.Role
     changed: bool
     prev_colors: Optional[Colors]
+    colors: Colors
 
 
 def get_guild_lock(guild_id: int) -> asyncio.Lock:
@@ -200,13 +207,13 @@ async def get_role_position(
 ) -> int:
     """Return the target position for the *top* of the color role block in the guild's mode.
 
-    ``off``, or ``custom`` whose reference role no longer exists, gives 1 (the bottom of the
+    ``off``, or ``custom`` whose reference role no longer exists, gives 0 (the bottom of the
     list). ``custom`` is clamped to what the bot can manage.
     """
     guild_obj = await db.select_one(model.Guilds, {"server": guild.id})
     mode = get_toprole_mode(guild_obj)
     if mode == TOPROLE_MODE_OFF:
-        return 1
+        return 0
 
     if roles is None:
         roles = await guild.fetch_roles()
@@ -217,10 +224,9 @@ async def get_role_position(
 
     top_role = discord.utils.get(roles, id=guild_obj.get("role", 0)) if isinstance(guild_obj, dict) else None
     if top_role is None or top_role.is_default():
-        return 1
+        return 0
 
-    role_position = max(1, top_role.position - 1)
-    return min(role_position, max_manageable_position)
+    return min(top_role.position - 1, max_manageable_position)
 
 
 async def move_roles_to_block(
@@ -231,9 +237,9 @@ async def move_roles_to_block(
     roles: Optional[list[discord.Role]] = None,
     max_position: Optional[int] = None,
 ) -> bool:
-    """Arrange ``role_ids`` as one contiguous block whose highest role sits at ``top_position``.
+    """Arrange ``role_ids`` as one contiguous block right above the other roles at or below ``top_position``.
 
-    The block goes as high as the role count allows, in a single ``edit_role_positions`` call.
+    ``top_position`` 0 puts the block at the bottom. One ``edit_role_positions`` call.
     Idempotent: nothing is sent when the block is already in place. Roles above ``max_position``
     (the bot's reach) are never touched. Return True when a request was made.
     """
@@ -250,7 +256,9 @@ async def move_roles_to_block(
     if not moving:
         return False
 
-    insert_idx = max(0, min(top_position - len(moving), len(static)))
+    # Count the other roles below the target, not ``top_position - len(moving)``: that is only right
+    # when the block already sits below the target (wrong after switching auto -> a lower custom role).
+    insert_idx = sum(1 for r in static if r.position <= top_position)
     new_order = [*static[:insert_idx], *moving, *static[insert_idx:]]
 
     payload: dict[discord.abc.Snowflake, int] = {}
@@ -373,7 +381,7 @@ async def apply_color_role(
         await place_color_roles(db, guild, bot_user_id, roles=roles)
 
         live_role = discord.utils.get(guild.roles, id=role.id)
-        return ApplyResult(role=live_role or role, changed=changed, prev_colors=prev_colors)
+        return ApplyResult(role=live_role or role, changed=changed, prev_colors=prev_colors, colors=new_colors)
 
 
 async def _bind_color_role(db, guild_id: int, user_id: int, role_id: int, row: Optional[dict]) -> None:
@@ -384,17 +392,24 @@ async def _bind_color_role(db, guild_id: int, user_id: int, role_id: int, row: O
         await db.update(model.ColorRoles, {"guild_id": guild_id, "user_id": user_id}, {"role_id": role_id})
 
 
-async def revert_color_role(guild: discord.Guild, role_id: int, prev_colors: Optional[Colors]) -> Optional[discord.Role]:
+async def revert_color_role(
+    guild: discord.Guild, role_id: int, prev_colors: Optional[Colors], set_colors: Colors
+) -> Optional[discord.Role]:
     """Undo a color change by restoring ``prev_colors``.
 
     ``prev_colors=None`` means the role did not exist before, so it is deleted instead of being
     reset to Discord's default color; its ``member_color_roles`` row goes stale and is replaced
     on the next change. Return the role, or None when it was deleted or no longer exists.
+
+    Raises ``ColorChangedSince`` when the role no longer has ``set_colors`` (a later change
+    happened), so an old Undo button cannot revert or delete a newer color.
     """
     async with get_guild_lock(guild.id):
         role = guild.get_role(role_id)
         if role is None:
             return None
+        if role_colors(role) != tuple(set_colors):
+            raise ColorChangedSince()
         if prev_colors is None:
             await role.delete(reason="HueTweaker: undo color change")
             return None

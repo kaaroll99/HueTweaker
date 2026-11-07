@@ -32,7 +32,7 @@ class JoinListenerCog(BaseCog):
 
     @commands.Cog.listener()
     async def on_raw_member_remove(self, payload: discord.RawMemberRemoveEvent):
-        """Delete the leaver's color role, history and binding row.
+        """Delete the leaver's color role, history and binding row (``remove_color_role`` drops the row).
 
         The raw event fires for every leaver, cached or not (``chunk_guilds_at_startup=False``).
         """
@@ -42,7 +42,8 @@ class JoinListenerCog(BaseCog):
             if guild is not None and await remove_color_role(self.db, guild, user_id, reason="HueTweaker: member left the server"):
                 logger.info("Deleted color role of user %s who left guild %s", user_id, payload.guild_id)
             await self.db.delete(model.History, {"user_id": user_id, "guild_id": payload.guild_id})
-            await self.db.delete(model.ColorRoles, {"user_id": user_id, "guild_id": payload.guild_id})
+            if guild is None:
+                await self.db.delete(model.ColorRoles, {"user_id": user_id, "guild_id": payload.guild_id})
         except Exception as e:
             logger.warning("Cleanup after user %s left guild %s failed: %r", user_id, payload.guild_id, e)
 

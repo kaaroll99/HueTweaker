@@ -6,9 +6,9 @@ from discord.ext import commands
 
 from cogs._base import BaseCog
 from core.database import model
-from utils.color_format import ColorUtils
+from utils.color_format import ColorUtils, decode_slots
 from views.global_view import GlobalLayout
-from views.select import SelectView, extract_palette
+from views.select import SelectView
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class SelectCog(BaseCog):
         try:
             await interaction.response.defer(ephemeral=True)
             palette_row = await self.db.select_one(model.Select, {"server_id": interaction.guild.id})
-            color_options = extract_palette(palette_row)
+            color_options = decode_slots(palette_row)
 
             if not color_options:
                 await self.respond(interaction, GlobalLayout(self.msg, self.msg['select_no_colors'], docs_page))
@@ -43,11 +43,6 @@ class SelectCog(BaseCog):
 
         finally:
             logger.info("%s[%s] issued bot command: /select", interaction.user.name, interaction.locale)
-
-    @select.error
-    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if isinstance(error, app_commands.CommandOnCooldown):
-            await self.handle_cooldown_error(interaction, error)
 
 
 async def setup(bot: commands.Bot) -> None:

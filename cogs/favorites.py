@@ -6,9 +6,9 @@ from discord.ext import commands
 
 from cogs._base import BaseCog, preset_choices
 from core.database import model
-from utils.color_format import encode_style, format_colors_label
+from utils.color_format import SLOT_COUNT, decode_slots, encode_style, format_colors_label
 from utils.color_parse import parse_color_pair
-from views.favorites import FAVORITES_LIMIT, FavoritesView, extract_favorite_colors
+from views.favorites import FavoritesView
 from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ class FavoritesCog(BaseCog):
             display = format_colors_label(*colors)
 
             row = await self.db.select_one(model.Favorites, {"user_id": interaction.user.id})
-            existing = extract_favorite_colors(row)
+            existing = decode_slots(row)
 
             if any(colors == saved for _, saved in existing):
                 await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_duplicate'].format(display), DOCS_ADD))
@@ -47,7 +47,7 @@ class FavoritesCog(BaseCog):
                 await self.db.create(model.Favorites, {"user_id": interaction.user.id, "hex_1": hex_value})
             else:
                 used_slots = {slot for slot, _ in existing}
-                free_slot = next((i for i in range(1, FAVORITES_LIMIT + 1) if i not in used_slots), None)
+                free_slot = next((i for i in range(1, SLOT_COUNT + 1) if i not in used_slots), None)
                 if free_slot is None:
                     await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_full'], DOCS_ADD))
                     return
@@ -79,7 +79,7 @@ class FavoritesCog(BaseCog):
             await interaction.response.defer(ephemeral=True)
 
             row = await self.db.select_one(model.Favorites, {"user_id": interaction.user.id})
-            colors = extract_favorite_colors(row)
+            colors = decode_slots(row)
 
             if not colors:
                 await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_no_colors'], DOCS_LIST))
@@ -94,12 +94,6 @@ class FavoritesCog(BaseCog):
 
         finally:
             logger.info("%s[%s] issued bot command: /favorites list", interaction.user.name, interaction.locale)
-
-    @add.error
-    @favorites_list.error
-    async def command_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
-        if isinstance(error, app_commands.CommandOnCooldown):
-            await self.handle_cooldown_error(interaction, error)
 
 
 async def setup(bot: commands.Bot) -> None:
