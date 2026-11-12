@@ -63,6 +63,9 @@ class VoteChecker:
                 headers={"Authorization": self._token},
                 timeout=aiohttp.ClientTimeout(total=REQUEST_TIMEOUT),
             ) as response:
+                # top.gg answers 404 for a user it has never seen, who therefore has not voted.
+                if response.status == 404:
+                    return False
                 if response.status != 200:
                     logger.warning("top.gg vote check for %s failed: HTTP %s", user_id, response.status)
                     return None
