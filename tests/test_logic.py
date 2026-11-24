@@ -3,7 +3,7 @@
 import asyncio
 import functools
 
-from utils.color_format import adjust_lightness, decode_slots, decode_style, harmony_colors
+from utils.color_format import adjust_lightness, decode_slots, decode_style, gradient_suggestions, harmony_colors
 from utils.history_manager import pack_color, unpack_color
 from utils.role_manager import move_roles_to_block
 
@@ -84,6 +84,19 @@ def test_adjust_lightness():
     assert adjust_lightness(0xFF0000, -0.1) == 0xCC0000
     assert adjust_lightness(0xFFFFFF, 0.1) == 0xFFFFFF
     assert adjust_lightness(0x000001, -0.1) == 0x000001  # never pure black (Discord's "no color")
+
+
+def test_gradient_suggestions():
+    assert gradient_suggestions(0xFF0000) == [(0xFF0000, c) for c in (0xFF0080, 0xFF8000, 0x00FFFF, 0xFF8080)]
+    assert gradient_suggestions(0x808080) == [(0x808080, adjust_lightness(0x808080, 0.25))]  # gray: only the shade
+    assert gradient_suggestions(0xFFFFFF) == []
+
+
+def test_christmas_section_names_resolve():
+    from views.colors import CHRISTMAS, CHRISTMAS_GRADIENTS, GRADIENTS, book_groups, preset_rows
+    christmas, gradients = preset_rows(CHRISTMAS), preset_rows(GRADIENTS)  # KeyError on a typo
+    assert len(christmas) == book_groups()[CHRISTMAS] and len(gradients) == book_groups()[GRADIENTS]
+    assert not {name for name, _ in gradients} & set(CHRISTMAS_GRADIENTS)
 
 
 if __name__ == "__main__":

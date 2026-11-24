@@ -4,7 +4,7 @@ description: Browse gradient presets and CSS color names with their HEX codes.
 
 # colors
 
-Browse gradient presets and CSS color names with their HEX codes. Pick a group from the menu: **Gradients** (shown first) or a color group (red, green, blue…). Your color doesn't change.
+Browse gradient presets and CSS color names with their HEX codes. Pick a group from the menu: **🎄 Christmas** (shown first: festive gradients and colors), **Gradients** or a color group (red, green, blue…). Your color doesn't change.
 
 **Syntax:** `/colors`
 

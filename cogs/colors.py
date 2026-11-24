@@ -5,7 +5,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from cogs._base import BaseCog
-from views.colors import GRADIENTS, ColorBookView
+from views.colors import CHRISTMAS, ColorBookView
 from views.global_view import GlobalLayout
 
 logger = logging.getLogger(__name__)
@@ -19,7 +19,7 @@ class ColorsCog(BaseCog):
         docs_page = "commands/colors"
         try:
             await interaction.response.defer(ephemeral=True)
-            view = ColorBookView(self.msg, GRADIENTS, interaction.user.id)
+            view = ColorBookView(self.msg, CHRISTMAS, interaction.user.id)
             await interaction.followup.send(view=view, file=view.file, ephemeral=True)
 
         except Exception as e:

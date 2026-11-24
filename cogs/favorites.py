@@ -6,8 +6,9 @@ from discord.ext import commands
 
 from cogs._base import BaseCog, preset_choices
 from core.database import model
-from utils.color_format import SLOT_COUNT, decode_slots, encode_style, format_colors_label
+from utils.color_format import decode_slots, format_colors_label
 from utils.color_parse import parse_color_pair
+from utils.favorites_manager import add_favorite
 from views.favorites import FavoritesView
 from views.global_view import GlobalLayout
 
@@ -33,27 +34,8 @@ class FavoritesCog(BaseCog):
             await interaction.response.defer(ephemeral=True)
 
             colors, _ = await parse_color_pair(interaction, self.db, color, secondary_color)
-            hex_value = encode_style(colors)
-            display = format_colors_label(*colors)
-
-            row = await self.db.select_one(model.Favorites, {"user_id": interaction.user.id})
-            existing = decode_slots(row)
-
-            if any(colors == saved for _, saved in existing):
-                await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_duplicate'].format(display), DOCS_ADD))
-                return
-
-            if not row:
-                await self.db.create(model.Favorites, {"user_id": interaction.user.id, "hex_1": hex_value})
-            else:
-                used_slots = {slot for slot, _ in existing}
-                free_slot = next((i for i in range(1, SLOT_COUNT + 1) if i not in used_slots), None)
-                if free_slot is None:
-                    await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_full'], DOCS_ADD))
-                    return
-                await self.db.update(model.Favorites, {"user_id": interaction.user.id}, {f"hex_{free_slot}": hex_value})
-
-            await self.respond(interaction, GlobalLayout(self.msg, self.msg['favorites_added'].format(display), DOCS_ADD))
+            key = await add_favorite(self.db, interaction.user.id, colors)
+            await self.respond(interaction, GlobalLayout(self.msg, self.msg[key].format(format_colors_label(*colors)), DOCS_ADD))
 
         except ValueError:
             await self.respond(interaction, GlobalLayout(self.msg, self.msg['color_format'], DOCS_ADD))

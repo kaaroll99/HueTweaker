@@ -17,6 +17,7 @@ Save a color, gradient or preset to your favorites. Favorites belong to your acc
 **Good to know:**
 
 * Up to 10 favorites. The same one can't be added twice.
+* Shortcut: **⭐ Save to favorites** under the result of any color change saves that color.
 * Saving works on any server. Using a saved gradient or holographic needs Server Boost on that server and your [vote](../main/voting.md), like [`/gradient`](gradient.md).
 * Use your favorites with [`/favorites list`](favorites-list.md).
 * Cooldown: 10 seconds.

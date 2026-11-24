@@ -261,6 +261,16 @@ def harmony_colors(color: int) -> list[int]:
     return [_from_hls((hue + degrees / 360) % 1, lightness, saturation) for degrees in (180, -30, 30, 120, -120)]
 
 
+def gradient_suggestions(color: int) -> list[tuple[int, int]]:
+    """Gradients starting with ``color``: to both analogous colors, the complementary and a lighter shade.
+
+    Pairs that would end in ``color`` itself (grays have no hue, white has no lighter shade) are left out.
+    """
+    complementary, left, right, *_ = harmony_colors(color)
+    ends = dict.fromkeys((left, right, complementary, adjust_lightness(color, 0.25)))
+    return [(color, end) for end in ends if end != color]
+
+
 def adjust_lightness(color: int, delta: float) -> int:
     """Return ``color`` with its HLS lightness moved by ``delta`` (clamped), never pure black."""
     hue, lightness, saturation = _to_hls(color)
@@ -450,12 +460,13 @@ class ColorUtils:
         return image
 
     @staticmethod
-    def generate_preset_book_image():
+    def generate_preset_book_image(entries: list[tuple[str, Colors]]):
+        """Render ``(name, colors)`` rows: the name painted in its color or gradient, then the HEX codes."""
         font = _get_font()
         padding, line_height, gap = 14, 32, 24
 
         rows = []
-        for name, colors in color_presets().values():
+        for name, colors in entries:
             codes = " → ".join(f"#{c:06X}" for c in colors if c is not None)
             rows.append((name, codes, _color_stops(*colors)))
 

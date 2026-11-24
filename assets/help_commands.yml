@@ -11,7 +11,9 @@ set:
   name: set
   desc: >-
     Set or change your username color. The bot shows a preview and applies it after you press
-    Accept; ☀️ Lighter / 🌙 Darker adjust it first. The result has an "Undo to previous color" button.
+    Accept; ☀️ Lighter / 🌙 Darker adjust it first. The result has "Undo to previous color",
+    "⭐ Save to favorites" and, on boosted servers, "🌈 Make it a gradient" (gradient ideas
+    from your color, set with a top.gg vote).
 
     ### Color:
       HEX (F5DF4D), CSS name (royalblue), rgb/hsl/cmyk, "random", @user to copy their color,
@@ -151,8 +153,9 @@ check:
 colors:
   name: colors
   desc: >-
-    Browse CSS color names with their HEX codes, grouped by color (red, green, blue...).
-    Pick a group from the menu to see its colors. Use a name or HEX with `/set`.
+    Browse gradient presets and CSS color names with their HEX codes: 🎄 Christmas (festive
+    gradients and colors) first, then Gradients and color groups (red, green, blue...).
+    Pick a group from the menu. Use a color name or HEX with `/set`, a gradient name with `/gradient`.
   usage: /colors
   example: /colors
   docs: colors

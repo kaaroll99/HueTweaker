@@ -52,7 +52,7 @@ class ForceCog(BaseCog):
                 recorder.color(interaction, "force set", colors)
 
             description += await hidden_warning(self.db, self.msg, username, result)
-            view = Layout.from_result(self.msg, result, interaction.user.id, description)
+            view = Layout.from_result(self.msg, result, interaction.user.id, description, owner_buttons=False)
             await self.respond(interaction, view)
 
         except ValueError:

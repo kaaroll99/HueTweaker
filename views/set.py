@@ -5,11 +5,12 @@ import discord
 
 from analytics.recorder import recorder
 from core.database import model
-from utils.color_format import Colors, adjust_lightness, format_colors_label
+from utils.color_format import ColorUtils, Colors, adjust_lightness, format_colors_label, gradient_suggestions
+from utils.favorites_manager import add_favorite
 from utils.history_manager import update_history
 from utils.role_manager import (TOPROLE_MODE_AUTO, ApplyResult, ColorChangedSince, apply_color_role,
                                 colored_roles_above, get_toprole_mode, revert_color_role)
-from views.global_view import error_description, gradient_gate, make_invite_button, safe_defer
+from views.global_view import GlobalLayout, error_description, gradient_gate, make_invite_button, safe_defer
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,8 @@ class Layout(discord.ui.LayoutView):
     ``prev_colors=None`` means the role did not exist before the change, so undo deletes it.
     ``set_colors`` are the colors this change set; undo refuses once the role has others.
     ``undo_lock=True`` disables the button (nothing changed).
+    ``owner_buttons`` adds ⭐ Save to favorites and, with ``gradients`` (the server has Server Boost)
+    for a solid color, 🌈 Make it a gradient; off for ``/force set``, where the color isn't the author's.
     """
 
     def __init__(
@@ -62,6 +65,8 @@ class Layout(discord.ui.LayoutView):
         author_id: Optional[int] = None,
         description: str = "",
         undo_lock: bool = False,
+        owner_buttons: bool = False,
+        gradients: bool = False,
     ):
         super().__init__()
         self.msg = messages
@@ -85,7 +90,21 @@ class Layout(discord.ui.LayoutView):
             disabled=self.undo_lock,
         )
         self.revert_btn.callback = self._on_revert
-        container.add_item(discord.ui.ActionRow(self.revert_btn, make_invite_button()))
+        buttons = [self.revert_btn]
+
+        self.gradient_entries = []
+        if owner_buttons:
+            favorite_btn = discord.ui.Button(label="Save to favorites", emoji="⭐", style=discord.ButtonStyle.secondary)
+            favorite_btn.callback = self._on_favorite
+            buttons.append(favorite_btn)
+            if gradients and set_colors[1] is None:
+                self.gradient_entries = gradient_suggestions(set_colors[0])
+            if self.gradient_entries:
+                gradient_btn = discord.ui.Button(label="Make it a gradient", emoji="🌈", style=discord.ButtonStyle.primary)
+                gradient_btn.callback = self._on_gradient
+                buttons.append(gradient_btn)
+
+        container.add_item(discord.ui.ActionRow(*buttons, make_invite_button()))
 
         self.add_item(container)
 
@@ -96,6 +115,7 @@ class Layout(discord.ui.LayoutView):
         result: ApplyResult,
         author_id: int,
         description: str,
+        owner_buttons: bool = True,
     ) -> "Layout":
         """Build the result view from an ``ApplyResult``; Undo is disabled when nothing changed."""
         return cls(
@@ -106,20 +126,56 @@ class Layout(discord.ui.LayoutView):
             author_id=author_id,
             description=description,
             undo_lock=not result.changed,
+            owner_buttons=owner_buttons,
+            gradients="ENHANCED_ROLE_COLORS" in result.role.guild.features,
         )
 
     def _set_description(self, description: str) -> None:
         self.description = description
         self.text_display.content = description
 
-    async def _on_revert(self, interaction: discord.Interaction):
-        if interaction.user.id != self.author_id:
+    async def _reject_other_user(self, interaction: discord.Interaction) -> bool:
+        """Answer someone other than the author and return True; return False for the author."""
+        if interaction.user.id == self.author_id:
+            return False
+        try:
+            await interaction.response.send_message(self.msg["revert_not_author"], ephemeral=True)
+        except discord.HTTPException:
+            pass
+        return True
+
+    async def _on_favorite(self, interaction: discord.Interaction):
+        if await self._reject_other_user(interaction) or not await safe_defer(interaction, ephemeral=True, thinking=True):
+            return
+        label = format_colors_label(*self.set_colors)
+        try:
+            key = await add_favorite(interaction.client.db, interaction.user.id, self.set_colors)
+            view = GlobalLayout(self.msg, self.msg[key].format(label), "commands/favorites-add")
+            await interaction.followup.send(view=view, ephemeral=True)
+            logger.info("%s[%s] saved %s to favorites from the result: %s", interaction.user.name, interaction.locale, label, key)
+        except Exception as e:
+            logger.warning("%s[%s] failed to save favorite: %r", interaction.user.name, interaction.locale, e)
             try:
-                await interaction.response.send_message(
-                    self.msg["revert_not_author"], ephemeral=True
-                )
+                await interaction.followup.send(error_description(self.msg, e), ephemeral=True)
             except discord.HTTPException:
                 pass
+
+    async def _on_gradient(self, interaction: discord.Interaction):
+        """Show gradients that start with this color; setting one goes through ``gradient_gate`` (vote)."""
+        if await self._reject_other_user(interaction):
+            return
+        from views.match import MatchView  # views.match imports this module
+
+        image = ColorUtils.generate_color_list_image(interaction.user.display_name, self.gradient_entries)
+        file = discord.File(fp=ColorUtils.to_bytes(image), filename="gradient_suggestions.png")
+        view = MatchView(self.msg, self.msg['gradient_suggest_title'], interaction.client, file, self.gradient_entries,
+                         author_id=self.author_id, docs_page="commands/gradient", source="suggest")
+        await interaction.response.send_message(view=view, file=file, ephemeral=True)
+        logger.info("%s[%s] opened gradient suggestions for %s", interaction.user.name, interaction.locale,
+                    format_colors_label(*self.set_colors))
+
+    async def _on_revert(self, interaction: discord.Interaction):
+        if await self._reject_other_user(interaction):
             return
 
         if not await safe_defer(interaction):
