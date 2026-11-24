@@ -14,6 +14,7 @@
 * [gradient](commands/gradient.md)
 * [holographic](commands/holographic.md)
 * [match](commands/match.md)
+* [harmony](commands/harmony.md)
 * [remove](commands/remove.md)
 * [select](commands/select.md)
 * [history](commands/history.md)

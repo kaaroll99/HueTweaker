@@ -11,7 +11,9 @@ class CheckLayout(discord.ui.LayoutView):
         description: str = "",
         image: str = None,
         elements: list = None,
+        on_set=None,
     ):
+        """``on_set(interaction)`` runs when the "Set as my color" button is pressed; no button without it."""
         super().__init__()
         self.msg = messages
 
@@ -35,6 +37,11 @@ class CheckLayout(discord.ui.LayoutView):
             emoji="<:docs:1362879505613586643>",
             url=f"{DOCS_BASE_URL}/main/colors",
         )
-        container.add_item(discord.ui.ActionRow(docs_button, make_invite_button()))
+        buttons = [docs_button, make_invite_button()]
+        if on_set is not None:
+            set_button = discord.ui.Button(label="Set as my color", style=discord.ButtonStyle.success, emoji="🎨")
+            set_button.callback = on_set
+            buttons.insert(0, set_button)
+        container.add_item(discord.ui.ActionRow(*buttons))
 
         self.add_item(container)

@@ -25,7 +25,9 @@ Give every member a **name color of their own**: HEX, CSS names, **gradients**, 
 
 🖌️ **Colors & gradients.** Any **HEX code or CSS color name**, copy another member's color, blend two into a **gradient**, pick a ready-made **gradient preset**, or go **holographic**.
 
-🖼️ **Match your avatar.** `/match` suggests colors (and a gradient) taken from your avatar.
+🖼️ **Match your avatar.** `/match` suggests colors (and a gradient) taken from your avatar, `/harmony` suggests colors and gradients that go well with any color.
+
+🖱️ **Right-click shortcuts.** Right-click a member → Apps → **Copy color** or **Check color**.
 
 🗂️ **Server list & favorites.** Offer up to **10 colors or gradients** in a visual menu, and let members save **10 personal favorites** (gradients too) to reuse anywhere.
 
@@ -46,6 +48,7 @@ Give every member a **name color of their own**: HEX, CSS names, **gradients**, 
 | `/gradient <color> [secondary_color]` | Blend two colors into a gradient, or pick a preset (`/gradient sunset`). |
 | `/holographic` | Discord's shimmering holographic style. |
 | `/match` | Colors (and a gradient) that match your avatar. |
+| `/harmony <color>` | Complementary, analogous and triadic colors (and two gradients) for a color. |
 | `/select` | Pick a color or gradient from the server's list (with preview). |
 | `/favorites add <color> [secondary_color]` | Save a color, gradient or preset to your personal list (up to 10, global). |
 | `/favorites list` | Set a favorite with a button, or remove it via dropdown. |

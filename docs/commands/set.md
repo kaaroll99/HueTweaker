@@ -44,12 +44,14 @@ Set or change your username color. The bot shows a preview and applies the color
 **Good to know:**
 
 * The first time, the bot creates a role named `🎨 <your display name>`. The name updates every time you change your color.
+* **☀️ Lighter** / **🌙 Darker** on the preview change the color by 10% before you accept. Pressing them doesn't count toward the free limit; only **Accept** does.
 * **Undo** in the result message brings back your previous color.
 * If a higher colored role covers your new color, the result names that role and how an admin can fix it ([details](../main/troubleshooting.md#my-color-doesnt-show)).
 * Under the result there's a short tip about another feature, such as [`/match`](match.md), [`/favorites add`](favorites-add.md) or, on a boosted server, [`/gradient`](gradient.md).
 * Only accepted changes count toward the free limit. Cancelling or pressing **Undo** doesn't.
 * A preset name, or copying a user with a gradient or the holographic style, sets the whole style. That needs the same as [`/gradient`](gradient.md): Server Boost and a vote.
 * For two colors, use [`/gradient`](gradient.md).
+* Shortcut: right-click a member (or tap their profile on mobile) → **Apps** → **Copy color** does the same as `/set @user`.
 * Cooldown: 10 seconds.
 
 ***

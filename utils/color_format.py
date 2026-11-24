@@ -1,5 +1,6 @@
 """Color notations and conversions, user-facing labels, style encoding and generated images."""
 
+import colorsys
 import re
 from functools import lru_cache
 from io import BytesIO
@@ -249,6 +250,31 @@ def dominant_colors(image_bytes: bytes, count: int = 5, min_distance: float = 20
         if len(picked) == count:
             break
     return picked
+
+
+def harmony_colors(color: int) -> list[int]:
+    """Return the complementary, two analogous (-30°, +30°) and two triadic (+120°, -120°) colors.
+
+    Only the hue turns; lightness and saturation stay, so a gray returns itself five times.
+    """
+    hue, lightness, saturation = _to_hls(color)
+    return [_from_hls((hue + degrees / 360) % 1, lightness, saturation) for degrees in (180, -30, 30, 120, -120)]
+
+
+def adjust_lightness(color: int, delta: float) -> int:
+    """Return ``color`` with its HLS lightness moved by ``delta`` (clamped), never pure black."""
+    hue, lightness, saturation = _to_hls(color)
+    # Discord treats #000000 as "no color", same as check_black.
+    return _from_hls(hue, min(max(lightness + delta, 0.0), 1.0), saturation) or 1
+
+
+def _to_hls(color: int) -> tuple[float, float, float]:
+    return colorsys.rgb_to_hls(*(c / 255 for c in _int_to_rgb(color)))
+
+
+def _from_hls(hue: float, lightness: float, saturation: float) -> int:
+    r, g, b = (round(c * 255) for c in colorsys.hls_to_rgb(hue, lightness, saturation))
+    return (r << 16) | (g << 8) | b
 
 
 def _in_range(values, limits) -> bool:

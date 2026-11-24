@@ -8,5 +8,10 @@
   "Galaxy": ["da22ff", "9733ee"],
   "Neon": ["fc00ff", "00dbde"],
   "Sakura": ["fbd3e9", "bb377d"],
-  "Toxic": ["a8ff78", "78ffd6"]
+  "Toxic": ["a8ff78", "78ffd6"],
+  "Christmas": ["e53935", "43a047"],
+  "Peppermint": ["ff4d5a", "fff1f1"],
+  "Snowfall": ["ffffff", "9bc4ff"],
+  "Evergreen": ["1d976c", "93f9b9"],
+  "Gingerbread": ["c97b45", "f6d6a8"]
 }

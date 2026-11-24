@@ -28,6 +28,15 @@ class SetCog(BaseCog):
         super().__init__(bot)
         self.set_quota = UsageQuota(FREE_SET_USES, FREE_SET_WINDOW)
 
+    async def cog_load(self) -> None:
+        self.add_member_menu("Copy color", self.copy_color)
+
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
+    @app_commands.guild_only()
+    async def copy_color(self, interaction: discord.Interaction, member: discord.Member) -> None:
+        """Right-click menu on a member: the same as ``/set @member`` (copies a gradient too)."""
+        await self._apply_color(interaction, "set", member.mention, None)
+
     @app_commands.command(name="set", description="Set your username color")
     @app_commands.describe(
         color="HEX (#9932f0), CSS name (royalblue), rgb/hsl/cmyk, random, @user or a preset (sunset)"
@@ -79,7 +88,8 @@ class SetCog(BaseCog):
             if guild is None or member is None or bot_user is None:
                 raise RuntimeError("Guild interaction context is unavailable")
 
-            await interaction.response.defer(ephemeral=True)
+            # thinking: from a button (/check) it opens a new message instead of replacing that one.
+            await interaction.response.defer(ephemeral=True, thinking=True)
 
             colors, is_black = await parse_color_pair(interaction, self.db, color, secondary_color)
             primary_val, secondary_val, tertiary_val = colors
@@ -95,14 +105,18 @@ class SetCog(BaseCog):
                 logger.info("%s[%s] issued bot command: /%s (blocked: gradients unavailable or vote required)", interaction.user.name, interaction.user.id, command_name)
                 return
 
-            image = ColorUtils.generate_preview_image(member.display_name, *colors)
-            file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_preview.png")
+            def render(preview_colors) -> discord.File:
+                image = ColorUtils.generate_preview_image(member.display_name, *preview_colors)
+                return discord.File(fp=ColorUtils.to_bytes(image), filename="color_preview.png")
 
+            file = render(colors)
             confirmation = ConfirmationView(
                 member.id,
                 self.msg['confirm_color'],
                 discord.Color(primary_val),
                 "attachment://" + file.filename,
+                colors=colors,
+                render=render,
             )
             await interaction.edit_original_response(content=None, attachments=[file], view=confirmation)
             await confirmation.wait()
@@ -113,6 +127,10 @@ class SetCog(BaseCog):
             if confirmation.value is False:
                 await self.respond(interaction, GlobalLayout(self.msg, self.msg['cancelled'], docs_page))
                 return
+            if confirmation.colors != colors:  # adjusted with Lighter/Darker
+                colors, is_black = confirmation.colors, False
+                primary_val, secondary_val, tertiary_val = colors
+                label = format_colors_label(*colors)
 
             result = await apply_color_role(guild, member, primary_val, secondary_val, self.db, bot_user.id,
                                             tertiary_val=tertiary_val)

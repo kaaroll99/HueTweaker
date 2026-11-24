@@ -33,6 +33,16 @@ class BaseCog(commands.Cog):
         self.msg = bot.messages
         self.votes = bot.votes
 
+    def add_member_menu(self, name: str, callback) -> None:
+        """Register a right-click menu on members (Apps → ``name``) answered by ``cog_app_command_error``.
+
+        Context menus can't be declared inside a cog, so they are added to the tree by hand.
+        """
+        menu = app_commands.ContextMenu(name=name, callback=callback)
+        menu.error(self.cog_app_command_error)
+        # override: reloading the cog registers the menu again.
+        self.bot.tree.add_command(menu, override=True)
+
     @staticmethod
     def remember_commands(app_commands_list: list[app_commands.AppCommand]) -> None:
         """Cache the synced command ids that ``mention`` needs."""

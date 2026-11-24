@@ -21,6 +21,7 @@ Set a two-color gradient as your username color, or pick a ready-made one by nam
 **Good to know:**
 
 * The first time, the bot creates a role named `🎨 <your display name>`.
+* **☀️ Lighter** / **🌙 Darker** on the preview change both colors by 10% before you accept.
 * For a single color, use [`/set`](set.md). For a shimmering style, try [`/holographic`](holographic.md).
 * Cooldown: 10 seconds.
 

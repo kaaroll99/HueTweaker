@@ -6,7 +6,7 @@ from discord.ext import commands
 
 from cogs._base import BaseCog
 from utils.color_format import ColorUtils
-from utils.color_parse import fetch_color_representation
+from utils.color_parse import MentionedUserHasNoColor, fetch_color_representation
 from views.check import CheckLayout
 from views.global_view import GlobalLayout
 
@@ -19,6 +19,18 @@ class CheckCog(BaseCog):
     @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
     @app_commands.describe(color="Color code (e.g. #9932f0) or CSS color name (e.g royalblue)")
     async def check(self, interaction: discord.Interaction, color: str) -> None:
+        await self._check(interaction, color)
+
+    async def cog_load(self) -> None:
+        self.add_member_menu("Check color", self.check_member)
+
+    @app_commands.checks.cooldown(1, 10.0, key=lambda i: (i.guild_id, i.user.id))
+    @app_commands.guild_only()
+    async def check_member(self, interaction: discord.Interaction, member: discord.Member) -> None:
+        """Right-click menu on a member: the same as ``/check @member``."""
+        await self._check(interaction, member.mention)
+
+    async def _check(self, interaction: discord.Interaction, color: str) -> None:
         docs_page = "commands/check"
         try:
             await interaction.response.defer(ephemeral=True)
@@ -44,8 +56,21 @@ class CheckCog(BaseCog):
             file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_fill.png")
             image_url = "attachment://" + file.filename
 
-            view = CheckLayout(messages=self.msg, description=description, image=image_url, elements=elements)
+            on_set = None
+            set_cog = self.bot.get_cog("SetCog")
+            if interaction.guild is not None and set_cog is not None:
+                hex_value = output_color['Hex']
+
+                async def on_set(button_interaction: discord.Interaction) -> None:
+                    # The /set flow: preview with Accept/Cancel, free-use limit, history and Undo.
+                    await set_cog._apply_color(button_interaction, "set", hex_value, None)
+
+            view = CheckLayout(messages=self.msg, description=description, image=image_url, elements=elements,
+                               on_set=on_set)
             await interaction.followup.send(view=view, file=file, ephemeral=True)
+
+        except MentionedUserHasNoColor:
+            await self.respond(interaction, GlobalLayout(self.msg, self.msg['force_remove_no_color'], docs_page))
 
         except ValueError:
             await self.respond(interaction, GlobalLayout(self.msg, self.msg['check_color_format'], docs_page))

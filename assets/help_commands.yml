@@ -11,7 +11,7 @@ set:
   name: set
   desc: >-
     Set or change your username color. The bot shows a preview and applies it after you press
-    Accept. The result has an "Undo to previous color" button.
+    Accept; ☀️ Lighter / 🌙 Darker adjust it first. The result has an "Undo to previous color" button.
 
     ### Color:
       HEX (F5DF4D), CSS name (royalblue), rgb/hsl/cmyk, "random", @user to copy their color,
@@ -21,6 +21,7 @@ set:
         the limit for 12 hours.
       - A preset, or copying someone's gradient, needs Server Boost and a vote, like `/gradient`.
       - The first time, the bot creates a role named "🎨 <your display name>".
+      - Shortcut: right-click a member → Apps → **Copy color** does the same as `/set @user`.
   usage: /set <color>
   example: |
     - /set f5df4d
@@ -79,6 +80,28 @@ match:
   example: /match
   docs: match
 
+### HARMONY ###
+harmony:
+  name: harmony
+  desc: >-
+    Get colors that go well with a color you give: the complementary, two analogous and two
+    triadic colors, plus two gradients made of them. The bot shows your name in each.
+
+    ### Color:
+      HEX, CSS name, rgb/hsl/cmyk, "random", or @user to use their color.
+    ### How to use:
+      - Press 1-5 to set a solid color.
+      - Press 🌈 6 (your color + complementary) or 🌈 7 (analogous) to set a gradient
+        (needs Server Boost and a top.gg vote).
+    ### Notes:
+      - Gray, black and white have no hue, so they have no harmonies.
+  usage: /harmony <color>
+  example: |
+    - /harmony royalblue
+    - /harmony #F5DF4D
+    - /harmony @kaaroll99
+  docs: harmony
+
 ### REMOVE ###
 remove:
   name: remove
@@ -109,11 +132,14 @@ check:
   name: check
   desc: >-
     Show a color in HEX, RGB, HSL and CMYK, with a preview image and up to 5 similar CSS color
-    names. Your color doesn't change.
+    names. Press **🎨 Set as my color** to use it as your username color (with a preview to
+    confirm, like `/set`).
 
     ### Color:
       HEX, CSS name, rgb/hsl/cmyk, "random", or @user to check their color.
       Gradient presets are not supported here.
+    ### Shortcut:
+      Right-click a member → Apps → **Check color** does the same as `/check @user`.
   usage: /check <color>
   example: |
     - /check #F5DF4D

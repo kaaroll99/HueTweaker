@@ -5,7 +5,7 @@ import discord
 
 from analytics.recorder import recorder
 from core.database import model
-from utils.color_format import Colors, format_colors_label
+from utils.color_format import Colors, adjust_lightness, format_colors_label
 from utils.history_manager import update_history
 from utils.role_manager import (TOPROLE_MODE_AUTO, ApplyResult, ColorChangedSince, apply_color_role,
                                 colored_roles_above, get_toprole_mode, revert_color_role)
@@ -209,15 +209,26 @@ async def apply_from_button(
             pass
 
 
-class ConfirmationView(discord.ui.LayoutView):
-    """Accept/Cancel prompt; after ``wait()``, ``value`` is True, False, or None on timeout."""
+# One Lighter/Darker press moves the HLS lightness by 10%.
+LIGHTNESS_STEP = 0.1
 
-    def __init__(self, author_id, text, color=discord.Color.default(), image_url=None):
+
+class ConfirmationView(discord.ui.LayoutView):
+    """Accept/Cancel prompt; after ``wait()``, ``value`` is True, False, or None on timeout.
+
+    With ``colors`` and ``render`` (colors -> preview ``discord.File``), a solid color or gradient also
+    gets Lighter/Darker buttons that re-render the preview; ``colors`` then holds the final choice.
+    """
+
+    def __init__(self, author_id, text, color=discord.Color.default(), image_url=None,
+                 colors: Optional[Colors] = None, render=None):
         super().__init__(timeout=60)
         self.author_id = author_id
         self.value = None
+        self.colors = colors
+        self.render = render
 
-        container = discord.ui.Container(accent_colour=color)
+        container = self.container = discord.ui.Container(accent_colour=color)
         container.add_item(discord.ui.TextDisplay(text))
         container.add_item(discord.ui.Separator(spacing=discord.SeparatorSpacing.large))
 
@@ -239,8 +250,27 @@ class ConfirmationView(discord.ui.LayoutView):
         confirm_btn.callback = self._on_confirm
         cancel_btn.callback = self._on_cancel
 
-        container.add_item(discord.ui.ActionRow(confirm_btn, cancel_btn, make_invite_button()))
+        buttons = [confirm_btn, cancel_btn]
+        # Holographic is a fixed Discord preset, so only solid colors and gradients can be adjusted.
+        if colors is not None and render is not None and colors[2] is None:
+            for label, emoji, delta in (("Lighter", "☀️", LIGHTNESS_STEP), ("Darker", "🌙", -LIGHTNESS_STEP)):
+                button = discord.ui.Button(label=label, emoji=emoji, style=discord.ButtonStyle.secondary)
+                button.callback = self._make_adjust(delta)
+                buttons.append(button)
+        container.add_item(discord.ui.ActionRow(*buttons, make_invite_button()))
         self.add_item(container)
+
+    def _make_adjust(self, delta: float):
+        async def _adjust(interaction: discord.Interaction):
+            if interaction.user.id != self.author_id:
+                await interaction.response.send_message("This is not your confirmation.", ephemeral=True)
+                return
+            primary, secondary, _ = self.colors
+            self.colors = (adjust_lightness(primary, delta),
+                           None if secondary is None else adjust_lightness(secondary, delta), None)
+            self.container.accent_colour = discord.Color(self.colors[0])
+            await interaction.response.edit_message(view=self, attachments=[self.render(self.colors)])
+        return _adjust
 
     async def _on_confirm(self, interaction: discord.Interaction):
         await self._resolve(interaction, True)

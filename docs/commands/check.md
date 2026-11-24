@@ -39,6 +39,8 @@ Show a color in HEX, RGB, HSL and CMYK, with a preview image and up to 5 similar
 
 **Good to know:**
 
+* On a server, **🎨 Set as my color** under the result sets the checked color as your username color. It works like [`/set`](set.md): you confirm a preview first, and it counts toward the free limit.
+* Shortcut: right-click a member (or tap their profile on mobile) → **Apps** → **Check color** does the same as `/check @user`.
 * Cooldown: 10 seconds.
 
 ***

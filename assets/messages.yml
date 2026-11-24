@@ -79,6 +79,18 @@ match_title: |
   <:bubble:1362879391423533226> Press a number to set that color, or 🌈 for the two main colors as a gradient.
 match_no_colors: "### <:warn:1362879461468672130> Couldn't find colors in your avatar that would be visible as a username."
 
+#harmony
+harmony_title: |
+  **<:star:1362879443625971783> Colors that go well with __{}__:**
+
+  <:bubble:1362879391423533226> **1** complementary · **2-3** analogous · **4-5** triadic
+  <:bubble:1362879391423533226> 🌈 **6** your color + complementary · 🌈 **7** analogous gradient
+  Press a number to set that color or gradient.
+harmony_no_hue: |
+  ### <:warn:1362879461468672130> Gray, black and white have no hue to build harmonies from
+
+  <:bubble:1362879391423533226> Try a color, e.g. `/harmony royalblue`.
+
 #colors
 colors_title: |
   ### <:star:1362879443625971783> {} colors

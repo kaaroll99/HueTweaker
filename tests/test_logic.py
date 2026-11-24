@@ -3,7 +3,7 @@
 import asyncio
 import functools
 
-from utils.color_format import decode_slots, decode_style
+from utils.color_format import adjust_lightness, decode_slots, decode_style, harmony_colors
 from utils.history_manager import pack_color, unpack_color
 from utils.role_manager import move_roles_to_block
 
@@ -71,6 +71,19 @@ def test_decode_skips_bad_values():
         assert decode_style(bad) is None
     assert decode_slots({"hex_1": "bad", "hex_3": "00ff00"}) == [(3, (0x00FF00, None, None))]
     assert decode_slots(None) == []
+
+
+def test_harmony_colors():
+    # red: cyan opposite, rose / orange next to it, green / blue in the triad
+    assert harmony_colors(0xFF0000) == [0x00FFFF, 0xFF0080, 0xFF8000, 0x00FF00, 0x0000FF]
+    assert harmony_colors(0x808080) == [0x808080] * 5
+
+
+def test_adjust_lightness():
+    assert adjust_lightness(0xFF0000, 0.1) == 0xFF3333
+    assert adjust_lightness(0xFF0000, -0.1) == 0xCC0000
+    assert adjust_lightness(0xFFFFFF, 0.1) == 0xFFFFFF
+    assert adjust_lightness(0x000001, -0.1) == 0x000001  # never pure black (Discord's "no color")
 
 
 if __name__ == "__main__":
