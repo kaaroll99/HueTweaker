@@ -66,7 +66,11 @@ class MatchCog(BaseCog):
 
             # Solid harmonies first (buttons 1-5), then the two gradients (6-7) on the second row.
             entries = [complementary, left, right, *triadic, (base, complementary), (left, right)]
-            image = ColorUtils.generate_color_list_image(interaction.user.display_name, entries)
+            # The /colors look: the nick painted in each color, the HEX codes in gray.
+            nick = interaction.user.display_name
+            rows = [(f"{i}. {nick}", (*entry, None) if isinstance(entry, tuple) else (entry, None, None))
+                    for i, entry in enumerate(entries, start=1)]
+            image = ColorUtils.generate_preset_book_image(rows)
             file = discord.File(fp=ColorUtils.to_bytes(image), filename="color_harmony.png")
             description = self.msg['harmony_title'].format(format_color_label(base))
             view = MatchView(self.msg, description, self.bot, file, entries,
